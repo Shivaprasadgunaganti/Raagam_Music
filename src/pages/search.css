@@ -1,0 +1,152 @@
+.search-page {
+  padding: 20px;
+  color: white;
+}
+
+/* HEADER */
+.search-header {
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1e1e1e;
+  color: white;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #1db954;
+}
+
+/* TABS */
+.search-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.search-tabs button {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: #2a2a2a;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-tabs button.active {
+  background: #1db954;
+  color: black;
+  font-weight: 600;
+}
+
+/* SONG LIST */
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.search-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.search-item .title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.search-item .sub {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+
+
+/* Section */
+.albums-section {
+  width: 100%;
+}
+
+.section-title {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* List container */
+.search-albums-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Each row */
+.search-album-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 10px 12px;
+  border-radius: 8px;
+
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  width: 100%;
+}
+
+/* Hover */
+.search-album-row:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Image */
+.search-album-row img {
+  width: 56px;
+  height: 56px;
+  min-width: 56px; /* prevents stretching */
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+/* Info container */
+.album-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* THIS FIXES CENTER ISSUE */
+  text-align: left; /* Prevent global center */
+}
+
+/* Title */
+.album-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Subtitle */
+.album-meta {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+
+
+/* PLACEHOLDER */
+.search-placeholder {
+  text-align: center;
+  margin-top: 60px;
+  opacity: 0.6;
+}

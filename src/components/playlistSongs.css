@@ -1,0 +1,71 @@
+.playlist-page {
+    padding: 20px;
+    color: white;
+  }
+  
+  .playlist-header h1 {
+    margin: 0;
+  }
+  
+  .playlist-header p {
+    opacity: 0.7;
+    margin-top: 4px;
+  }
+  
+  .playlist-play-btn {
+    margin: 16px 0;
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .playlist-songs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .playlist-song-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+  }
+  
+  .playlist-song-row:hover {
+    background: rgba(255,255,255,0.08);
+  }
+  
+  .song-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .song-info img {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+  
+  .song-title {
+    font-weight: 600;
+  }
+  
+  .song-artist {
+    font-size: 13px;
+    opacity: 0.7;
+  }
+  
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  

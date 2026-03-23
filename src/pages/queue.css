@@ -1,0 +1,177 @@
+.queue-page {
+  padding: 16px;
+}
+
+/* .queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+} */
+.queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* padding: 14px 16px; */
+  position: sticky;
+  top: 0;
+  background: #121212;
+  z-index: 10;
+}
+
+.queue-header button:first-child {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  /* padding: 4px; */
+  opacity: 0.9;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ff6b6b;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.queue-now span {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.queue-list {
+  margin-top: 12px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.queue-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.queue-item.active {
+  background: rgba(77, 224, 138, 0.15);
+}
+
+.queue-item img {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.queue-item .info {
+  flex: 1;
+}
+
+.queue-item .title {
+  font-weight: 600;
+}
+
+.queue-item .artist {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.queue-item {
+  padding: 12px;
+}
+
+@media (max-width: 768px) {
+  .queue-item {
+    padding: 14px 10px;
+  }
+}
+
+.queue-item.active {
+  border-left: 3px solid #4de08a;
+}
+
+/* .queue-page {
+    padding: 16px;
+  }
+  
+  .queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .queue-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 16px;
+  }
+  
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .queue-item:hover {
+    background: rgba(255,255,255,0.06);
+  }
+  
+  .queue-item.active {
+    background: rgba(77, 224, 138, 0.15);
+  }
+  
+  .queue-item img {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+  }
+  
+  .queue-info {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .queue-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .queue-artist {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+  
+  .now-playing {
+    color: #4de08a;
+    font-size: 18px;
+  }
+  
+  .clear-btn {
+    background: transparent;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+  }
+   */

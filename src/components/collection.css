@@ -1,0 +1,767 @@
+/* page background */
+body {
+  background: #020818; /* deep navy */
+  color: #ffffff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* grid container around <Row>/<Col> or plain divs */
+.music-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 320px);
+  gap: 32px;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+@media (max-width: 1100px) {
+  .music-grid {
+    grid-template-columns: repeat(2, 280px);
+  }
+}
+
+@media (max-width: 720px) {
+  .music-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* card wrapper (use on Bootstrap .card) */
+.music-card {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  border: none;
+  /* background: radial-gradient(
+    circle at top left,
+    #2b3244 0%,
+    #050816 60%,
+    #020818 100%
+  ); */
+  /* box-shadow: 0 22px 40px rgba(0, 0, 0, 0.7); */
+  box-shadow: 5px 5px 10px rgba(66, 66, 66, 0.5);
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.music-card:hover {
+  transform: translateY(-6px);
+  /* box-shadow: 0 26px 50px rgba(0, 0, 0, 0.9); */
+  box-shadow: 5px 5px 10px rgba(97, 97, 97, 0.5);
+}
+
+/* cover area (wrap Card.Img) */
+.music-card-cover {
+  position: relative;
+  padding: 20px 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* image takes full inside area with rounded corners */
+.music-card-img-wrapper {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.music-card-img-wrapper img,
+.music-card-img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  /* object-fit: initial; */
+  display: block;
+}
+
+/* title / artist text overlayed at top left */
+.music-card-header {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  z-index: 2;
+  text-align: left;
+}
+
+.music-card-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
+}
+
+.music-card-artist {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+}
+
+/* gradient overlay over image to darken bottom/right */
+.music-card-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top left,
+    transparent 0%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.5) 85%
+  );
+  pointer-events: none;
+}
+
+.music-card-play-btn:hover {
+  filter: brightness(1.03);
+}
+
+.music-card-play-btn:active {
+  transform: scale(0.97);
+}
+
+/* remove default Bootstrap card padding */
+.music-card .card-body {
+  padding: 0;
+}
+
+.music-card-body {
+  padding: 16px 20px 20px 20px;
+  text-align: left;
+}
+
+.music-card-title-below {
+  margin: 0 0 4px 0;
+  font-weight: 700;
+  padding: 0px 0px 0px 20px;
+  font-size: 20px;
+  color: #6ae3f8;
+}
+
+.music-card-artist-below {
+  margin: 0;
+  padding: 0px 0px 10px 20px;
+  font-size: 14px;
+  color: rgba(87, 240, 164, 0.75);
+}
+
+/* outer wrapper for the recent strip (hides overflow & adds edge fades) */
+.recent-strip {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 8px 0;
+  box-sizing: border-box;
+}
+
+/* the inner flex row — can scroll horizontally and can be animated */
+.recent-strip .recent-track-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  overflow-x: auto; /* allow manual scroll */
+  scroll-behavior: smooth;
+  padding: 6px 8px;
+  -webkit-overflow-scrolling: touch;
+  will-change: transform;
+}
+
+/* hide native scrollbar (WebKit) */
+.recent-strip .recent-track-row::-webkit-scrollbar {
+  display: none;
+}
+/* hide scrollbar for Firefox/IE */
+.recent-strip .recent-track-row {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* small fixed-size card used in recent strip */
+.recent-track-card {
+  flex: 0 0 150px; /* fixed width */
+  width: 150px;
+  min-width: 150px;
+  height: 200px; /* fixed height so card size never changes */
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: none !important; /* prevent dynamic transitions */
+}
+
+/* image inside small card */
+.recent-track-card .music-card-img,
+.recent-track-card img {
+  width: 100%;
+  height: 100px; /* fixed image area */
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+}
+
+/* small card text */
+.recent-track-card .music-card-body {
+  padding: 6px 6px 0 6px;
+  font-size: 12px;
+}
+.recent-track-card .music-card-title-below {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.recent-track-card .music-card-artist-below {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* subtle left/right fade to blend edges */
+.recent-strip::before,
+.recent-strip::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 72px;
+  pointer-events: none;
+  z-index: 3;
+}
+.recent-strip::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(2, 8, 24, 1), rgba(2, 8, 24, 0));
+}
+.recent-strip::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(2, 8, 24, 1), rgba(2, 8, 24, 0));
+}
+
+/* marquee animation — applied when .marquee is added to .recent-track-row */
+@keyframes recent-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  } /* requires duplicated content */
+}
+.recent-strip .recent-track-row.marquee {
+  animation-name: recent-marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-play-state: running;
+  will-change: transform;
+}
+
+/* pause on hover or when focused (so users can click) */
+.recent-strip .recent-track-row.marquee:hover,
+.recent-strip .recent-track-row.marquee:focus-within {
+  animation-play-state: paused;
+}
+
+/* responsive tweak: slightly reduce recent card size on very small screens */
+@media (max-width: 420px) {
+  .recent-track-card {
+    flex: 0 0 130px;
+    width: 130px;
+    min-width: 130px;
+    height: 150px;
+  }
+  .recent-track-card .music-card-img {
+    height: 86px;
+  }
+  .recent-track-card .music-card-title-below {
+    font-size: 12px;
+  }
+  .recent-track-card .music-card-artist-below {
+    font-size: 10px;
+  }
+}
+
+/* ================================
+   Responsive: tablet / mobile tweaks
+   Paste at end of collection.css
+   ================================ */
+
+/* Tablet: moderate reduction */
+@media (max-width: 1100px) and (min-width: 721px) {
+  .music-grid {
+    grid-template-columns: repeat(2, 320px);
+    gap: 20px;
+    padding: 28px 16px;
+  }
+  .music-card-img {
+    height: 220px;
+  }
+}
+
+/* MOBILE: convert grid to compact 2-column list of horizontal cards */
+@media (max-width: 720px) {
+  /* Make the grid two columns of compact cards (or 1 column if very narrow) */
+  .music-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    padding: 16px 12px;
+    align-items: start;
+  }
+
+  /* Convert each card into a horizontal compact tile */
+  .music-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 86px; /* fixed height for uniform rows */
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+  }
+
+  /* Reduce internal cover padding used on desktop */
+  .music-card-cover {
+    padding: 0;
+    flex: 0 0 auto;
+    margin-right: 12px;
+    height: 74px;
+    width: 74px;
+    display: block;
+  }
+
+  /* square thumbnail inside the tile */
+  .music-card-img-wrapper {
+    border-radius: 8px;
+    overflow: hidden;
+    width: 74px;
+    height: 74px;
+  }
+
+  .music-card-img,
+  .music-card-img-wrapper img {
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* body becomes inline content area on right */
+  .music-card-body {
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: calc(100% - 86px); /* leave room for thumbnail + play button */
+  }
+
+  .music-card-title-below {
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .music-card-artist-below {
+    font-size: 12px;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* smaller play button placed at right edge inside card */
+  .music-card-play-btn {
+    position: absolute;
+    right: 12px;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ensure the overlay gradient doesn't cover the small tile layout awkwardly */
+  .music-card-gradient {
+    display: none;
+  }
+
+  /* Remove hover translate on touch devices for stability */
+  .music-card:hover {
+    transform: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  }
+
+  /* adjust the music-card-img on very small devices */
+  @media (max-width: 420px) {
+    .music-grid {
+      grid-template-columns: repeat(1, 1fr);
+      gap: 12px;
+    }
+    .music-card {
+      height: 80px;
+      border-radius: 10px;
+      padding: 6px;
+    }
+    .music-card-cover,
+    .music-card-img-wrapper,
+    .music-card-img {
+      width: 68px;
+      height: 68px;
+    }
+    .music-card-body {
+      width: calc(100% - 80px);
+    }
+    .music-card-play-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 16px;
+      right: 10px;
+    }
+    .music-card-title-below {
+      font-size: 13px;
+    }
+    .music-card-artist-below {
+      font-size: 11px;
+    }
+  }
+}
+
+/* Make sure recent strip is comfortably touch-friendly on mobile */
+@media (max-width: 720px) {
+  .recent-strip {
+    padding: 8px 6px;
+  }
+  .recent-strip .recent-track-row {
+    gap: 10px;
+    padding: 6px 6px;
+  }
+  .recent-track-card {
+    flex: 0 0 128px;
+    width: 128px;
+    min-width: 128px;
+    height: 146px;
+  }
+  .recent-track-card .music-card-img {
+    height: 84px;
+    border-radius: 8px;
+  }
+  .recent-track-card .music-card-body {
+    padding: 6px 4px 0 4px;
+  }
+  @media (max-width: 420px) {
+    .recent-track-card {
+      flex: 0 0 110px;
+      width: 110px;
+      min-width: 110px;
+      height: 132px;
+    }
+    .recent-track-card .music-card-img {
+      height: 72px;
+    }
+  }
+}
+
+/* bottom fixed mini player style hint (if you want similar bottom UI) */
+/* (this is optional; you can remove if you don't have a mini-player) */
+.mini-player {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 999;
+}
+.mini-player .mini-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 12px;
+}
+.mini-player .mini-info {
+  flex: 1;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+.mini-player .mini-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* end responsive patch */
+
+/* ----------------------------
+  Mobile: Recent tiles (2 columns)
+  Replaces previous mobile recent rules
+  ---------------------------- */
+@media (max-width: 720px) {
+  /* outer wrapper becomes normal block */
+  .recent-strip {
+    overflow: visible;
+    padding: 8px 12px;
+  }
+
+  /* inner row -> 2-column grid; no horizontal scroll */
+  .recent-strip .recent-track-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    overflow: visible;
+    padding: 0;
+  }
+
+  /* RECENT TILE: this is the visual card for each recent item */
+  .recent-track-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 72px; /* compact tile height */
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: 0 8px 20px rgba(2, 8, 24, 0.6); /* single consistent shadow */
+    transition: background 120ms ease, transform 120ms ease;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .recent-track-card:hover,
+  .recent-track-card:focus {
+    background: rgba(255, 255, 255, 0.035);
+    transform: translateY(-2px);
+  }
+
+  /* neutralize inner .music-card shadow/padding so only the outer wrapper shows */
+  .recent-track-card .music-card {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    margin: 0 !important;
+  }
+
+  /* thumbnail on left */
+  .recent-track-card .music-card-img,
+  .recent-track-card img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    flex: 0 0 56px;
+  }
+
+  /* remove extra cover padding inside the inner card cover */
+  .recent-track-card .music-card-cover {
+    padding: 0;
+    margin: 0;
+    display: block;
+    width: 56px;
+    height: 56px;
+  }
+
+  /* text area on right */
+  .recent-track-card .music-card-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    line-height: 1.05;
+    width: calc(100% - 66px); /* leave room for thumbnail + small gap */
+  }
+
+  .recent-track-card .music-card-title-below {
+    font-size: 10px;
+    font-weight: 600;
+
+    /* white-space:wrap; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 0 5px;
+  }
+
+  .recent-track-card .music-card-artist-below {
+    font-size: 6px;
+    /* color: rgba(255,255,255,0.75); */
+
+    /* white-space: wrap; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* margin: 0; */
+    margin: 0 0 0 5px;
+  }
+
+  /* hide gradient overlay inside these small tiles */
+  .recent-track-card .music-card-gradient {
+    display: none !important;
+  }
+
+  /* disable marquee/animation states on these mobile tiles if present */
+  .recent-strip .recent-track-row.marquee {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* tiny responsive adjustments for very small screens */
+  @media (max-width: 420px) {
+    .recent-track-card {
+      height: 66px;
+      padding: 6px;
+      border-radius: 10px;
+      gap: 8px;
+    }
+    .recent-track-card .music-card-img {
+      width: 52px;
+      height: 52px;
+      border-radius: 6px;
+    }
+    .recent-track-card .music-card-body {
+      width: calc(100% - 60px);
+    }
+    .recent-track-card .music-card-title-below {
+      font-size: 13px;
+    }
+    .recent-track-card .music-card-artist-below {
+      font-size: 11px;
+    }
+  }
+}
+
+/* HOME SHORTCUTS */
+.home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.shortcut-card {
+  background: linear-gradient(135deg, #0c1b3a, #050b1e);
+  border-radius: 14px;
+  padding: 18px 10px;
+  text-align: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.shortcut-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+.shortcut-card:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #132b5a, #081433);
+}
+
+.horizontal-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.album-card {
+  min-width: 140px;
+  cursor: pointer;
+  /* position: relative; */
+}
+
+.album-card img {
+  width: 140px;
+  height: 140px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.album-title {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* .card-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+} */
+
+/* .card-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1db954, #4de08a);
+} */
+
+.horizontal-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.playlist-card {
+  min-width: 120px;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* .playlist-cover {
+  width: 120px;
+  height: 120px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1db954, #4de08a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #020818;
+  margin-bottom: 8px;
+} */
+
+.playlist-cover {
+  width: 140px;
+  height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0f1f45;
+}
+
+.playlist-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playlist-title {
+  font-size: 14px;
+  font-weight: 600;
+}
