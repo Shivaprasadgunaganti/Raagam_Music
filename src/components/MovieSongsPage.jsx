@@ -445,10 +445,20 @@ export default function MovieSongsPage() {
         // />
         <PlaylistPicker
           trackId={pickerTrackId}
-          onClose={() => {
-            setShowPicker(false);
-            setPickerTrackId(null);
-          }}
+          // onClose={() => {
+          //   setShowPicker(false);
+          //   setPickerTrackId(null);
+          // }}
+          onClose={(status) => {
+  setShowPicker(false);
+  setPickerTrackId(null);
+
+  if (status === "added") {
+    showSnack("added to playlist");
+  } else if (status === "exists") {
+    showSnack("already in playlist");
+  }
+}}
         />
       )}
     </main>

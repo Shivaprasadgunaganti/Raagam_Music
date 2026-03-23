@@ -285,11 +285,8 @@ export default function PlaylistDetailPage() {
       )}
 
       {/* ✅ Playlist picker */}
-      {showPicker && (
-        // <PlaylistPicker
-        //   trackId={selectedSong?.id}
-        //   onClose={() => setShowPicker(false)}
-        // />
+      {/* {showPicker && (
+       
         <PlaylistPicker
           trackId={pickerTrackId}
           onClose={() => {
@@ -297,7 +294,22 @@ export default function PlaylistDetailPage() {
             setPickerTrackId(null);
           }}
         />
-      )}
+      )} */}
+      {showPicker && (
+  <PlaylistPicker
+    trackId={pickerTrackId}
+    onClose={(status) => {
+      setShowPicker(false);
+      setPickerTrackId(null);
+
+      if (status === "added") {
+        showSnack("added to playlist");
+      } else if (status === "exists") {
+        showSnack("already in playlist");
+      }
+    }}
+  />
+)}
     </main>
   );
 }

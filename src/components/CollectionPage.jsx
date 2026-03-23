@@ -10,6 +10,7 @@ import { useAudio } from "../context/AudioContext";
 import { supabase } from "../supabaseClient";
 import { useLikes } from "../context/LikeContext";
 import { useAuth } from "../context/AuthContext";
+import PlaylistModal from "../components/PlaylistModal";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -17,6 +18,7 @@ export default function CollectionPage() {
   const nav = useNavigate();
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const { playAll, shufflePlay , setNewQueue, setResumeTime } = useAudio();
+
   // const { setNewQueue, setResumeTime } = useAudio();
 
 // const playFromContinue = (track, startTime) => {
@@ -82,7 +84,15 @@ const playFromContinue = (track, startTime) => {
 
   const { data, error } = await supabase
     .from("playlists")
-    .select("id, name, cover_url")
+    // .select("id, name, cover_url")
+    .select(`
+  id,
+  name,
+  playlist_tracks (
+    track_id,
+    tracks (cover_url)
+  )
+`)
     .eq("user_id", user.id) // 🔥 VERY IMPORTANT
     .order("created_at", { ascending: false });
 
@@ -98,23 +108,33 @@ useEffect(() => {
   loadPlaylists();
 }, [user]);
 
-  useEffect(() => {
-    async function loadPlaylists() {
-      const { data } = await supabase
-        .from("playlists")
-        .select("id, name, cover_url")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+  // useEffect(() => {
+  //   async function loadPlaylists() {
+  //     const { data } = await supabase
+  //       .from("playlists")
+  //       .select("id, name, cover_url")
+  //       .eq("user_id", user.id)
+  //       .order("created_at", { ascending: false });
 
-      setPlaylists(data || []);
-    }
+  //     setPlaylists(data || []);
+  //   }
 
-    loadPlaylists();
-  }, []);
+  //   loadPlaylists();
+  // }, []);
 
   useEffect(() => {
   fetchContinueListening();
 }, [user]);
+
+
+const getPlaylistCovers = (playlist) => {
+  if (!playlist.playlist_tracks) return [];
+
+  return playlist.playlist_tracks
+    .slice(0, 4)
+    .map((pt) => pt.tracks?.cover_url)
+    .filter(Boolean);
+};
 
   const filtered = useMemo(() => {
     if (!debounced) return tracks || [];
@@ -413,7 +433,7 @@ const addToPlaylist = async (playlistId, trackId) => {
         <section style={{ marginBottom: 20 }}>
           <h3>Your Playlists</h3>
 
-          <div className="horizontal-row">
+          {/* <div className="horizontal-row">
             {playlists.map((p) => (
               <div
                 key={p.id}
@@ -424,13 +444,69 @@ const addToPlaylist = async (playlistId, trackId) => {
                   <img
                     src={p.cover_url || "/covers/default.jpg"}
                     alt={p.name}
-                  />
+                  /> 
                 </div>
 
                 <div className="playlist-title">{p.name}</div>
               </div>
             ))}
-          </div>
+          </div> */}
+
+          {/* <div className="horizontal-row">
+  {playlists.map((p) => {
+    const covers = getPlaylistCovers(p); // ✅ correct place
+
+    return (
+      <div
+        key={p.id}
+        className="playlist-card"
+        onClick={() => nav(`/playlist/${p.id}`)}
+      >
+        <div className="playlist-cover">
+          {covers.length > 0 ? (
+            <div className="playlist-cover-grid">
+              {covers.map((c, i) => (
+                <img key={i} src={c} alt="cover" />
+              ))}
+            </div>
+          ) : (
+            <img src="/covers/default.jpg" alt={p.name} />
+          )}
+        </div>
+
+        <div className="playlist-title">{p.name}</div>
+      </div>
+    );
+  })}
+</div> */}
+
+<div className="horizontal-row">
+  {playlists.map((p) => {
+    const covers = getPlaylistCovers(p);
+
+    return (
+      <div
+        key={p.id}
+        className="playlist-card"
+        onClick={() => nav(`/playlist/${p.id}`)}
+      >
+        <div className="playlist-cover">
+          {covers.length > 0 ? (
+            <div className={`playlist-cover-grid count-${covers.length}`}>
+              {covers.map((c, i) => (
+                <img key={i} src={c} alt="cover" />
+              ))}
+            </div>
+          ) : (
+            <img src="/covers/default.jpg" alt={p.name} />
+          )}
+        </div>
+
+        <div className="playlist-title">{p.name}</div>
+      </div>
+    );
+  })}
+</div>
         </section>
       )}
 

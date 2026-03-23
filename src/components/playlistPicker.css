@@ -1,4 +1,4 @@
-.playlist-picker-overlay {
+/* .playlist-picker-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.6);
@@ -35,3 +35,182 @@
     border: none;
   }
   
+
+  .playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.playlist-cover-mini {
+  width: 40px;
+  height: 40px;
+}
+
+.cover-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+}
+
+.cover-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playlist-name {
+  font-size: 14px;
+}
+
+
+
+ */
+
+
+
+
+ /* ============================================================
+   playlistPicker.css — Spotify/JioSaavn style
+   ============================================================ */
+
+.playlist-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  /* align-items: flex-end;  */
+   align-items: center; 
+  justify-content: center;
+  z-index: 1000;
+}
+
+.playlist-picker {
+  background: #1e1e2e;
+  /* border-radius: 18px 18px 0 0; */
+  width: 100%;
+  max-width: 480px;
+  padding: 0 0 40px;
+  max-height: 70dvh;
+  display: flex;
+  flex-direction: column;
+   border-radius: 18px;
+  margin: 24px;
+  width: calc(100% - 48px);
+}
+
+/* ---------- Header ---------- */
+.playlist-picker h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.1px;
+  flex-shrink: 0;
+}
+
+/* ---------- Scrollable list ---------- */
+.playlist-picker-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.playlist-picker-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Each playlist row ---------- */
+.playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  color: #fff;
+}
+.playlist-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.playlist-item:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Cover thumbnail ---------- */
+.playlist-cover-mini {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #2a2a3e;
+}
+
+.playlist-cover-mini > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+}
+
+.cover-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---------- Playlist name ---------- */
+.playlist-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ---------- Cancel button ---------- */
+.close-btn {
+  margin: 8px 24px 0;
+  width: calc(100% - 48px);
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}

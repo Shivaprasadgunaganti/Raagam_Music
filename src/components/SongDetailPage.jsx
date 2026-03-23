@@ -18,6 +18,7 @@ import { IoArrowBack } from "react-icons/io5";
 import ColorThief from "color-thief-browser";
 import { useLikes } from "../context/LikeContext";
 
+
 function formatTime(sec = 0) {
   if (!Number.isFinite(sec) || sec <= 0) return "00:00";
   const m = Math.floor(sec / 60)
@@ -43,6 +44,7 @@ export default function SongDetailPage() {
   const [time, setTime] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [bgColor, setBgColor] = useState("#0e3a47");
+  const [snack, setSnack] = useState("");
 
   const index = tracks.findIndex((t) => String(t.id) === String(id));
   const track = index >= 0 ? tracks[index] : null;
@@ -64,6 +66,11 @@ export default function SongDetailPage() {
   } = useAudio();
 
   /* ---------------- TIME SYNC (READ-ONLY) ---------------- */
+function showSnack(msg) {
+  setSnack(msg);
+  setTimeout(() => setSnack(""), 2500);
+}
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -276,12 +283,27 @@ export default function SongDetailPage() {
         </div>
       </div>
 
-      {showPicker && (
+      {/* {showPicker && (
         <PlaylistPicker
           trackId={track.id}
           onClose={() => setShowPicker(false)}
         />
-      )}
+      )} */}
+
+      {showPicker && (
+  <PlaylistPicker
+    trackId={track.id}
+    onClose={(status) => {
+      setShowPicker(false);
+
+      if (status === "added") {
+        showSnack("added to playlist");
+      } else if (status === "exists") {
+        showSnack("already in playlist");
+      }
+    }}
+  />
+)}
       {showMenu && (
         <div className="song-menu-overlay" onClick={() => setShowMenu(false)}>
           <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>
@@ -319,6 +341,7 @@ export default function SongDetailPage() {
           </div>
         </div>
       )}
+      {snack && <div className="sp-snackbar">Song {snack}</div>}
     </main>
   );
 }

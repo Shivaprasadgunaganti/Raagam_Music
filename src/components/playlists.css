@@ -22,22 +22,21 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+
 /* .playlist-cover {
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(135deg, #1db954, #1a7f4b);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-  } */
-.playlist-cover {
   width: 100%;
-  aspect-ratio: 1 / 1; /* Makes it square */
+  aspect-ratio: 1 / 1; 
   border-radius: 8px;
-  overflow: hidden; /* Prevents image overflow */
-  background: #222; /* Fallback if no image */
+  overflow: hidden; 
+  background: #222; 
+} */
+ .playlist-cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #222;
+  display: flex; /* ✅ important */
 }
 
 .playlist-cover img {
@@ -55,4 +54,63 @@
   margin: 0;
   font-size: 14px;
   opacity: 0.7;
+}
+
+
+
+/* .playlist-cover-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2px;
+  width: 100%;
+  height: 100%; 
+}
+
+.playlist-cover-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
+} */
+
+
+.playlist-cover-grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+}
+
+/* 1 song → full */
+.playlist-cover-grid.count-1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* 2 songs → side by side */
+.playlist-cover-grid.count-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* 3 songs → 2 top + 1 bottom full */
+.playlist-cover-grid.count-3 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.playlist-cover-grid.count-3 img:nth-child(3) {
+  grid-column: span 2;
+}
+
+/* 4 songs → perfect grid */
+.playlist-cover-grid.count-4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.playlist-cover-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

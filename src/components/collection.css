@@ -765,3 +765,22 @@ body {
   font-size: 14px;
   font-weight: 600;
 }
+
+
+
+.playlist-cover-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.playlist-cover-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
