@@ -210,6 +210,7 @@ import { likeSong, unlikeSong, isSongLiked } from "../utils/likeHelpers";
 import { FaHeart } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
+import { getLikedSongsMap } from "../utils/likeHelpers";
 
 export default function MovieSongsPage() {
   const { movieId } = useParams();
@@ -256,13 +257,22 @@ export default function MovieSongsPage() {
   }, [movieId]);
 
   // like and unlike
+  // useEffect(() => {
+  //   if (!songs.length) return;
+  //   songs.forEach(async (song) => {
+  //     const isLiked = await isSongLiked(song.id);
+  //     setLikedMap((prev) => ({ ...prev, [song.id]: isLiked }));
+  //   });
+  // }, [songs]);
+
   useEffect(() => {
-    if (!songs.length) return;
-    songs.forEach(async (song) => {
-      const isLiked = await isSongLiked(song.id);
-      setLikedMap((prev) => ({ ...prev, [song.id]: isLiked }));
-    });
-  }, [songs]);
+  async function loadLikes() {
+    const map = await getLikedSongsMap();
+    setLikedMap(map);
+  }
+
+  loadLikes();
+}, [songs]);
 
   function showSnack(msg) {
     setSnack(msg);

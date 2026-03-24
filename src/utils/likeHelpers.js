@@ -90,3 +90,24 @@ export async function isSongLiked(trackId) {
 
   return !!data;
 }
+
+
+
+
+export async function getLikedSongsMap() {
+  const { data, error } = await supabase
+    .from("liked_songs")
+    .select("track_id");
+
+  if (error) {
+    console.error(error);
+    return {};
+  }
+
+  const map = {};
+  data.forEach((item) => {
+    map[item.track_id] = true;
+  });
+
+  return map;
+}

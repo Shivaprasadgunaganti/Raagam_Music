@@ -6,7 +6,7 @@ import { useAudio } from "../context/AudioContext";
 import "./playlistDetail.css";
 import { IoArrowBack } from "react-icons/io5";
 import PlaylistPicker from "./PlaylistPicker";
-import { likeSong, unlikeSong, isSongLiked } from "../utils/likeHelpers";
+import { likeSong, unlikeSong, isSongLiked, getLikedSongsMap } from "../utils/likeHelpers";
 import { FaHeart } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
@@ -67,13 +67,23 @@ export default function PlaylistDetailPage() {
   }, [playlistId]);
 
   // ✅ Load liked state for all songs
+  // useEffect(() => {
+  //   if (!songs.length) return;
+  //   songs.forEach(async (song) => {
+  //     const isLiked = await isSongLiked(song.id);
+  //     setLikedMap((prev) => ({ ...prev, [song.id]: isLiked }));
+  //   });
+  // }, [songs]);
+  
   useEffect(() => {
-    if (!songs.length) return;
-    songs.forEach(async (song) => {
-      const isLiked = await isSongLiked(song.id);
-      setLikedMap((prev) => ({ ...prev, [song.id]: isLiked }));
-    });
-  }, [songs]);
+  async function loadLikes() {
+    const map = await getLikedSongsMap();
+    setLikedMap(map);
+  }
+
+  loadLikes();
+}, [songs]);
+
 
   // ✅ Dynamic snack helper
   function showSnack(msg) {
