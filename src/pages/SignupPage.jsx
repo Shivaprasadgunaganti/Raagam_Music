@@ -13,6 +13,7 @@ export default function SignupPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSignup(e) {
     // ⭐ UPDATED: added event
@@ -36,10 +37,17 @@ export default function SignupPage() {
       return;
     }
 
-    if (trimmedPassword.length < 6) {
-      setErrorMsg("Password must be at least 6 characters");
-      return;
-    }
+    // if (trimmedPassword.length < 6) {
+    //   setErrorMsg("Password must be at least 6 characters");
+    //   return;
+    // }
+
+    if (!validatePassword(trimmedPassword)) {
+  setErrorMsg(
+    "Password must be 8+ chars with uppercase, lowercase, number & special character"
+  );
+  return;
+}
 
     const { error } = await supabase.auth.signUp({
       email: trimmedEmail, // ⭐ UPDATED
@@ -68,6 +76,16 @@ export default function SignupPage() {
       navigate("/", { replace: true });
     }
   }, [user, navigate]);
+
+  function validatePassword(password) {
+  return (
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[!@#$%^&*]/.test(password)
+  );
+}
 
   return (
     <div className="auth-page">
@@ -115,11 +133,12 @@ export default function SignupPage() {
               Password
             </label>
 
-            <input
+            {/* <input
               id="password" // ⭐ ADDED
               name="password" // ⭐ ADDED
               className="auth-input"
-              type="password"
+              // type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Create a strong password"
               value={password}
               // onChange={(e) => setPassword(e.target.value)}
@@ -129,7 +148,32 @@ export default function SignupPage() {
               }}
               autoComplete="new-password"
               required // ⭐ ADDED
-            />
+            /> */}
+
+            <div className="password-wrapper">
+    <input
+      id="password"
+      name="password"
+      className="auth-input"
+      type={showPassword ? "text" : "password"}
+      placeholder="Create a strong password"
+      value={password}
+      onChange={(e) => {
+        setPassword(e.target.value);
+        setErrorMsg("");
+      }}
+      autoComplete="new-password"
+      required
+    />
+
+    <span
+      className="toggle-password"
+      onClick={() => setShowPassword((prev) => !prev)}
+    >
+      {showPassword ? "Hide" : "Show"}
+    </span>
+  </div>
+        
             {errorMsg && <p className="auth-error">{errorMsg}</p>}
           </div>
 

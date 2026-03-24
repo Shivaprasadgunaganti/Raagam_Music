@@ -303,3 +303,25 @@
 .auth-back-btn:hover {
   color: #fff;
 }
+
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.auth-input {
+  width: 100%;
+  padding-right: 60px; /* space for Show/Hide */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 14px;
+  color: #007bff;
+  user-select: none;
+}
