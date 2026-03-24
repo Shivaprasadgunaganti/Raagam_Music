@@ -12,6 +12,8 @@ export default function LoginPasswordPage() {
   const [password, setPassword] = useState("");
   const { user } = useAuth();
   const [errorMsg, setErrorMsg] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     if (!email) navigate("/login");
@@ -112,7 +114,7 @@ export default function LoginPasswordPage() {
               Password
             </label>
 
-            <input
+            {/* <input
               id="password" // ⭐ ADDED
               name="password" // ⭐ ADDED
               className="auth-input"
@@ -126,7 +128,31 @@ export default function LoginPasswordPage() {
               }}
               autoComplete="current-password"
               required // ⭐ ADDED
-            />
+            /> */}
+
+            <div className="password-wrapper">
+    <input
+      id="password"
+      name="password"
+      className="auth-input"
+      type={showPassword ? "text" : "password"}
+      placeholder="Your password"
+      value={password}
+      onChange={(e) => {
+        setPassword(e.target.value);
+        setErrorMsg("");
+      }}
+      autoComplete="current-password"
+      required
+    />
+
+    <span
+      className="toggle-password"
+      onClick={() => setShowPassword((prev) => !prev)}
+    >
+      {showPassword ? "Hide" : "Show"}
+    </span>
+  </div>
             {errorMsg && <p className="auth-error">{errorMsg}</p>}
           </div>
 
