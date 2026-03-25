@@ -46,24 +46,56 @@ export default function SongDetailPage() {
   const [bgColor, setBgColor] = useState("#0e3a47");
   const [snack, setSnack] = useState("");
 
-  const index = tracks.findIndex((t) => String(t.id) === String(id));
-  const track = index >= 0 ? tracks[index] : null;
+  // const index = tracks.findIndex((t) => String(t.id) === String(id));
+  // const track = index >= 0 ? tracks[index] : null;
 
-  const {
-    currentTrack,
-    playing,
-    togglePlay,
-    playNext,
-    playPrev,
-    setNewQueue,
-    loopOne,
-    shuffle,
-    setLoopOne,
-    setShuffle,
-    audioRef,
-    addToQueue,
-    playNextInsert,
-  } = useAudio();
+//   const track = currentTrack; 
+// const index = tracks.findIndex(
+//   (t) => String(t.id) === String(currentTrack?.id)
+// );
+
+  // const {
+  //   currentTrack,
+  //   playing,
+  //   togglePlay,
+  //   playNext,
+  //   playPrev,
+  //   setNewQueue,
+  //   loopOne,
+  //   shuffle,
+  //   setLoopOne,
+  //   setShuffle,
+  //   audioRef,
+  //   addToQueue,
+  //   playNextInsert,
+  //   currentTime,
+  // } = useAudio();
+
+
+  // ✅ FIRST get from context
+const {
+  currentTrack,
+  playing,
+  togglePlay,
+  playNext,
+  playPrev,
+  setNewQueue,
+  loopOne,
+  shuffle,
+  setLoopOne,
+  setShuffle,
+  audioRef,
+  addToQueue,
+  playNextInsert,
+  currentTime,
+} = useAudio();
+
+// ✅ THEN use it
+const track = currentTrack;
+
+const index = tracks.findIndex(
+  (t) => String(t.id) === String(currentTrack?.id)
+);
 
   /* ---------------- TIME SYNC (READ-ONLY) ---------------- */
 function showSnack(msg) {
@@ -129,6 +161,17 @@ function showSnack(msg) {
     if (!track) return;
     isSongLiked(track.id).then(setLiked);
   }, [track]);
+
+
+  useEffect(() => {
+  setTime(currentTime || 0);
+}, [currentTime]);
+
+useEffect(() => {
+  if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
+    nav(`/track/${currentTrack.id}`, { replace: true });
+  }
+}, [currentTrack]);
 
   /* ---------------- GUARDS ---------------- */
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;

@@ -28,30 +28,22 @@ export function AudioProvider({ children }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const saveProgress = async (trackId, position, duration) => {
-  if (!user || !trackId) return;
+    if (!user || !trackId) return;
+  if (position < 5) return;
 
-  // await supabase.from("continue_listening").upsert({
-  //   user_id: user.id,
-  //   track_id: trackId,
-  //   last_position: Math.floor(position),
-  //   duration: Math.floor(duration || 0),
-  //   updated_at: new Date(),
-  // });
-  await supabase
-  .from("continue_listening")
-  .upsert(
-    {
-      user_id: user.id,
-      track_id: trackId,
-      last_position: Math.floor(position),
-      duration: Math.floor(duration || 0),
-      updated_at: new Date(),
-    },
-    {
-      onConflict: "user_id,track_id", // 🔥 THIS FIXES 409 ERROR
-    }
-  );
-};
+    await supabase.from("continue_listening").upsert(
+      {
+        user_id: user.id,
+        track_id: trackId,
+        last_position: Math.floor(position),
+        duration: Math.floor(duration || 0),
+        updated_at: new Date(),
+      },
+      {
+        onConflict: "user_id,track_id", // 🔥 THIS FIXES 409 ERROR
+      },
+    );
+  };
 
   const currentTrack =
     currentIndex >= 0 && currentIndex < queue.length
@@ -109,24 +101,33 @@ export function AudioProvider({ children }) {
   //   }
   // }, [user]);
 
-
   useEffect(() => {
-  if (!currentTrack) return;
+    if (!currentTrack) return;
 
-  const interval = setInterval(() => {
-    const audio = audioRef.current;
+    const interval = setInterval(() => {
+      const audio = audioRef.current;
 
-    if (audio && !audio.paused) {
-      saveProgress(
-        currentTrack.id,
-        audio.currentTime,
-        audio.duration
-      );
-    }
-  }, 10000);
+      if (audio && !audio.paused) {
+        saveProgress(currentTrack.id, audio.currentTime, audio.duration);
+      }
+    }, 10000);
 
-  return () => clearInterval(interval);
-}, [currentTrack, user]);
+    // return () => clearInterval(interval);
+    return () => {
+  clearInterval(interval);
+
+  const audio = audioRef.current;
+
+  // 🔥 SAVE FINAL POSITION
+  if (audio && currentTrack) {
+    saveProgress(
+      currentTrack.id,
+      audio.currentTime,
+      audio.duration
+    );
+  }
+};
+  }, [currentTrack, user]);
 
   const setNewQueue = (tracks, startIndex = 0) => {
     if (!tracks?.length) return;
@@ -230,22 +231,19 @@ export function AudioProvider({ children }) {
   const audio = audioRef.current;
   if (!currentTrack) return;
 
-  audio.src =
-    currentTrack.external_url || currentTrack.storage_path || "";
-
-  // 🔥 APPLY RESUME BEFORE PLAY
-  setTimeout(() => {
-    if (resumeTime > 0) {
-      audio.currentTime = resumeTime;
-      setResumeTime(0); // reset
-    }
-  }, 200);
+  audio.src = currentTrack.external_url || currentTrack.storage_path || "";
 
   audio
     .play()
     .then(() => {
       setPlaying(true);
       addRecent(currentTrack);
+
+      // 🔥 APPLY RESUME AFTER PLAY STARTS
+      if (resumeTime > 0) {
+        audio.currentTime = resumeTime;
+        setResumeTime(0);
+      }
 
       saveProgress(currentTrack.id, 0, audio.duration);
     })
@@ -258,17 +256,25 @@ export function AudioProvider({ children }) {
 
   //   audio.src = currentTrack.external_url || currentTrack.storage_path || "";
 
-  
-  //   audio
-  // .play()
-  // .then(() => {
-  //   setPlaying(true);
-  //   addRecent(currentTrack);
+  //   setTimeout(() => {
+  //     if (resumeTime > 0) {
+  //       audio.currentTime = resumeTime;
+  //       setResumeTime(0); 
+  //     }
+  //   }, 200);
 
-  //   saveProgress(currentTrack.id, 0, audio.duration);
+  //   audio
+  //     .play()
+  //     .then(() => {
+  //       setPlaying(true);
+  //       addRecent(currentTrack);
+
+  //       saveProgress(currentTrack.id, 0, audio.duration);
   //     })
   //     .catch(() => setPlaying(false));
   // }, [currentTrack]);
+
+  
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -311,7 +317,7 @@ export function AudioProvider({ children }) {
         wasPlaying: playing,
         loopOne,
         shuffle,
-      })
+      }),
     );
   }, [
     queue,

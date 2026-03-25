@@ -161,7 +161,8 @@ const fetchContinueListening = async () => {
     .from("continue_listening")
     .select("track_id, last_position, duration, tracks(*)")
     .eq("user_id", user.id) // 🔥 IMPORTANT FILTER
-    .order("updated_at", { ascending: false });
+    .order("updated_at", { ascending: false })
+    .limit(10);
 
   if (error) {
     console.log(error);
