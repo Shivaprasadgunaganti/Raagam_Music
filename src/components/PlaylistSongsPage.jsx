@@ -10,6 +10,8 @@ import { likeSong, unlikeSong, isSongLiked, getLikedSongsMap } from "../utils/li
 import { FaHeart } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
+import { useToast } from "../context/ToastContext";
+
 
 export default function PlaylistDetailPage() {
   const { playlistId } = useParams();
@@ -29,6 +31,7 @@ export default function PlaylistDetailPage() {
   // ✅ per-song liked map
   const [likedMap, setLikedMap] = useState({});
   const [pickerTrackId, setPickerTrackId] = useState(null);
+    const { showToast } = useToast();
 
   useEffect(() => {
     async function loadPlaylist() {
@@ -42,24 +45,46 @@ export default function PlaylistDetailPage() {
 
       const { data: rows } = await supabase
         .from("playlist_tracks")
-        .select(
-          `
-          track:tracks (
-            id,
-            title,
-            artist,
-            cover_url,
-            external_url,
-            storage_path
-          )
-        `
-        )
+        // .select(
+        //   `
+        //   track:tracks (
+        //     id,
+        //     title,
+        //     artist,
+        //     cover_url,
+        //     external_url,
+        //     storage_path
+        //   )
+        // `
+        // )
+        .select(`
+  id,
+  position,
+  track:tracks (
+    id,
+    title,
+    artist,
+    cover_url,
+    external_url,
+    storage_path
+  )
+`)
         .eq("playlist_id", playlistId)
-        .order("created_at");
+        // .order("created_at");
+        .order("position", { ascending: true });
 
       setPlaylist(pl);
       // ✅ Filter out null tracks to fix the crash
-      setSongs(rows ? rows.map((r) => r.track).filter(Boolean) : []);
+      // setSongs(rows ? rows.map((r) => r.track).filter(Boolean) : []);
+      setSongs(
+  rows
+    ? rows.map((r) => ({
+        ...r.track,
+        pt_id: r.id,         // 🔥 needed for update
+        position: r.position // 🔥 needed for swap
+      })).filter(Boolean)
+    : []
+);
       setLoading(false);
     }
 
@@ -109,6 +134,32 @@ export default function PlaylistDetailPage() {
     .filter((s) => s && s.cover_url)
     .slice(0, 4)
     .map((s) => s.cover_url);
+
+
+    async function moveSong(index, direction) {
+  const newIndex = index + direction;
+
+  if (newIndex < 0 || newIndex >= songs.length) return;
+
+  const current = songs[index];
+  const target = songs[newIndex];
+
+  // swap positions
+  await supabase
+    .from("playlist_tracks")
+    .update({ position: target.position })
+    .eq("id", current.pt_id);
+
+  await supabase
+    .from("playlist_tracks")
+    .update({ position: current.position })
+    .eq("id", target.pt_id);
+
+  // reload
+  const updated = [...songs];
+  [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+  setSongs(updated);
+}
 
   return (
     <main className="pd-page page-safe">
@@ -183,12 +234,21 @@ export default function PlaylistDetailPage() {
                 className="pd-heart-btn"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  if (likedMap[song.id]) {
+                  // if (likedMap[song.id]) {
+                  //   await unlikeSong(song.id);
+                  //   setLikedMap((prev) => ({ ...prev, [song.id]: false }));
+                  // } else {
+                  //   await likeSong(song.id);
+                  //   setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+                  // }
+                   if (likedMap[song.id]) {
                     await unlikeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
+                    showToast("Removed from Liked Songs");
                   } else {
                     await likeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+                    showToast("Added to Liked Songs");
                   }
                 }}
               >
@@ -209,6 +269,21 @@ export default function PlaylistDetailPage() {
               >
                 ⋮
               </button>
+              {/* <button onClick={() => moveSong(index, -1)}>⬆</button>
+<button onClick={() => moveSong(index, 1)}>⬇</button> */}
+<button
+  disabled={index === 0}
+  onClick={() => moveSong(index, -1)}
+>
+  ⬆
+</button>
+
+<button
+  disabled={index === songs.length - 1}
+  onClick={() => moveSong(index, 1)}
+>
+  ⬇
+</button>
             </li>
           );
         })}
@@ -244,7 +319,8 @@ export default function PlaylistDetailPage() {
               onClick={() => {
                 addToQueue(selectedSong);
                 setSelectedSong(null);
-                showSnack("Added to queue");
+                // showSnack("Added to queue");
+                showToast("Added to Queue");
               }}
             >
               ➕ Add to Queue
@@ -253,7 +329,8 @@ export default function PlaylistDetailPage() {
               onClick={() => {
                 playNextInsert(selectedSong);
                 setSelectedSong(null);
-                showSnack("Added to Play Next");
+                // showSnack("Added to Play Next");
+                showToast("Added to Play Next");
               }}
             >
               ▶ Play Next
@@ -285,7 +362,8 @@ export default function PlaylistDetailPage() {
               onClick={() => {
                 removeSong(selectedSong.id);
                 setSelectedSong(null);
-                showSnack("Removed from playlist");
+                // showSnack("Removed from playlist");
+                showToast("Removed from Playlist");
               }}
             >
               🗑️ Remove from Playlist
@@ -313,9 +391,11 @@ export default function PlaylistDetailPage() {
       setPickerTrackId(null);
 
       if (status === "added") {
-        showSnack("added to playlist");
+        // showSnack("added to playlist");.
+        showToast("Added to Playlist");
       } else if (status === "exists") {
-        showSnack("already in playlist");
+        // showSnack("already in playlist");
+        showToast("Already in Playlist");
       }
     }}
   />

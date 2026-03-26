@@ -9,6 +9,7 @@ import { FaRegHeart } from "react-icons/fa";
 import { FaHeart, FaPlay } from "react-icons/fa6";
 import { CiPause1 } from "react-icons/ci";
 import { useLikes } from "../context/LikeContext";
+import { useToast } from "../context/ToastContext";
 
 export default function MiniPlayer() {
   const nav = useNavigate();
@@ -17,6 +18,7 @@ export default function MiniPlayer() {
   const titleRef = useRef(null);
   const artistRef = useRef(null);
   const [fade, setFade] = useState(false);
+  const { showToast } = useToast();
 
   const {
     currentTrack,
@@ -151,13 +153,22 @@ export default function MiniPlayer() {
           onClick={async (e) => {
             e.stopPropagation();
 
+            // if (liked) {
+            //   await unlikeSong(currentTrack.id);
+            //   setLiked(false);
+            // } else {
+            //   await likeSong(currentTrack.id);
+            //   setLiked(true);
+            // }
             if (liked) {
-              await unlikeSong(currentTrack.id);
-              setLiked(false);
-            } else {
-              await likeSong(currentTrack.id);
-              setLiked(true);
-            }
+  await unlikeSong(currentTrack.id);
+  setLiked(false);
+  showToast("Removed from Liked Songs");
+} else {
+  await likeSong(currentTrack.id);
+  setLiked(true);
+  showToast("Added to Liked Songs");
+}
           }}
         >
           {liked ? <FaHeart /> : <FaRegHeart />}

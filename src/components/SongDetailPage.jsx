@@ -17,6 +17,7 @@ import { SlOptionsVertical } from "react-icons/sl";
 import { IoArrowBack } from "react-icons/io5";
 import ColorThief from "color-thief-browser";
 import { useLikes } from "../context/LikeContext";
+import { useToast } from "../context/ToastContext";
 
 
 function formatTime(sec = 0) {
@@ -44,7 +45,8 @@ export default function SongDetailPage() {
   const [time, setTime] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [bgColor, setBgColor] = useState("#0e3a47");
-  const [snack, setSnack] = useState("");
+  // const [snack, setSnack] = useState("");
+  const { showToast } = useToast();
 
   // const index = tracks.findIndex((t) => String(t.id) === String(id));
   // const track = index >= 0 ? tracks[index] : null;
@@ -98,10 +100,10 @@ const index = tracks.findIndex(
 );
 
   /* ---------------- TIME SYNC (READ-ONLY) ---------------- */
-function showSnack(msg) {
-  setSnack(msg);
-  setTimeout(() => setSnack(""), 2500);
-}
+// function showSnack(msg) {
+//   setSnack(msg);
+//   setTimeout(() => setSnack(""), 2500);
+// }
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -202,17 +204,31 @@ useEffect(() => {
   }
 
   /* ---------------- LIKE / UNLIKE ---------------- */
-  async function toggleLike() {
-    if (!track) return;
+  // async function toggleLike() {
+  //   if (!track) return;
 
-    if (liked) {
-      await unlikeSong(track.id);
-      setLiked(false);
-    } else {
-      await likeSong(track.id);
-      setLiked(true);
-    }
+  //   if (liked) {
+  //     await unlikeSong(track.id);
+  //     setLiked(false);
+  //   } else {
+  //     await likeSong(track.id);
+  //     setLiked(true);
+  //   }
+  // }
+
+  async function toggleLike() {
+  if (!track) return;
+
+  if (liked) {
+    await unlikeSong(track.id);
+    setLiked(false);
+    showToast("Removed from Liked Songs");
+  } else {
+    await likeSong(track.id);
+    setLiked(true);
+    showToast("Added to Liked Songs");
   }
+}
 
   return (
     <main
@@ -340,9 +356,11 @@ useEffect(() => {
       setShowPicker(false);
 
       if (status === "added") {
-        showSnack("added to playlist");
+        // showSnack("added to playlist");
+        showToast("Added to Playlist");
       } else if (status === "exists") {
-        showSnack("already in playlist");
+        // showSnack("already in playlist");
+        showToast("Already in Playlist");
       }
     }}
   />
@@ -384,7 +402,7 @@ useEffect(() => {
           </div>
         </div>
       )}
-      {snack && <div className="sp-snackbar">Song {snack}</div>}
+      {/* {snack && <div className="sp-snackbar">Song {snack}</div>} */}
     </main>
   );
 }

@@ -11,6 +11,7 @@ import { supabase } from "../supabaseClient";
 import { useLikes } from "../context/LikeContext";
 import { useAuth } from "../context/AuthContext";
 import PlaylistModal from "../components/PlaylistModal";
+import { useToast } from "../context/ToastContext";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -47,6 +48,7 @@ const playFromContinue = (track, startTime) => {
   const [likedMap, setLikedMap] = useState({});
   const [movies, setMovies] = useState([]);
   const [playlists, setPlaylists] = useState([]);
+    const { showToast } = useToast();
 
   /* ---------------- SEARCH ---------------- */
   useEffect(() => {
@@ -226,7 +228,8 @@ const addToPlaylist = async (playlistId, trackId) => {
   if (error) {
     console.log("Error adding to playlist:", error);
   } else {
-    alert("Added to playlist ✅");
+    // alert("Added to playlist ✅");
+    showToast("Added to Playlist");
   }
 }; 
 

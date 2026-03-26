@@ -211,6 +211,7 @@ import { FaHeart } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { getLikedSongsMap } from "../utils/likeHelpers";
+import { useToast } from "../context/ToastContext";
 
 export default function MovieSongsPage() {
   const { movieId } = useParams();
@@ -233,6 +234,7 @@ export default function MovieSongsPage() {
   const [showPicker, setShowPicker] = useState(false);
   const [likedMap, setLikedMap] = useState({});
   const [pickerTrackId, setPickerTrackId] = useState(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function load() {
@@ -266,13 +268,13 @@ export default function MovieSongsPage() {
   // }, [songs]);
 
   useEffect(() => {
-  async function loadLikes() {
-    const map = await getLikedSongsMap();
-    setLikedMap(map);
-  }
+    async function loadLikes() {
+      const map = await getLikedSongsMap();
+      setLikedMap(map);
+    }
 
-  loadLikes();
-}, [songs]);
+    loadLikes();
+  }, [songs]);
 
   function showSnack(msg) {
     setSnack(msg);
@@ -342,12 +344,21 @@ export default function MovieSongsPage() {
                 className="liked-heart-btn"
                 onClick={async (e) => {
                   e.stopPropagation();
+                  // if (likedMap[song.id]) {
+                  //   await unlikeSong(song.id);
+                  //   setLikedMap((prev) => ({ ...prev, [song.id]: false }));
+                  // } else {
+                  //   await likeSong(song.id);
+                  //   setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+                  // }
                   if (likedMap[song.id]) {
                     await unlikeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
+                    showToast("Removed from Liked Songs");
                   } else {
                     await likeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+                    showToast("Added to Liked Songs");
                   }
                 }}
               >
@@ -406,7 +417,8 @@ export default function MovieSongsPage() {
               onClick={() => {
                 addToQueue(selectedSong);
                 setSelectedSong(null);
-                showSnack("Added to queue");
+                // showSnack("Added to queue");
+                showToast("Added to Queue");
               }}
             >
               ➕ Add to Queue
@@ -416,7 +428,8 @@ export default function MovieSongsPage() {
               onClick={() => {
                 playNextInsert(selectedSong);
                 setSelectedSong(null);
-                showSnack("Added to Play Next");
+                // showSnack("Added to Play Next");
+                showToast("Added to Play Next");
               }}
             >
               ▶ Play Next
@@ -460,15 +473,17 @@ export default function MovieSongsPage() {
           //   setPickerTrackId(null);
           // }}
           onClose={(status) => {
-  setShowPicker(false);
-  setPickerTrackId(null);
+            setShowPicker(false);
+            setPickerTrackId(null);
 
-  if (status === "added") {
-    showSnack("added to playlist");
-  } else if (status === "exists") {
-    showSnack("already in playlist");
-  }
-}}
+            if (status === "added") {
+              // showSnack("added to playlist");
+              showToast("Added to Playlist");
+            } else if (status === "exists") {
+              // showSnack("already in playlist");
+              showToast("Already in  Playlist");
+            }
+          }}
         />
       )}
     </main>
