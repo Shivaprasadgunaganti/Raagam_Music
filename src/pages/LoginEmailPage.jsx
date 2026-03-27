@@ -117,7 +117,14 @@ export default function LoginEmailPage() {
             Sign up free
           </span>
         </p>
-        <button onClick={handleGoogleLogin}>Continue with Google</button>
+        {/* <button onClick={handleGoogleLogin}>Continue with Google</button> */}
+        <button className="auth-btn-google" onClick={handleGoogleLogin}>
+  <img
+    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+    alt="Google"
+  />
+  Continue with Google
+</button>
       </div>
     </div>
   );
