@@ -39,6 +39,8 @@ function AppContent() {
   const hideGlobalUI = location.pathname.startsWith("/track/");
   const isLoginPage =
     location.pathname.startsWith("/login") || location.pathname === "/signup";
+    const isPlaylistPage = location.pathname.startsWith("/playlist/");
+    const isMovietPage = location.pathname.startsWith("/movie/");
   // const isLoginPage = location.pathname === "/login";
   // useEffect(() => {
   //   if (!user) {
@@ -90,7 +92,9 @@ function AppContent() {
       {/* <div className={`app-content ${hideGlobalUI ? "no-footer" : ""}`}> */}
       <div
         className={`app-content ${
-          hideGlobalUI || isLoginPage ? "no-footer" : ""
+          // hideGlobalUI || isLoginPage || isPlaylistPage || isMovietPage ? "no-footer" : ""
+                    hideGlobalUI || isLoginPage ? "no-footer" : ""
+
         }`}
       >
         <Routes>

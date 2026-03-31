@@ -86,7 +86,8 @@
 }
 /* Main */
 .songspage-main {
-  min-height: 100dvh;
+  /* min-height: 100dvh; */
+    min-height: 100%;
   background: #121212;
   color: #fff;
   display: flex;

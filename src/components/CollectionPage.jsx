@@ -36,7 +36,8 @@ const playFromContinue = (track, startTime) => {
   if (!track) return;
 
   setResumeTime(startTime || 0); // 🔥 set resume time
-  setNewQueue([track], 0);       // 🔥 use queue system
+  // setNewQueue([track], 0);
+  setNewQueue(recent, recent.findIndex(t => t.id === track.id));
 };
 
   const [query, setQuery] = useState("");
@@ -432,6 +433,75 @@ const addToPlaylist = async (playlistId, trackId) => {
           </div>
         </section>
       )} */}
+
+      {/* {recent?.length > 0 && (
+  <section style={{ marginBottom: 20 }}>
+    <h3>Recently Played</h3>
+
+    <div className="horizontal-row">
+      {recent.slice(0, 8).map((track) => (
+        // <div
+        //   key={track.id}
+        //   className="album-card"
+        //   onClick={() => setNewQueue([track], 0)}
+        // >
+        //   <img
+        //     src={track.cover_url || "/covers/default.jpg"}
+        //     alt={track.title}
+        //   />
+        //   <div className="album-title">{track.title}</div>
+        // </div>
+        <div
+  key={track.id}
+  className="album-card"
+  onClick={() => {
+    const index = recent.findIndex(t => t.id === track.id);
+    setNewQueue(recent, index);
+  }}
+>
+  <div className="album-img-wrapper">
+    <img
+      src={track.cover_url || "/covers/default.jpg"}
+      alt={track.title}
+    />
+  </div>
+
+  <div className="album-title">{track.title}</div>
+</div>
+      ))}
+    </div>
+  </section>
+)} */}
+
+
+{recent?.length > 0 && (
+  <section style={{ marginBottom: 20 }}>
+    <h3>Recently Played</h3>
+
+    <div className="horizontal-row">
+      {recent.slice(0, 8).map((track) => {
+        const index = recent.findIndex(t => t.id === track.id);
+
+        return (
+          <div
+            key={track.id}
+            className="album-card"
+            onClick={() => setNewQueue(recent, index)}
+          >
+            <div className="album-img-wrapper">
+              <img
+                src={track.cover_url || "/covers/default.jpg"}
+                alt={track.title}
+              />
+            </div>
+
+            <div className="album-title">{track.title}</div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+)}
 
       {playlists.length > 0 && (
         <section style={{ marginBottom: 20 }}>

@@ -5,8 +5,10 @@
 
 /* ---------- Page ---------- */
 .pd-page {
-  min-height: 100dvh;
-  background: #121212;
+  /* min-height: 100dvh; */
+  min-height: 100%;
+  /* background: #121212; */
+  /* background-color: blue; */
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -385,6 +387,9 @@
   background: rgba(255, 255, 255, 0.1);
   margin: 0 24px 8px;
 }
+
+
+
 
 /* Main */
 /* 

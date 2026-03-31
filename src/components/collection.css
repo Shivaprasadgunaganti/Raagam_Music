@@ -690,7 +690,6 @@ body {
 .album-card {
   min-width: 140px;
   cursor: pointer;
-  /* position: relative; */
 }
 
 .album-card img {
@@ -783,4 +782,85 @@ body {
 }
 
 
+/* recent player */
+/* .album-card {
+  width: 150px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
 
+.album-card:hover {
+  transform: scale(1.05);
+}
+
+.album-img-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.album-img-wrapper img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.album-card:hover img {
+  opacity: 0.85;
+}
+
+.album-img-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+}
+
+.album-card:active {
+  border: 2px solid #1db954;
+  border-radius: 12px;
+} */
+
+
+.album-card {
+  width: 150px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.album-card:hover {
+  transform: scale(1.05);
+}
+
+.album-img-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.album-img-wrapper img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.album-card:hover img {
+  opacity: 0.85;
+}
+
+.album-img-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+}
