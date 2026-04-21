@@ -3,6 +3,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { useAudio } from "../context/AudioContext";
 import "./queue.css";
+import QueueItem from "./QueueItem";
 
 export default function QueuePage() {
   const nav = useNavigate();
@@ -110,17 +111,12 @@ const handleTouchEndX = (song, isCurrent) => {
 
       {/* QUEUE LIST */}
       <div className="queue-list">
-        {queue.map((song, index) => {
+        {/* {queue.map((song, index) => {
           const isCurrent = index === currentIndex;
           const isUpNext = index === currentIndex + 1;
 
           return (
-            // <div
-            //   key={song.id}
-            //   ref={(el) => (itemRefs.current[index] = el)}
-            //   className={`queue-item ${isCurrent ? "active" : ""}`}
-            //   onClick={() => setNewQueue(queue, index)}
-            // >
+           
             <div
   key={song.id}
   ref={(el) => (itemRefs.current[index] = el)}
@@ -136,7 +132,6 @@ const handleTouchEndX = (song, isCurrent) => {
   onDragEnter={() => handleDragEnter(index)}
   onDragEnd={handleDrop}
 >
-              {/* INDEX */}
               <div className="queue-index">{isCurrent ? "▶" : index + 1}</div>
 
               <img
@@ -152,7 +147,6 @@ const handleTouchEndX = (song, isCurrent) => {
                 <div className="artist">{song.artist || "Unknown Artist"}</div>
               </div>
 
-              {/* REMOVE BUTTON */}
               <button
                 className="remove-btn"
                 disabled={isCurrent}
@@ -174,7 +168,24 @@ const handleTouchEndX = (song, isCurrent) => {
               </button>
             </div>
           );
-        })}
+        })} */}
+        {queue.map((song, index) => {
+  const isCurrent = index === currentIndex;
+  const isUpNext = index === currentIndex + 1;
+
+  return (
+    <QueueItem
+      key={song.id}
+      song={song}
+      index={index}
+      isCurrent={isCurrent}
+      isUpNext={isUpNext}
+      itemRef={(el) => (itemRefs.current[index] = el)}
+      onClick={() => setNewQueue(queue, index)}
+      onRemove={() => removeFromQueue(song.id)}
+    />
+  );
+})}
       </div>
     </main>
   );

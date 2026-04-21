@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAudio } from "../context/AudioContext";
 import "./miniplayer.css";
@@ -10,8 +11,10 @@ import { FaHeart, FaPlay } from "react-icons/fa6";
 import { CiPause1 } from "react-icons/ci";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
+import { memo } from "react";
 
-export default function MiniPlayer() {
+// export default function MiniPlayer() {
+function MiniPlayer() {
   const nav = useNavigate();
   const [bgColor, setBgColor] = useState("#0e3a47");
   const [liked, setLiked] = useState(false);
@@ -22,6 +25,7 @@ export default function MiniPlayer() {
   const touchStartY = useRef(0);
 const touchEndY = useRef(0);
 const isSwiping = useRef(false);
+
 
   const {
     currentTrack,
@@ -112,8 +116,22 @@ const isSwiping = useRef(false);
     )}, ${Math.max(b - amount, 0)})`;
   }
 
-  const handleTouchStart = (e) => {
-  touchStartY.current = e.touches[0].clientY;
+//   const handleTouchStart = (e) => {
+//   touchStartY.current = e.touches[0].clientY;
+//   isSwiping.current = false;
+// };
+const handleTouchStart = (e) => {
+  const startY = e.touches[0].clientY;
+
+  // Allow swipe from upper half (image + center)
+  const screenHeight = window.innerHeight;
+
+  if (startY < screenHeight * 0.8) {
+    touchStartY.current = startY;
+  } else {
+    touchStartY.current = null;
+  }
+
   isSwiping.current = false;
 };
 
@@ -248,6 +266,7 @@ const handleTouchEnd = () => {
     </div>
   );
 }
+export default React.memo(MiniPlayer);
 
 // import { useNavigate } from "react-router-dom";
 // import { useAudio } from "../context/AudioContext";

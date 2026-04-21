@@ -315,6 +315,7 @@
 
 .detials-page-main {
   transition: transform 0.2s ease;
+  will-change: transform;
 }
 
 .detials-page-main:active {

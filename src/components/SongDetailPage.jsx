@@ -50,6 +50,7 @@ export default function SongDetailPage() {
   const touchStartY = useRef(0);
 const touchEndY = useRef(0);
 const isSwipingDown = useRef(false);
+const pageRef = useRef(null);
 
   // const index = tracks.findIndex((t) => String(t.id) === String(id));
   // const track = index >= 0 ? tracks[index] : null;
@@ -233,29 +234,96 @@ useEffect(() => {
   }
 }
 
+
+// const handleTouchStart = (e) => {
+//   const startY = e.touches[0].clientY;
+
+//   // ONLY allow swipe from top header area
+//   if (startY < 120) {
+//     touchStartY.current = startY;
+//   } else {
+//     touchStartY.current = null;
+//   }
+
+//   isSwipingDown.current = false;
+// };
+
+// const handleTouchMove = (e) => {
+//   if (touchStartY.current === null) return;
+
+//   touchEndY.current = e.touches[0].clientY;
+
+//   const diff = touchEndY.current - touchStartY.current;
+
+//   if (diff > 10) {
+//     isSwipingDown.current = true;
+//   }
+// };
+
+// const handleTouchEnd = () => {
+//   if (touchStartY.current === null) return;
+
+//   const diff = touchEndY.current - touchStartY.current;
+
+//   if (diff > 100) {
+//     nav(-1);
+//   }
+// };
+
+
 const handleTouchStart = (e) => {
-  touchStartY.current = e.touches[0].clientY;
-  isSwipingDown.current = false;
+  const startY = e.touches[0].clientY;
+
+  // Only allow from top header
+  if (startY < 120) {
+    touchStartY.current = startY;
+  } else {
+    touchStartY.current = null;
+  }
 };
 
 const handleTouchMove = (e) => {
+  if (touchStartY.current === null) return;
+
   touchEndY.current = e.touches[0].clientY;
 
   const diff = touchEndY.current - touchStartY.current;
 
-  if (diff > 10) {
-    isSwipingDown.current = true;
+  if (diff > 0) {
+    // 🔥 Move screen with finger
+    if (pageRef.current) {
+      pageRef.current.style.transform = `translateY(${diff}px)`;
+    }
   }
 };
 
 const handleTouchEnd = () => {
+  if (touchStartY.current === null) return;
+
   const diff = touchEndY.current - touchStartY.current;
 
-  // 🔥 Swipe DOWN detected
-  if (diff > 100) {
-    nav(-1); // go back to mini player
+  if (pageRef.current) {
+    pageRef.current.style.transition = "transform 0.25s ease";
   }
+
+  if (diff > 120) {
+    // Close
+    nav(-1);
+  } else {
+    // Snap back
+    if (pageRef.current) {
+      pageRef.current.style.transform = "translateY(0)";
+    }
+  }
+
+  // cleanup
+  setTimeout(() => {
+    if (pageRef.current) {
+      pageRef.current.style.transition = "";
+    }
+  }, 300);
 };
+
 
   return (
     // <main
@@ -270,7 +338,10 @@ const handleTouchEnd = () => {
 //     "--background-color": bgColor,
 //   }}
 // >
-<main
+
+
+  <main
+  ref={pageRef}
   className="page-safe detials-page-main slide-up"
   style={{
     "--background-color": bgColor,
@@ -279,6 +350,7 @@ const handleTouchEnd = () => {
   onTouchMove={handleTouchMove}
   onTouchEnd={handleTouchEnd}
 >
+
       <div className="song-detail-header">
         <button className="back-btn" onClick={() => nav("/")}>
           <IoArrowBack />

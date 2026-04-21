@@ -8,6 +8,7 @@ import React, {
 import useRecent from "../hooks/useRecent";
 import { useAuth } from "./AuthContext";
 import { supabase } from "../supabaseClient";
+import { useCallback, useMemo } from "react";
 
 // const STORAGE_KEY = "audio_state_v1";
 
@@ -129,102 +130,228 @@ export function AudioProvider({ children }) {
 };
   }, [currentTrack, user]);
 
-  const setNewQueue = (tracks, startIndex = 0) => {
-    if (!tracks?.length) return;
-    setQueue(tracks);
-    setCurrentIndex(startIndex);
-  };
+  // const setNewQueue = (tracks, startIndex = 0) => {
+  //   if (!tracks?.length) return;
+  //   setQueue(tracks);
+  //   setCurrentIndex(startIndex);
+  // };
+//   const setNewQueue = useCallback((tracks, index) => {
+//   setQueue(tracks);
+//   setCurrentIndex(index);
+// }, []);
 
-  const playAll = (tracks) => {
-    if (!tracks?.length) return;
-    setQueue(tracks);
-    setCurrentIndex(0);
-  };
+//   const playAll = (tracks) => {
+//     if (!tracks?.length) return;
+//     setQueue(tracks);
+//     setCurrentIndex(0);
+//   };
 
-  const shufflePlay = (tracks) => {
-    if (!tracks?.length) return;
-    const shuffled = [...tracks].sort(() => Math.random() - 0.5);
-    setQueue(shuffled);
-    setCurrentIndex(0);
-  };
+const setNewQueue = useCallback((tracks, index) => {
+  setQueue(tracks);
+  setCurrentIndex(index);
+}, []);
 
-  const addToQueue = (track) => {
-    if (!track) return;
+const playAll = useCallback((tracks) => {
+  if (!tracks?.length) return;
+  setQueue(tracks);
+  setCurrentIndex(0);
+}, []);
 
-    setQueue((prev) => {
-      if (prev.some((t) => t.id === track.id)) return prev;
-      return [...prev, track];
-    });
-  };
+const shufflePlay = useCallback((tracks) => {
+  if (!tracks?.length) return;
+  const shuffled = [...tracks].sort(() => Math.random() - 0.5);
+  setQueue(shuffled);
+  setCurrentIndex(0);
+}, []);
 
-  const playNextInsert = (track) => {
-    if (!track) return;
+const addToQueue = useCallback((track) => {
+  if (!track) return;
 
-    setQueue((prev) => {
-      if (!prev.length) {
-        setCurrentIndex(0);
-        return [track];
-      }
+  setQueue((prev) => {
+    if (prev.some((t) => t.id === track.id)) return prev;
+    return [...prev, track];
+  });
+}, []);
 
-      const newQueue = [...prev];
-      newQueue.splice(currentIndex + 1, 0, track);
-      return newQueue;
-    });
-  };
+const playNextInsert = useCallback((track) => {
+  if (!track) return;
 
-  const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio.src) return;
-
-    if (audio.paused) {
-      audio.play().then(() => setPlaying(true));
-    } else {
-      audio.pause();
-      setPlaying(false);
+  setQueue((prev) => {
+    if (!prev.length) {
+      setCurrentIndex(0);
+      return [track];
     }
-  };
 
-  const playNext = () => {
-    if (!queue.length) return;
+    const newQueue = [...prev];
+    newQueue.splice(currentIndex + 1, 0, track);
+    return newQueue;
+  });
+}, [currentIndex]);
 
-    setCurrentIndex((current) => {
-      if (shuffle) {
-        if (queue.length === 1) return current;
+const togglePlay = useCallback(() => {
+  const audio = audioRef.current;
+  if (!audio.src) return;
 
-        let next;
-        do {
-          next = Math.floor(Math.random() * queue.length);
-        } while (next === current);
+  if (audio.paused) {
+    audio.play().then(() => setPlaying(true));
+  } else {
+    audio.pause();
+    setPlaying(false);
+  }
+}, []);
 
-        return next;
-      }
+const playNext = useCallback(() => {
+  if (!queue.length) return;
 
-      if (current + 1 < queue.length) {
-        return current + 1;
-      }
+  setCurrentIndex((current) => {
+    if (shuffle) {
+      if (queue.length === 1) return current;
 
-      return current;
-    });
-  };
+      let next;
+      do {
+        next = Math.floor(Math.random() * queue.length);
+      } while (next === current);
 
-  const playPrev = () => {
-    if (!queue.length) return;
+      return next;
+    }
 
-    setCurrentIndex((current) => {
-      if (shuffle) {
-        if (queue.length === 1) return current;
+    if (current + 1 < queue.length) {
+      return current + 1;
+    }
 
-        let prev;
-        do {
-          prev = Math.floor(Math.random() * queue.length);
-        } while (prev === current);
+    return current;
+  });
+}, [queue, shuffle]);
 
-        return prev;
-      }
+const playPrev = useCallback(() => {
+  if (!queue.length) return;
 
-      return current > 0 ? current - 1 : 0;
-    });
-  };
+  setCurrentIndex((current) => {
+    if (shuffle) {
+      if (queue.length === 1) return current;
+
+      let prev;
+      do {
+        prev = Math.floor(Math.random() * queue.length);
+      } while (prev === current);
+
+      return prev;
+    }
+
+    return current > 0 ? current - 1 : 0;
+  });
+}, [queue, shuffle]);
+
+const reorderQueue = useCallback((newQueue) => {
+  setQueue(newQueue);
+}, []);
+
+const removeFromQueue = useCallback((trackId) => {
+  setQueue((prev) => {
+    const updated = prev.filter((t) => t.id !== trackId);
+
+    const removedIndex = prev.findIndex((t) => t.id === trackId);
+
+    if (removedIndex < currentIndex) {
+      setCurrentIndex((i) => i - 1);
+    }
+
+    return updated;
+  });
+}, [currentIndex]);
+
+const clearQueue = useCallback(() => {
+  setQueue([]);
+  setCurrentIndex(-1);
+  audioRef.current.pause();
+  audioRef.current.src = "";
+  setPlaying(false);
+}, []);
+
+  // const shufflePlay = (tracks) => {
+  //   if (!tracks?.length) return;
+  //   const shuffled = [...tracks].sort(() => Math.random() - 0.5);
+  //   setQueue(shuffled);
+  //   setCurrentIndex(0);
+  // };
+
+  // const addToQueue = (track) => {
+  //   if (!track) return;
+
+  //   setQueue((prev) => {
+  //     if (prev.some((t) => t.id === track.id)) return prev;
+  //     return [...prev, track];
+  //   });
+  // };
+
+  // const playNextInsert = (track) => {
+  //   if (!track) return;
+
+  //   setQueue((prev) => {
+  //     if (!prev.length) {
+  //       setCurrentIndex(0);
+  //       return [track];
+  //     }
+
+  //     const newQueue = [...prev];
+  //     newQueue.splice(currentIndex + 1, 0, track);
+  //     return newQueue;
+  //   });
+  // };
+
+  // const togglePlay = () => {
+  //   const audio = audioRef.current;
+  //   if (!audio.src) return;
+
+  //   if (audio.paused) {
+  //     audio.play().then(() => setPlaying(true));
+  //   } else {
+  //     audio.pause();
+  //     setPlaying(false);
+  //   }
+  // };
+
+  // const playNext = () => {
+  //   if (!queue.length) return;
+
+  //   setCurrentIndex((current) => {
+  //     if (shuffle) {
+  //       if (queue.length === 1) return current;
+
+  //       let next;
+  //       do {
+  //         next = Math.floor(Math.random() * queue.length);
+  //       } while (next === current);
+
+  //       return next;
+  //     }
+
+  //     if (current + 1 < queue.length) {
+  //       return current + 1;
+  //     }
+
+  //     return current;
+  //   });
+  // };
+
+  // const playPrev = () => {
+  //   if (!queue.length) return;
+
+  //   setCurrentIndex((current) => {
+  //     if (shuffle) {
+  //       if (queue.length === 1) return current;
+
+  //       let prev;
+  //       do {
+  //         prev = Math.floor(Math.random() * queue.length);
+  //       } while (prev === current);
+
+  //       return prev;
+  //     }
+
+  //     return current > 0 ? current - 1 : 0;
+  //   });
+  // };
 
 
   useEffect(() => {
@@ -274,9 +401,9 @@ export function AudioProvider({ children }) {
   //     .catch(() => setPlaying(false));
   // }, [currentTrack]);
 
-  const reorderQueue = (newQueue) => {
-  setQueue(newQueue);
-};
+//   const reorderQueue = (newQueue) => {
+//   setQueue(newQueue);
+// };
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -337,59 +464,101 @@ export function AudioProvider({ children }) {
     audio.currentTime = Math.max(0, Math.min(sec, audio.duration || 0));
   };
 
-  const removeFromQueue = (trackId) => {
-    setQueue((prev) => {
-      const updated = prev.filter((t) => t.id !== trackId);
+  // const removeFromQueue = (trackId) => {
+  //   setQueue((prev) => {
+  //     const updated = prev.filter((t) => t.id !== trackId);
 
-      const removedIndex = prev.findIndex((t) => t.id === trackId);
+  //     const removedIndex = prev.findIndex((t) => t.id === trackId);
 
-      if (removedIndex < currentIndex) {
-        setCurrentIndex((i) => i - 1);
-      }
+  //     if (removedIndex < currentIndex) {
+  //       setCurrentIndex((i) => i - 1);
+  //     }
 
-      return updated;
-    });
-  };
-  const clearQueue = () => {
-    setQueue([]);
-    setCurrentIndex(-1);
-    audioRef.current.pause();
-    audioRef.current.src = "";
-    setPlaying(false);
-  };
+  //     return updated;
+  //   });
+  // };
+  // const clearQueue = () => {
+  //   setQueue([]);
+  //   setCurrentIndex(-1);
+  //   audioRef.current.pause();
+  //   audioRef.current.src = "";
+  //   setPlaying(false);
+  // };
 
-  return (
-    <AudioContext.Provider
-      value={{
-        audioRef,
-        queue,
-        currentTrack,
-        currentIndex,
-        playing,
-        loopOne,
-        shuffle,
-        currentTime,
-        duration,
-        setNewQueue,
-        setResumeTime,
-        playAll,
-        shufflePlay,
-        addToQueue,
-        playNextInsert,
-        playNext,
-        playPrev,
-        togglePlay,
-        setLoopOne,
-        setShuffle,
-        seekTo,
-        removeFromQueue,
-        clearQueue,
-        reorderQueue,
-      }}
-    >
-      {children}
-    </AudioContext.Provider>
-  );
+  // return (
+  //   <AudioContext.Provider
+  //     value={{
+  //       audioRef,
+  //       queue,
+  //       currentTrack,
+  //       currentIndex,
+  //       playing,
+  //       loopOne,
+  //       shuffle,
+  //       currentTime,
+  //       duration,
+  //       setNewQueue,
+  //       setResumeTime,
+  //       playAll,
+  //       shufflePlay,
+  //       addToQueue,
+  //       playNextInsert,
+  //       playNext,
+  //       playPrev,
+  //       togglePlay,
+  //       setLoopOne,
+  //       setShuffle,
+  //       seekTo,
+  //       removeFromQueue,
+  //       clearQueue,
+  //       reorderQueue,
+  //     }}
+  //   >
+  //     {children}
+  //   </AudioContext.Provider>
+  // );
+
+  const value = useMemo(() => ({
+  audioRef,
+  queue,
+  currentTrack,
+  currentIndex,
+  playing,
+  loopOne,
+  shuffle,
+  currentTime,
+  duration,
+  setNewQueue,
+  setResumeTime,
+  playAll,
+  shufflePlay,
+  addToQueue,
+  playNextInsert,
+  playNext,
+  playPrev,
+  togglePlay,
+  setLoopOne,
+  setShuffle,
+  seekTo,
+  removeFromQueue,
+  clearQueue,
+  reorderQueue,
+}), [
+  queue,
+  currentTrack,
+  currentIndex,
+  playing,
+  loopOne,
+  shuffle,
+  currentTime,
+  duration,
+]);
+
+return (
+  <AudioContext.Provider value={value}>
+    {children}
+  </AudioContext.Provider>
+);
 }
 
 export function useAudio() {

@@ -19,6 +19,7 @@ export default function CollectionPage() {
   const nav = useNavigate();
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const { playAll, shufflePlay , setNewQueue, setResumeTime } = useAudio();
+  const [loadedImages, setLoadedImages] = useState({});
 
   // const { setNewQueue, setResumeTime } = useAudio();
 
@@ -50,6 +51,13 @@ const playFromContinue = (track, startTime) => {
   const [movies, setMovies] = useState([]);
   const [playlists, setPlaylists] = useState([]);
     const { showToast } = useToast();
+
+     const recentList = useMemo(() => {
+  return recent.slice(0, 8).map((track, index) => ({
+    ...track,
+    index
+  }));
+}, [recent]);
 
   /* ---------------- SEARCH ---------------- */
   useEffect(() => {
@@ -279,6 +287,8 @@ const addToPlaylist = async (playlistId, trackId) => {
 
   if (loading) return <div style={{ padding: 20 }}>Loading tracks…</div>;
 
+ 
+
   return (
     <main style={{ padding: 20 }} className="page-safe">
       {/* ---------------- HEADER ---------------- */}
@@ -479,7 +489,7 @@ const addToPlaylist = async (playlistId, trackId) => {
     <h3>Recently Played</h3>
 
     <div className="horizontal-row">
-      {recent.slice(0, 8).map((track) => {
+      {/* {recent.slice(0, 8).map((track) => {
         const index = recent.findIndex(t => t.id === track.id);
 
         return (
@@ -498,7 +508,38 @@ const addToPlaylist = async (playlistId, trackId) => {
             <div className="album-title">{track.title}</div>
           </div>
         );
-      })}
+      })} */}
+      {recentList.map((track) => (
+  <div
+    key={track.id}
+    className="album-card"
+    onClick={() => setNewQueue(recent, track.index)}
+  >
+    {/* <img
+      src={track.cover_url || "/covers/default.jpg"}
+      alt={track.title}
+    /> */}
+    <div className="album-img-wrapper">
+  {!loadedImages[track.id] && <div className="skeleton" />}
+
+  <img
+    src={track.cover_url || "/covers/default.jpg"}
+    alt={track.title}
+    loading="lazy"
+    onLoad={() =>
+      setLoadedImages((prev) => ({
+        ...prev,
+        [track.id]: true,
+      }))
+    }
+    style={{
+      opacity: loadedImages[track.id] ? 1 : 0,
+    }}
+  />
+</div>
+    <div className="album-title">{track.title}</div>
+  </div>
+))}
     </div>
   </section>
 )}
@@ -568,7 +609,8 @@ const addToPlaylist = async (playlistId, trackId) => {
           {covers.length > 0 ? (
             <div className={`playlist-cover-grid count-${covers.length}`}>
               {covers.map((c, i) => (
-                <img key={i} src={c} alt="cover" />
+                // <img key={i} src={c} alt="cover" />
+                <img src="/covers/default.jpg" alt={p.name} loading="lazy" />
               ))}
             </div>
           ) : (
@@ -595,7 +637,8 @@ const addToPlaylist = async (playlistId, trackId) => {
                 className="album-card"
                 onClick={() => nav(`/movie/${m.id}`)}
               >
-                <img src={m.cover_url} alt={m.title} />
+                {/* <img src={m.cover_url} alt={m.title} /> */}
+                <img src={m.cover_url} alt={m.title} loading="lazy" />
                 <div className="album-title">{m.title}</div>
               </div>
             ))}
@@ -612,10 +655,15 @@ const addToPlaylist = async (playlistId, trackId) => {
             onClick={() => nav(`/track/${t.id}`)}
           >
             <div className="music-card-cover">
-              <Card.Img
+              {/* <Card.Img
                 className="music-card-img"
                 src={t.cover_url || "/covers/default.jpg"}
-              />
+              /> */}
+              <Card.Img
+  className="music-card-img"
+  src={t.cover_url || "/covers/default.jpg"}
+  loading="lazy"
+/>
 
               {/* ❤️ LIKE BUTTON */}
               <button
