@@ -297,6 +297,29 @@
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
+/*new*/
+.slide-up {
+  animation: slideUp 0.35s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.detials-page-main {
+  transition: transform 0.2s ease;
+}
+
+.detials-page-main:active {
+  transform: scale(0.98);
+}
 
 /* old code */
 /* .detials-page-main {

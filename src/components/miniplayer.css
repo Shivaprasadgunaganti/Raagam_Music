@@ -175,3 +175,27 @@
     transform: scale(1);
   }
 }
+
+
+/*new*/
+.mini-player {
+  transition: transform 0.2s ease;
+}
+
+.mini-player:active {
+  transform: scale(0.98);
+}
+.mini-player.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

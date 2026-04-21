@@ -19,6 +19,9 @@ export default function MiniPlayer() {
   const artistRef = useRef(null);
   const [fade, setFade] = useState(false);
   const { showToast } = useToast();
+  const touchStartY = useRef(0);
+const touchEndY = useRef(0);
+const isSwiping = useRef(false);
 
   const {
     currentTrack,
@@ -109,19 +112,64 @@ export default function MiniPlayer() {
     )}, ${Math.max(b - amount, 0)})`;
   }
 
+  const handleTouchStart = (e) => {
+  touchStartY.current = e.touches[0].clientY;
+  isSwiping.current = false;
+};
+
+const handleTouchMove = (e) => {
+  touchEndY.current = e.touches[0].clientY;
+
+  const diff = touchStartY.current - touchEndY.current;
+
+  if (diff > 10) {
+    isSwiping.current = true;
+  }
+};
+
+const handleTouchEnd = () => {
+  const diff = touchStartY.current - touchEndY.current;
+
+  // 🔥 Swipe UP detected
+  if (diff > 80) {
+    nav(`/track/${currentTrack.id}`);
+  }
+};
+
   return (
+    // <div
+    //   // className="mini-player"
+    //   className={`mini-player ${fade ? "fade-in" : ""}`}
+    //   style={{ "--background-color": bgColor }}
+    //   onClick={() => nav(`/track/${currentTrack.id}`)}
+    // >
     <div
-      // className="mini-player"
-      className={`mini-player ${fade ? "fade-in" : ""}`}
-      style={{ "--background-color": bgColor }}
-      onClick={() => nav(`/track/${currentTrack.id}`)}
-    >
+  className={`mini-player ${fade ? "fade-in" : ""}`}
+  style={{ "--background-color": bgColor }}
+
+  onClick={() => {
+    if (!isSwiping.current) {
+      nav(`/track/${currentTrack.id}`);
+    }
+  }}
+
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+>
       {/* IMAGE */}
       <img
         className="mini-image"
         src={currentTrack.cover_url || "/covers/default.jpg"}
         alt=""
-        onClick={() => nav(`/track/${currentTrack.id}`)}
+        // onClick={() => nav(`/track/${currentTrack.id}`)}
+        onClick={() => {
+  if (!isSwiping.current) {
+    setTimeout(() => {
+      nav(`/track/${currentTrack.id}`);
+    }, 80);
+  }
+}}
       />
 
       {/* TITLES */}

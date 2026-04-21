@@ -13,9 +13,14 @@ export default function QueuePage() {
     removeFromQueue,
     clearQueue,
     setNewQueue,
+    reorderQueue,
   } = useAudio();
 
   const itemRefs = useRef([]);
+  const dragItem = useRef(null);
+const dragOverItem = useRef(null);
+const touchStartX = useRef(0);
+const touchEndX = useRef(0);
 
   /* 🔹 Auto-scroll to current song */
   useEffect(() => {
@@ -35,6 +40,45 @@ export default function QueuePage() {
     );
   }
 
+  const handleDragStart = (index) => {
+  dragItem.current = index;
+};
+
+const handleDragEnter = (index) => {
+  dragOverItem.current = index;
+};
+
+const handleDrop = () => {
+  const newQueue = [...queue];
+
+  const draggedItem = newQueue.splice(dragItem.current, 1)[0];
+  newQueue.splice(dragOverItem.current, 0, draggedItem);
+
+  reorderQueue(newQueue);
+
+  dragItem.current = null;
+  dragOverItem.current = null;
+};
+
+const handleTouchStartX = (e) => {
+  touchStartX.current = e.touches[0].clientX;
+};
+
+const handleTouchMoveX = (e) => {
+  touchEndX.current = e.touches[0].clientX;
+};
+
+const handleTouchEndX = (song, isCurrent) => {
+  const diff = touchStartX.current - touchEndX.current;
+
+  // swipe left threshold
+  if (diff > 80) {
+    if (!isCurrent) {
+      removeFromQueue(song.id);
+    }
+  }
+};
+
   return (
     <main className="queue-page page-safe">
       {/* HEADER */}
@@ -51,11 +95,18 @@ export default function QueuePage() {
       </div>
 
       {/* NOW PLAYING */}
-      {currentTrack && (
-        <div className="queue-now">
-          <span>Now Playing</span>
-        </div>
-      )}
+     {currentTrack && (
+  <div className="queue-now-card">
+    <img src={currentTrack.cover_url} alt={currentTrack.title} />
+    
+    <div>
+      <div className="now-title">{currentTrack.title}</div>
+      <div className="now-artist">
+        {currentTrack.artist || "Unknown Artist"}
+      </div>
+    </div>
+  </div>
+)}
 
       {/* QUEUE LIST */}
       <div className="queue-list">
@@ -64,12 +115,27 @@ export default function QueuePage() {
           const isUpNext = index === currentIndex + 1;
 
           return (
+            // <div
+            //   key={song.id}
+            //   ref={(el) => (itemRefs.current[index] = el)}
+            //   className={`queue-item ${isCurrent ? "active" : ""}`}
+            //   onClick={() => setNewQueue(queue, index)}
+            // >
             <div
-              key={song.id}
-              ref={(el) => (itemRefs.current[index] = el)}
-              className={`queue-item ${isCurrent ? "active" : ""}`}
-              onClick={() => setNewQueue(queue, index)}
-            >
+  key={song.id}
+  ref={(el) => (itemRefs.current[index] = el)}
+  className={`queue-item ${isCurrent ? "active" : ""}`}
+  onClick={() => setNewQueue(queue, index)}
+
+    onTouchStart={(e) => handleTouchStartX(e)}
+  onTouchMove={(e) => handleTouchMoveX(e)}
+  onTouchEnd={() => handleTouchEndX(song, isCurrent)}
+
+  draggable
+  onDragStart={() => handleDragStart(index)}
+  onDragEnter={() => handleDragEnter(index)}
+  onDragEnd={handleDrop}
+>
               {/* INDEX */}
               <div className="queue-index">{isCurrent ? "▶" : index + 1}</div>
 

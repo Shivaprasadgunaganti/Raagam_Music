@@ -274,7 +274,9 @@ export function AudioProvider({ children }) {
   //     .catch(() => setPlaying(false));
   // }, [currentTrack]);
 
-  
+  const reorderQueue = (newQueue) => {
+  setQueue(newQueue);
+};
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -382,6 +384,7 @@ export function AudioProvider({ children }) {
         seekTo,
         removeFromQueue,
         clearQueue,
+        reorderQueue,
       }}
     >
       {children}

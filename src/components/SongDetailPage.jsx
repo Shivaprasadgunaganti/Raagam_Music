@@ -47,6 +47,9 @@ export default function SongDetailPage() {
   const [bgColor, setBgColor] = useState("#0e3a47");
   // const [snack, setSnack] = useState("");
   const { showToast } = useToast();
+  const touchStartY = useRef(0);
+const touchEndY = useRef(0);
+const isSwipingDown = useRef(false);
 
   // const index = tracks.findIndex((t) => String(t.id) === String(id));
   // const track = index >= 0 ? tracks[index] : null;
@@ -230,13 +233,52 @@ useEffect(() => {
   }
 }
 
+const handleTouchStart = (e) => {
+  touchStartY.current = e.touches[0].clientY;
+  isSwipingDown.current = false;
+};
+
+const handleTouchMove = (e) => {
+  touchEndY.current = e.touches[0].clientY;
+
+  const diff = touchEndY.current - touchStartY.current;
+
+  if (diff > 10) {
+    isSwipingDown.current = true;
+  }
+};
+
+const handleTouchEnd = () => {
+  const diff = touchEndY.current - touchStartY.current;
+
+  // 🔥 Swipe DOWN detected
+  if (diff > 100) {
+    nav(-1); // go back to mini player
+  }
+};
+
   return (
-    <main
-      className="page-safe detials-page-main"
-      style={{
-        "--background-color": bgColor,
-      }}
-    >
+    // <main
+    //   className="page-safe detials-page-main"
+    //   style={{
+    //     "--background-color": bgColor,
+    //   }}
+    // >
+//     <main
+//   className="page-safe detials-page-main slide-up"
+//   style={{
+//     "--background-color": bgColor,
+//   }}
+// >
+<main
+  className="page-safe detials-page-main slide-up"
+  style={{
+    "--background-color": bgColor,
+  }}
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+>
       <div className="song-detail-header">
         <button className="back-btn" onClick={() => nav("/")}>
           <IoArrowBack />
