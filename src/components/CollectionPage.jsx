@@ -12,6 +12,8 @@ import { useLikes } from "../context/LikeContext";
 import { useAuth } from "../context/AuthContext";
 import PlaylistModal from "../components/PlaylistModal";
 import { useToast } from "../context/ToastContext";
+import LazyImage from "../components/LazyImage";
+import SkeletonCard from "../components/SkeletonCard";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -485,169 +487,231 @@ const addToPlaylist = async (playlistId, trackId) => {
 
 
 {recent?.length > 0 && (
-  <section style={{ marginBottom: 20 }}>
-    <h3>Recently Played</h3>
+//   <section style={{ marginBottom: 20 }}>
+//     <h3>Recently Played</h3>
 
-    <div className="horizontal-row">
-      {/* {recent.slice(0, 8).map((track) => {
-        const index = recent.findIndex(t => t.id === track.id);
+//     <div className="horizontal-row">
+     
+//       {recentList.map((track) => (
+//   <div
+//     key={track.id}
+//     className="album-card"
+//     onClick={() => setNewQueue(recent, track.index)}
+//   >
+  
 
-        return (
+
+
+// <LazyImage
+//   src={track.cover_url || "/covers/default.jpg"}
+//   alt={track.title}
+// />
+//     <div className="album-title">{track.title}</div>
+//   </div>
+// ))}
+//     </div>
+//   </section>
+<section style={{ marginBottom: 20 }}>
+  <h3>Recently Played</h3>
+
+  <div className="horizontal-row">
+    {recent?.length === 0
+      ? Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))
+      : recentList.map((track) => (
           <div
             key={track.id}
             className="album-card"
-            onClick={() => setNewQueue(recent, index)}
+            onClick={() => setNewQueue(recent, track.index)}
           >
-            <div className="album-img-wrapper">
-              <img
-                src={track.cover_url || "/covers/default.jpg"}
-                alt={track.title}
-              />
-            </div>
-
+            <LazyImage
+              src={track.cover_url || "/covers/default.jpg"}
+              alt={track.title}
+            />
             <div className="album-title">{track.title}</div>
           </div>
-        );
-      })} */}
-      {recentList.map((track) => (
-  <div
-    key={track.id}
-    className="album-card"
-    onClick={() => setNewQueue(recent, track.index)}
-  >
-    {/* <img
-      src={track.cover_url || "/covers/default.jpg"}
-      alt={track.title}
-    /> */}
-    <div className="album-img-wrapper">
-  {!loadedImages[track.id] && <div className="skeleton" />}
-
-  <img
-    src={track.cover_url || "/covers/default.jpg"}
-    alt={track.title}
-    loading="lazy"
-    onLoad={() =>
-      setLoadedImages((prev) => ({
-        ...prev,
-        [track.id]: true,
-      }))
-    }
-    style={{
-      opacity: loadedImages[track.id] ? 1 : 0,
-    }}
-  />
-</div>
-    <div className="album-title">{track.title}</div>
+        ))}
   </div>
-))}
-    </div>
-  </section>
+</section>
 )}
 
       {playlists.length > 0 && (
-        <section style={{ marginBottom: 20 }}>
-          <h3>Your Playlists</h3>
+//         <section style={{ marginBottom: 20 }}>
+//           <h3>Your Playlists</h3>
 
-          {/* <div className="horizontal-row">
-            {playlists.map((p) => (
-              <div
-                key={p.id}
-                className="playlist-card"
-                onClick={() => nav(`/playlist/${p.id}`)}
-              >
-                <div className="playlist-cover">
-                  <img
-                    src={p.cover_url || "/covers/default.jpg"}
-                    alt={p.name}
-                  /> 
-                </div>
+//           {/* <div className="horizontal-row">
+//             {playlists.map((p) => (
+//               <div
+//                 key={p.id}
+//                 className="playlist-card"
+//                 onClick={() => nav(`/playlist/${p.id}`)}
+//               >
+//                 <div className="playlist-cover">
+//                   <img
+//                     src={p.cover_url || "/covers/default.jpg"}
+//                     alt={p.name}
+//                   /> 
+//                 </div>
 
-                <div className="playlist-title">{p.name}</div>
+//                 <div className="playlist-title">{p.name}</div>
+//               </div>
+//             ))}
+//           </div> */}
+
+//           {/* <div className="horizontal-row">
+//   {playlists.map((p) => {
+//     const covers = getPlaylistCovers(p); // ✅ correct place
+
+//     return (
+//       <div
+//         key={p.id}
+//         className="playlist-card"
+//         onClick={() => nav(`/playlist/${p.id}`)}
+//       >
+//         <div className="playlist-cover">
+//           {covers.length > 0 ? (
+//             <div className="playlist-cover-grid">
+//               {covers.map((c, i) => (
+//                 <img key={i} src={c} alt="cover" />
+//               ))}
+//             </div>
+//           ) : (
+//             <img src="/covers/default.jpg" alt={p.name} />
+//           )}
+//         </div>
+
+//         <div className="playlist-title">{p.name}</div>
+//       </div>
+//     );
+//   })}
+// </div> */}
+
+// <div className="horizontal-row">
+//   {playlists.map((p) => {
+//     const covers = getPlaylistCovers(p);
+
+//     return (
+//       <div
+//         key={p.id}
+//         className="playlist-card"
+//         onClick={() => nav(`/playlist/${p.id}`)}
+//       >
+//         <div className="playlist-cover">
+//           {covers.length > 0 ? (
+//             // <div className={`playlist-cover-grid count-${covers.length}`}>
+//             //   {covers.map((c, i) => (
+//             //     // <img key={i} src={c} alt="cover" />
+//             //     <img src="/covers/default.jpg" alt={p.name} loading="lazy" />
+//             //   ))}
+//             // </div>
+//             <div className={`playlist-cover-grid count-${covers.length}`}>
+//   {covers.map((c, i) => (
+//     <LazyImage
+//       key={i}
+//       src={c || "/covers/default.jpg"}
+//       alt="cover"
+//     />
+//   ))}
+// </div>
+//           ) : (
+//             <img src="/covers/default.jpg" alt={p.name} />
+//           )}
+//         </div>
+
+//         <div className="playlist-title">{p.name}</div>
+//       </div>
+//     );
+//   })}
+// </div>
+//         </section>
+<section style={{ marginBottom: 20 }}>
+  <h3>Your Playlists</h3>
+
+  <div className="horizontal-row">
+    {playlists.length === 0
+      ? Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))
+      : playlists.map((p) => {
+          const covers = getPlaylistCovers(p);
+
+          return (
+            <div
+              key={p.id}
+              className="playlist-card"
+              onClick={() => nav(`/playlist/${p.id}`)}
+            >
+              <div className="playlist-cover">
+                {covers.length > 0 ? (
+                  <div className={`playlist-cover-grid count-${covers.length}`}>
+                    {covers.map((c, i) => (
+                      <LazyImage key={i} src={c} alt="cover" />
+                    ))}
+                  </div>
+                ) : (
+                  <LazyImage src="/covers/default.jpg" alt={p.name} />
+                )}
               </div>
-            ))}
-          </div> */}
 
-          {/* <div className="horizontal-row">
-  {playlists.map((p) => {
-    const covers = getPlaylistCovers(p); // ✅ correct place
-
-    return (
-      <div
-        key={p.id}
-        className="playlist-card"
-        onClick={() => nav(`/playlist/${p.id}`)}
-      >
-        <div className="playlist-cover">
-          {covers.length > 0 ? (
-            <div className="playlist-cover-grid">
-              {covers.map((c, i) => (
-                <img key={i} src={c} alt="cover" />
-              ))}
+              <div className="playlist-title">{p.name}</div>
             </div>
-          ) : (
-            <img src="/covers/default.jpg" alt={p.name} />
-          )}
-        </div>
-
-        <div className="playlist-title">{p.name}</div>
-      </div>
-    );
-  })}
-</div> */}
-
-<div className="horizontal-row">
-  {playlists.map((p) => {
-    const covers = getPlaylistCovers(p);
-
-    return (
-      <div
-        key={p.id}
-        className="playlist-card"
-        onClick={() => nav(`/playlist/${p.id}`)}
-      >
-        <div className="playlist-cover">
-          {covers.length > 0 ? (
-            <div className={`playlist-cover-grid count-${covers.length}`}>
-              {covers.map((c, i) => (
-                // <img key={i} src={c} alt="cover" />
-                <img src="/covers/default.jpg" alt={p.name} loading="lazy" />
-              ))}
-            </div>
-          ) : (
-            <img src="/covers/default.jpg" alt={p.name} />
-          )}
-        </div>
-
-        <div className="playlist-title">{p.name}</div>
-      </div>
-    );
-  })}
-</div>
-        </section>
+          );
+        })}
+  </div>
+</section>
       )}
 
       {movies.length > 0 && (
-        <section style={{ marginBottom: 20 }}>
-          <h3>Albums for you</h3>
+//         <section style={{ marginBottom: 20 }}>
+//           <h3>Albums for you</h3>
 
-          <div className="horizontal-row">
-            {movies.map((m) => (
-              <div
-                key={m.id}
-                className="album-card"
-                onClick={() => nav(`/movie/${m.id}`)}
-              >
-                {/* <img src={m.cover_url} alt={m.title} /> */}
-                <img src={m.cover_url} alt={m.title} loading="lazy" />
-                <div className="album-title">{m.title}</div>
-              </div>
-            ))}
+//           <div className="horizontal-row">
+//             {movies.map((m) => (
+//               <div
+//                 key={m.id}
+//                 className="album-card"
+//                 onClick={() => nav(`/movie/${m.id}`)}
+//               >
+//                 {/* <img src={m.cover_url} alt={m.title} /> */}
+//                 {/* <img src={m.cover_url} alt={m.title} loading="lazy" /> */}
+//                 <LazyImage
+//   src={m.cover_url || "/covers/default.jpg"}
+//   alt={m.title}
+// />
+//                 <div className="album-title">{m.title}</div>
+//               </div>
+//             ))}
+//           </div>
+//         </section>
+
+<section style={{ marginBottom: 20 }}>
+  <h3>Albums for you</h3>
+
+  <div className="horizontal-row">
+    {movies.length === 0
+      ? Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))
+      : movies.map((m) => (
+          <div
+            key={m.id}
+            className="album-card"
+            onClick={() => nav(`/movie/${m.id}`)}
+          >
+            <LazyImage
+              src={m.cover_url || "/covers/default.jpg"}
+              alt={m.title}
+            />
+            <div className="album-title">{m.title}</div>
           </div>
-        </section>
+        ))}
+  </div>
+</section>
       )}
 
       {/* ---------------- COLLECTION GRID ---------------- */}
-      <div className="music-grid">
+      {/* <div className="music-grid">
         {filtered.slice(0, 12).map((t) => (
           <Card
             key={t.id}
@@ -655,17 +719,13 @@ const addToPlaylist = async (playlistId, trackId) => {
             onClick={() => nav(`/track/${t.id}`)}
           >
             <div className="music-card-cover">
-              {/* <Card.Img
-                className="music-card-img"
-                src={t.cover_url || "/covers/default.jpg"}
-              /> */}
-              <Card.Img
-  className="music-card-img"
+             
+<LazyImage
   src={t.cover_url || "/covers/default.jpg"}
-  loading="lazy"
+  alt={t.title}
+  className="music-card-img"
 />
 
-              {/* ❤️ LIKE BUTTON */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -700,7 +760,50 @@ const addToPlaylist = async (playlistId, trackId) => {
             </Card.Body>
           </Card>
         ))}
-      </div>
+      </div> */}
+      <div className="music-grid">
+  {filtered.length === 0
+    ? Array.from({ length: 8 }).map((_, i) => (
+        <SkeletonCard key={i} />
+      ))
+    : filtered.slice(0, 12).map((t) => (
+        <Card
+          key={t.id}
+          className="music-card"
+          onClick={() => nav(`/track/${t.id}`)}
+        >
+          <div className="music-card-cover">
+            <LazyImage
+              src={t.cover_url || "/covers/default.jpg"}
+              alt={t.title}
+              className="music-card-img"
+            />
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (likedMap[t.id]) {
+                  unlikeSong(t.id);
+                } else {
+                  likeSong(t.id);
+                }
+                setLikedMap((prev) => ({
+                  ...prev,
+                  [t.id]: !prev[t.id],
+                }));
+              }}
+            >
+              ♥
+            </button>
+          </div>
+
+          <Card.Body>
+            <h2>{t.title}</h2>
+            <p>{t.artist}</p>
+          </Card.Body>
+        </Card>
+      ))}
+</div>
       {filtered.length > 12 && (
         <div style={{ textAlign: "center", marginTop: 12 }}>
           <button onClick={() => nav("/all-songs")}>View All Songs</button>
