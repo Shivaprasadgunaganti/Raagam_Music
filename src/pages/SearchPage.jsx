@@ -119,10 +119,24 @@ const { setNewQueue } = useAudio();
   //     );
   //   }, [tracks, debounced]);
 
-  const saveSearch = (term) => {
-  if (!term) return;
+//   const saveSearch = (term) => {
+//   if (!term) return;
 
-  let updated = [term, ...history.filter((h) => h !== term)];
+//   let updated = [term, ...history.filter((h) => h !== term)];
+//   updated = updated.slice(0, 7);
+
+//   setHistory(updated);
+//   localStorage.setItem("search_history", JSON.stringify(updated));
+// };
+
+const saveSearch = (item) => {
+  if (!item) return;
+
+  let updated = [
+    item,
+    ...history.filter((h) => h.id !== item.id) // avoid duplicates
+  ];
+
   updated = updated.slice(0, 7);
 
   setHistory(updated);
@@ -141,6 +155,29 @@ const { setNewQueue } = useAudio();
     return playlists.filter((p) => fuzzyMatch(p.name, debounced));
   }, [playlists, debounced]);
 
+//   const suggestionList = useMemo(() => {
+//   return [
+//     ...filteredSongs.map((t) => ({ ...t, type: "song" })),
+//     ...filteredAlbums.map((m) => ({ ...m, type: "album" })),
+//     ...filteredPlaylists.map((p) => ({ ...p, type: "playlist" })),
+//   ].slice(0, 5);
+// }, [filteredSongs, filteredAlbums, 
+//   filteredPlaylists
+// ]);
+const suggestionList = useMemo(() => {
+  return [
+    ...filteredSongs.map((t) => ({ ...t, type: "song" })),
+    ...filteredAlbums.map((m) => ({ ...m, type: "album" })),
+    ...filteredPlaylists.map((p) => ({ ...p, type: "playlist" })),
+  ].slice(0, 5);
+}, [filteredSongs, filteredAlbums, filteredPlaylists]);
+
+const removeHistoryItem = (id) => {
+  const updated = history.filter((h) => h.id !== id);
+  setHistory(updated);
+  localStorage.setItem("search_history", JSON.stringify(updated));
+};
+console.log("PLAYLIST RAW:", playlists);
   return (
     <main className="search-page page-safe">
       {/* SEARCH INPUT */}
@@ -259,67 +296,8 @@ const { setNewQueue } = useAudio();
   </div>
 )} */}
 
+
 {/* {showDropdown && (
-  <div className="search-dropdown">
-    {query.trim().length > 0
-      ? 
-      // filteredSongs.slice(0, 5).map((t) => (
-        filteredSongs?.slice(0, 5) || [].map((t) => (
-          // <div
-          //   key={t.id}
-          //   className="dropdown-item"
-          //   onMouseDown={() => {
-          //     setNewQueue(
-          //       filteredSongs,
-          //       filteredSongs.findIndex(x => x.id === t.id)
-          //     );
-          //     saveSearch(t.title);
-          //     setShowDropdown(false);
-          //     nav(`/track/${t.id}`);
-          //   }}
-          // >
-          //   {t.title}
-          // </div>
-          <div className="dropdown-item">
-  <img
-    src={t.cover_url || "/covers/default.jpg"}
-    alt=""
-    className="dropdown-img"
-  />
-
-  <div className="dropdown-info">
-    <div className="dropdown-title">{t.title}</div>
-    <div className="dropdown-meta">Song</div>
-  </div>
-</div>
-        ))
-      : history.map((h, i) => (
-          <div
-            key={i}
-            className="dropdown-item"
-            // onMouseDown={() => {
-            //   setQuery(h);
-            //   setShowDropdown(false);
-            // }}
-            onMouseDown={() => {
-  setNewQueue(
-    filteredSongs,
-    filteredSongs.findIndex(x => x.id === t.id)
-  );
-  saveSearch(t.title);
-  setShowDropdown(false);
-
-  setTimeout(() => {
-    nav(`/track/${t.id}`);
-  }, 50); // smoother transition
-}}
-          >
-            🕘 {h}
-          </div>
-        ))}
-  </div>
-)} */}
-{showDropdown && (
   <div className="search-dropdown">
     {query.trim().length > 0 ? (
       filteredSongs.length > 0 ? (
@@ -371,6 +349,144 @@ const { setNewQueue } = useAudio();
       <div className="dropdown-empty">No recent searches</div>
     )}
   </div>
+)} */}
+{/* {showDropdown && (
+  <div className="search-dropdown">
+    {query.trim().length > 0 ? (
+      suggestionList.length > 0 ? (
+        suggestionList.map((item) => (
+          <div
+            key={item.id}
+            className="dropdown-item"
+            onMouseDown={() => {
+              if (item.type === "song") {
+                setNewQueue(
+                  filteredSongs,
+                  filteredSongs.findIndex(x => x.id === item.id)
+                );
+              }
+
+              // saveSearch(item.title || item.name);
+              saveSearch({
+  id: item.id,
+  title: item.title || item.name,
+  cover_url: item.cover_url,
+  type: item.type
+});
+              setShowDropdown(false);
+
+              if (item.type === "song") nav(`/track/${item.id}`);
+              if (item.type === "album") nav(`/movie/${item.id}`);
+              if (item.type === "playlist") nav(`/playlist/${item.id}`);
+            }}
+          >
+            <img
+              src={item.cover_url || "/covers/default.jpg"}
+              alt=""
+              className="dropdown-img"
+            />
+
+            <div className="dropdown-info">
+              <div className="dropdown-title">
+                {item.title || item.name}
+              </div>
+              <div className="dropdown-meta">
+                {item.type}
+              </div>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="dropdown-empty">No results found</div>
+      )
+    ) : history.length > 0 ? (
+      // history.map((h, i) => (
+      //   <div
+      //     key={i}
+      //     className="dropdown-item"
+      //     onMouseDown={() => {
+      //       setQuery(h);
+      //       setShowDropdown(false);
+      //     }}
+      //   >
+      //     🕘 {h}
+      //   </div>
+      // ))
+      history.map((h, i) => (
+  <div
+    key={i}
+    className="dropdown-item"
+    onMouseDown={() => {
+      setQuery(h.title);
+      setShowDropdown(false);
+    }}
+  >
+    <img
+      src={h.cover_url || "/covers/default.jpg"}
+      alt=""
+      className="dropdown-img"
+    />
+
+    <div className="dropdown-info">
+      <div className="dropdown-title">{h.title}</div>
+      <div className="dropdown-meta">{h.type}</div>
+    </div>
+  </div>
+))
+    ) : (
+      <div className="dropdown-empty">No recent searches</div>
+    )}
+  </div>
+)} */}
+{/* {showDropdown && ( */}
+{showDropdown && query.trim().length > 0 && (
+  <div className="search-dropdown">
+    {query.trim().length > 0 ? (
+      suggestionList.length > 0 ? (
+        suggestionList.map((item) => (
+          <div
+            key={item.id}
+            className="dropdown-item"
+            onMouseDown={() => {
+              if (item.type === "song") {
+                setNewQueue(
+                  filteredSongs,
+                  filteredSongs.findIndex(x => x.id === item.id)
+                );
+              }
+
+              saveSearch({
+                id: item.id,
+                title: item.title || item.name,
+                cover_url: item.cover_url,
+                type: item.type
+              });
+
+              setShowDropdown(false);
+
+              if (item.type === "song") nav(`/track/${item.id}`);
+              if (item.type === "album") nav(`/movie/${item.id}`);
+              if (item.type === "playlist") nav(`/playlist/${item.id}`);
+            }}
+          >
+            <img
+              src={item.cover_url || "/covers/default.jpg"}
+              className="dropdown-img"
+            />
+
+            <div className="dropdown-info">
+              <div className="dropdown-title">
+                {item.title || item.name}
+              </div>
+              <div className="dropdown-meta">{item.type}</div>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="dropdown-empty">No results found</div>
+      )
+    ) : null}
+  </div>
 )}
 </div>
 
@@ -392,15 +508,119 @@ const { setNewQueue } = useAudio();
       )}
 
       {/* NO INPUT */}
-      {!debounced && (
+      {/* {!debounced && (
         <div className="search-placeholder">
           <h2>Search your music</h2>
           <p>Find songs, albums and playlists</p>
         </div>
-      )}
+      )} */}
+
+      {!debounced && (
+  <section>
+    <h3 style={{ marginBottom: 10 }}>Recent Searches</h3>
+
+    {history.length > 0 ? (
+      <div>
+        {
+        // history.map((h, i) => (
+        //   <div
+        //     key={i}
+        //     className="search-item"
+        //     onClick={() => {
+        //       setQuery(h);
+        //       setDebounced(h); 
+        //     }}
+        //   >
+        //     <div className="title">🕘 {h}</div>
+          
+        //   </div>
+        // ))
+//         history.map((h, i) => (
+//   <div
+//     key={i}
+//     className="dropdown-item"
+//     onMouseDown={() => {
+//       setQuery(h.title);
+//       setShowDropdown(false);
+//     }}
+//   >
+//     <img src={h.cover_url || "/covers/default.jpg"} className="dropdown-img" />
+
+//     <div className="dropdown-info">
+//       <div className="dropdown-title">{h.title}</div>
+//       <div className="dropdown-meta">{h.type}</div>
+//     </div>
+//   </div>
+// ))
+
+history.map((h, i) => (
+  <div
+    key={i}
+    className="dropdown-item"
+    // onMouseDown={() => {
+    //   setQuery(h.title);
+    //   setShowDropdown(false);
+    // }}
+
+    onMouseDown={() => {
+  setShowDropdown(false);
+
+  if (h.type === "song") {
+    setNewQueue(
+      filteredSongs,
+      filteredSongs.findIndex(x => x.id === h.id)
+    );
+    nav(`/track/${h.id}`);
+  }
+
+  if (h.type === "album") {
+    nav(`/movie/${h.id}`);
+  }
+
+  if (h.type === "playlist") {
+    nav(`/playlist/${h.id}`);
+  }
+}}
+  >
+    <img
+      src={h.cover_url || "/covers/default.jpg"}
+      className="dropdown-img"
+    />
+
+    <div className="dropdown-info">
+      <div className="dropdown-title">{h.title}</div>
+      <div className="dropdown-meta">{h.type}</div>
+    </div>
+
+    {/* ❌ REMOVE BUTTON */}
+    <button
+      className="history-remove"
+      // onClick={(e) => {
+      //   e.stopPropagation();
+      //   removeHistoryItem(h.id);
+      // }}
+      onMouseDown={(e) => {
+  e.stopPropagation(); // 🔥 stops parent trigger
+  removeHistoryItem(h.id);
+}}
+    >
+      ✕
+    </button>
+  </div>
+))
+        }
+        
+      </div>
+    ) : (
+      <div className="search-placeholder">
+        <p>No recent searches yet</p>
+      </div>
+    )}
+  </section>
+)}
 
       {/* RESULTS */}
-      {debounced && (
+      {debounced && !showDropdown && (
         <>
           {/* SONGS */}
           {(activeTab === "all" || activeTab === "songs") &&
@@ -466,7 +686,7 @@ const { setNewQueue } = useAudio();
                 </div>
               </section>
             )} */}
-          {(activeTab === "all" || activeTab === "playlists") &&
+          {/* {(activeTab === "all" || activeTab === "playlists") &&
             filteredPlaylists.length > 0 && (
               <section className="albums-section">
                 <h3 className="section-title">Playlists</h3>
@@ -488,7 +708,7 @@ const { setNewQueue } = useAudio();
                   ))}
                 </div>
               </section>
-            )}
+            )} */}
         </>
       )}
     </main>
