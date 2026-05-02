@@ -23,9 +23,8 @@ function MiniPlayer() {
   const [fade, setFade] = useState(false);
   const { showToast } = useToast();
   const touchStartY = useRef(0);
-const touchEndY = useRef(0);
-const isSwiping = useRef(false);
-
+  const touchEndY = useRef(0);
+  const isSwiping = useRef(false);
 
   const {
     currentTrack,
@@ -112,69 +111,57 @@ const isSwiping = useRef(false);
     const [r, g, b] = nums.map(Number);
     return `rgb(${Math.max(r - amount, 0)}, ${Math.max(
       g - amount,
-      0
+      0,
     )}, ${Math.max(b - amount, 0)})`;
   }
 
-//   const handleTouchStart = (e) => {
-//   touchStartY.current = e.touches[0].clientY;
-//   isSwiping.current = false;
-// };
-const handleTouchStart = (e) => {
-  const startY = e.touches[0].clientY;
+  const handleTouchStart = (e) => {
+    const startY = e.touches[0].clientY;
 
-  // Allow swipe from upper half (image + center)
-  const screenHeight = window.innerHeight;
+    // Allow swipe from upper half (image + center)
+    const screenHeight = window.innerHeight;
 
-  if (startY < screenHeight * 0.8) {
-    touchStartY.current = startY;
-  } else {
-    touchStartY.current = null;
-  }
+    if (startY < screenHeight * 0.8) {
+      touchStartY.current = startY;
+    } else {
+      touchStartY.current = null;
+    }
 
-  isSwiping.current = false;
-};
+    isSwiping.current = false;
+  };
 
-const handleTouchMove = (e) => {
-  touchEndY.current = e.touches[0].clientY;
+  const handleTouchMove = (e) => {
+    touchEndY.current = e.touches[0].clientY;
 
-  const diff = touchStartY.current - touchEndY.current;
+    const diff = touchStartY.current - touchEndY.current;
 
-  if (diff > 10) {
-    isSwiping.current = true;
-  }
-};
+    if (diff > 10) {
+      isSwiping.current = true;
+    }
+  };
 
-const handleTouchEnd = () => {
-  const diff = touchStartY.current - touchEndY.current;
+  const handleTouchEnd = () => {
+    const diff = touchStartY.current - touchEndY.current;
 
-  // 🔥 Swipe UP detected
-  if (diff > 80) {
-    nav(`/track/${currentTrack.id}`);
-  }
-};
-
-  return (
-    // <div
-    //   // className="mini-player"
-    //   className={`mini-player ${fade ? "fade-in" : ""}`}
-    //   style={{ "--background-color": bgColor }}
-    //   onClick={() => nav(`/track/${currentTrack.id}`)}
-    // >
-    <div
-  className={`mini-player ${fade ? "fade-in" : ""}`}
-  style={{ "--background-color": bgColor }}
-
-  onClick={() => {
-    if (!isSwiping.current) {
+    // 🔥 Swipe UP detected
+    if (diff > 80) {
       nav(`/track/${currentTrack.id}`);
     }
-  }}
+  };
 
-  onTouchStart={handleTouchStart}
-  onTouchMove={handleTouchMove}
-  onTouchEnd={handleTouchEnd}
->
+  return (
+    <div
+      className={`mini-player ${fade ? "fade-in" : ""}`}
+      style={{ "--background-color": bgColor }}
+      onClick={() => {
+        if (!isSwiping.current) {
+          nav(`/track/${currentTrack.id}`);
+        }
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* IMAGE */}
       <img
         className="mini-image"
@@ -182,21 +169,13 @@ const handleTouchEnd = () => {
         alt=""
         // onClick={() => nav(`/track/${currentTrack.id}`)}
         onClick={() => {
-  if (!isSwiping.current) {
-    setTimeout(() => {
-      nav(`/track/${currentTrack.id}`);
-    }, 80);
-  }
-}}
+          if (!isSwiping.current) {
+            setTimeout(() => {
+              nav(`/track/${currentTrack.id}`);
+            }, 80);
+          }
+        }}
       />
-
-      {/* TITLES */}
-      {/* <div className="mini-titles">
-        <div className="mini-title">{currentTrack.title}</div>
-        <div className="mini-artist">
-          {currentTrack.artist || "Unknown Artist"}
-        </div>
-      </div> */}
 
       <div className="mini-marquee" ref={titleRef}>
         <div className="mini-marquee-inner">
@@ -219,22 +198,15 @@ const handleTouchEnd = () => {
           onClick={async (e) => {
             e.stopPropagation();
 
-            // if (liked) {
-            //   await unlikeSong(currentTrack.id);
-            //   setLiked(false);
-            // } else {
-            //   await likeSong(currentTrack.id);
-            //   setLiked(true);
-            // }
             if (liked) {
-  await unlikeSong(currentTrack.id);
-  setLiked(false);
-  showToast("Removed from Liked Songs");
-} else {
-  await likeSong(currentTrack.id);
-  setLiked(true);
-  showToast("Added to Liked Songs");
-}
+              await unlikeSong(currentTrack.id);
+              setLiked(false);
+              showToast("Removed from Liked Songs");
+            } else {
+              await likeSong(currentTrack.id);
+              setLiked(true);
+              showToast("Added to Liked Songs");
+            }
           }}
         >
           {liked ? <FaHeart /> : <FaRegHeart />}
@@ -267,134 +239,3 @@ const handleTouchEnd = () => {
   );
 }
 export default React.memo(MiniPlayer);
-
-// import { useNavigate } from "react-router-dom";
-// import { useAudio } from "../context/AudioContext";
-// import "./miniplayer.css";
-// import ColorThief from "color-thief-browser";
-// import { useEffect, useState } from "react";
-// import { likeSong, unlikeSong, isSongLiked } from "../utils/likeHelpers";
-// // import { useEffect, useState } from "react";
-// import { FaRegHeart } from "react-icons/fa";
-// import { FaHeart, FaPlay } from "react-icons/fa6";
-// import { CiPause1 } from "react-icons/ci";
-
-// export default function MiniPlayer() {
-//   const nav = useNavigate();
-//   const [bgColor, setBgColor] = useState("#0e3a47");
-//   const [liked, setLiked] = useState(false);
-//   const {
-//     currentTrack,
-//     playing,
-//     togglePlay,
-//     playNext,
-//     playPrev,
-//     currentTime,
-//     duration,
-//     seekTo,
-//   } = useAudio();
-//   useEffect(() => {
-//     if (!currentTrack?.cover_url) return;
-
-//     const img = new Image();
-//     img.crossOrigin = "Anonymous";
-//     img.src = currentTrack.cover_url;
-
-//     img.onload = () => {
-//       const colorThief = new ColorThief();
-//       const rgb = colorThief.getColor(img);
-//       setBgColor(`rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
-//     };
-//   }, [currentTrack]);
-
-//   useEffect(() => {
-//     if (!currentTrack) return;
-//     isSongLiked(currentTrack.id).then(setLiked);
-//   }, [currentTrack]);
-
-//   if (!currentTrack) return null;
-
-//   const progressPct =
-//     duration > 0
-//       ? Math.min(Math.max((currentTime / duration) * 100, 0), 100)
-//       : 0;
-
-//   function handleSeek(e) {
-//     e.stopPropagation();
-//     const rect = e.currentTarget.getBoundingClientRect();
-//     const clientX = e.clientX ?? e.touches?.[0]?.clientX ?? rect.left;
-//     const percent = (clientX - rect.left) / rect.width;
-//     seekTo(percent * duration);
-//   }
-
-//   function darkenColor(rgbString, amount = 40) {
-//     const nums = rgbString.match(/\d+/g);
-//     if (!nums) return rgbString;
-
-//     const [r, g, b] = nums.map(Number);
-//     return `rgb(${Math.max(r - amount, 0)}, ${Math.max(
-//       g - amount,
-//       0
-//     )}, ${Math.max(b - amount, 0)})`;
-//   }
-
-//   return (
-//     <div className="mini-player" style={{ "--background-color": bgColor }}>
-//       {/* IMAGE */}
-//       <img
-//         className="mini-image"
-//         src={currentTrack.cover_url || "/covers/default.jpg"}
-//         alt=""
-//         onClick={() => nav(`/track/${currentTrack.id}`)}
-//       />
-
-//       {/* TITLES */}
-//       <div className="mini-titles">
-//         <div className="mini-title">{currentTrack.title}</div>
-//         <div className="mini-artist">
-//           {currentTrack.artist || "Unknown Artist"}
-//         </div>
-//       </div>
-
-//       {/* ACTIONS */}
-//       <div className="mini-actions">
-//         {/* <button className="mini-like">＋</button> */}
-//         <button
-//           className="mini-like"
-//           onClick={async (e) => {
-//             e.stopPropagation();
-
-//             if (liked) {
-//               await unlikeSong(currentTrack.id);
-//               setLiked(false);
-//             } else {
-//               await likeSong(currentTrack.id);
-//               setLiked(true);
-//             }
-//           }}
-//         >
-//           {/* {liked ? "♥" : "＋"} */}
-//           {liked ? <FaHeart /> : <FaRegHeart />}
-//         </button>
-
-//         <button className="mini-play" onClick={togglePlay}>
-//           {/* {playing ? "❚❚" : "▶"} */}
-//           {playing ? <CiPause1 /> : <FaPlay />}
-//         </button>
-//       </div>
-
-//       {/* PROGRESS */}
-//       <div
-//         className="mini-progress"
-//         onMouseDown={handleSeek}
-//         onTouchStart={handleSeek}
-//       >
-//         <div
-//           className="mini-progress-fill"
-//           style={{ width: `${progressPct}%` }}
-//         />
-//       </div>
-//     </div>
-
-//   );
-// }

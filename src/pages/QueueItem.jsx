@@ -1,16 +1,3 @@
-// import React from "react";
-
-// function QueueItem({ song, index, isCurrent, onClick }) {
-//   return (
-//     <div className={`queue-item ${isCurrent ? "active" : ""}`} onClick={onClick}>
-//       <img src={song.cover_url} alt="" />
-//       <div>{song.title}</div>
-//     </div>
-//   );
-// }
-
-// export default React.memo(QueueItem);
-
 import React from "react";
 
 function QueueItem({
@@ -30,10 +17,7 @@ function QueueItem({
     >
       <div className="queue-index">{isCurrent ? "▶" : index + 1}</div>
 
-      <img
-        src={song.cover_url || "/covers/default.jpg"}
-        alt={song.title}
-      />
+      <img src={song.cover_url || "/covers/default.jpg"} alt={song.title} />
 
       <div className="info">
         <div className="title">

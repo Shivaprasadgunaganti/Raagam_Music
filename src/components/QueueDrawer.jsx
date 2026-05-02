@@ -1,36 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { useAudio } from "../context/AudioContext";
 import "./queue.css";
 
@@ -55,9 +22,7 @@ export default function QueueDrawer({ onClose }) {
               />
               <div>
                 <div className="title">{track.title}</div>
-                <div className="artist">
-                  {track.artist || "Unknown Artist"}
-                </div>
+                <div className="artist">{track.artist || "Unknown Artist"}</div>
               </div>
             </li>
           ))}

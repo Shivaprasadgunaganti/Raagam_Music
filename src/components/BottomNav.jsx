@@ -13,23 +13,11 @@ export default function BottomNav() {
 
   return (
     <nav className="bottom-nav">
-      {/* <NavLink to="/" end className="nav-item">
-        🏠
-        <span>Home</span>
-      </NavLink> */}
       <NavLink to="/" end className="nav-item">
         <GrHomeRounded />
         <span>Home</span>
       </NavLink>
 
-      {/* <NavLink to="/movies" className="nav-item">
-        🎬
-        <span>Movies</span>
-      </NavLink> */}
-      {/* <NavLink to="/movies" className="nav-item">
-        <BiMoviePlay />
-        <span>Movies</span>
-      </NavLink> */}
       <NavLink to="/search" className="nav-item">
         <FiSearch />
         <span>Search</span>
@@ -40,21 +28,6 @@ export default function BottomNav() {
         <span>Liked</span>
       </NavLink>
 
-      {/* <FiSearch /> */}
-
-      {/* <NavLink to="/playlists" className="nav-item">
-        📂
-        <span>Playlists</span>
-      </NavLink> */}
-
-      {/* <button
-        className="nav-item"
-        disabled={!currentTrack}
-        onClick={() => currentTrack && nav(`/track/${currentTrack.id}`)}
-      >
-        ▶️
-        <span>Playing</span>
-      </button> */}
       <button
         className="nav-item"
         disabled={!currentTrack}

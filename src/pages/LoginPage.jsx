@@ -15,18 +15,6 @@ export default function LoginPage() {
     // localStorage.removeItem("audio_state_v1");
   }, []);
 
-  // async function handleLogin() {
-  //   const { data, error } = await supabase.auth.signInWithPassword({
-  //     email,
-  //     password,
-  //   });
-
-  //   if (error) {
-  //     alert(error.message);
-  //   } else {
-  //     navigate("/");
-  //   }
-  // }
   async function handleLogin() {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -84,43 +72,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-// import { useState } from "react";
-// import { supabase } from "../supabaseClient";
-
-// export default function LoginPage() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   async function handleLogin() {
-//     const { error } = await supabase.auth.signInWithPassword({
-//       email,
-//       password,
-//     });
-
-//     if (error) alert(error.message);
-//   }
-
-//   async function handleSignup() {
-//     const { error } = await supabase.auth.signUp({
-//       email,
-//       password,
-//     });
-
-//     if (error) alert(error.message);
-//   }
-
-//   return (
-//     <div style={{ padding: 40 }}>
-//       <h2>Login</h2>
-//       <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-//       <input
-//         type="password"
-//         placeholder="Password"
-//         onChange={(e) => setPassword(e.target.value)}
-//       />
-//       <button onClick={handleLogin}>Login</button>
-//       <button onClick={handleSignup}>Sign Up</button>
-//     </div>
-//   );
-// }

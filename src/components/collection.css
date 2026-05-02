@@ -33,13 +33,7 @@ body {
   border-radius: 32px;
   overflow: hidden;
   border: none;
-  /* background: radial-gradient(
-    circle at top left,
-    #2b3244 0%,
-    #050816 60%,
-    #020818 100%
-  ); */
-  /* box-shadow: 0 22px 40px rgba(0, 0, 0, 0.7); */
+
   box-shadow: 5px 5px 10px rgba(66, 66, 66, 0.5);
   color: #ffffff;
   cursor: pointer;
@@ -706,19 +700,7 @@ body {
   text-align: center;
 }
 
-/* .card-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-} */
 
-/* .card-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #1db954, #4de08a);
-} */
 
 .horizontal-row {
   display: flex;
@@ -733,18 +715,7 @@ body {
   text-align: center;
 }
 
-/* .playlist-cover {
-  width: 120px;
-  height: 120px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #1db954, #4de08a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  color: #020818;
-  margin-bottom: 8px;
-} */
+
 
 .playlist-cover {
   width: 140px;
@@ -782,49 +753,6 @@ body {
 }
 
 
-/* recent player */
-/* .album-card {
-  width: 150px;
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.album-card:hover {
-  transform: scale(1.05);
-}
-
-.album-img-wrapper {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.album-img-wrapper img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  display: block;
-  transition: opacity 0.3s ease;
-}
-
-.album-card:hover img {
-  opacity: 0.85;
-}
-
-.album-img-wrapper::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
-}
-
-.album-card:active {
-  border: 2px solid #1db954;
-  border-radius: 12px;
-} */
 
 
 .album-card {

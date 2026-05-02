@@ -1,25 +1,4 @@
-/* ============================================================
-   auth.css  —  Login & Signup pages
-   Dark music app aesthetic (Spotify/JioSaavn inspired)
-   ============================================================ */
-
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap");
-
-/* ---------- Page shell ---------- */
-/* .auth-page {
-  min-height: 100dvh;
-  overflow: hidden;
-  background: #0a0a0a;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 24px 48px;
-  box-sizing: border-box;
-  font-family: "Nunito", sans-serif;
-  position: relative;
-  overflow: hidden;
-} */
 
 .auth-page {
   height: 100dvh;
@@ -45,8 +24,7 @@
   height: 300px;
   background: radial-gradient(
     circle,
-    /* rgba(29, 185, 84, 0.15) */
-    /* rgba(139, 92, 246, 0.15)  */
+    /* rgba(29, 185, 84, 0.15) */ /* rgba(139, 92, 246, 0.15)  */
     rgba(192, 132, 252, 0.15) 0%,
     transparent 70%
   );
@@ -63,9 +41,8 @@
   height: 250px;
   background: radial-gradient(
     circle,
-    /* rgba(29, 185, 84, 0.08)  */
-   /* rgba(139, 92, 246, 0.08)  */
-  rgba(192, 132, 252, 0.08) 0%,
+    /* rgba(29, 185, 84, 0.08)  */ /* rgba(139, 92, 246, 0.08)  */
+    rgba(192, 132, 252, 0.08) 0%,
     transparent 70%
   );
   bottom: 40px;
@@ -101,18 +78,6 @@
   color: #fff;
   letter-spacing: -0.5px;
 }
-
-/* ---------- Card ---------- */
-/* .auth-card {
-  width: 100%;
-  max-width: 380px;
-  background: #141414;
-  border-radius: 16px;
-  padding: 32px 28px 36px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  animation: auth-fade-up 0.35s ease both;
-} */
 
 .auth-card {
   width: 100%;
@@ -212,7 +177,9 @@
   font-weight: 500;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .auth-input::placeholder {
@@ -223,8 +190,12 @@
   border-color: #c084fc;
   background:
    /* rgba(29, 185, 84, 0.05); */
-   /* rgba(139, 92, 246, 0.05) */
-  rgba(192, 132, 252, 0.05) ;
+   /* rgba(139, 92, 246, 0.05) */ rgba(
+    192,
+    132,
+    252,
+    0.05
+  );
 }
 
 /* ---------- Primary button ---------- */
@@ -242,7 +213,9 @@
   cursor: pointer;
   margin-top: 8px;
   letter-spacing: 0.3px;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 .auth-btn-primary:hover {
   background: #d8b4fe;
@@ -311,7 +284,6 @@
   color: #fff;
 }
 
-
 .password-wrapper {
   position: relative;
   width: 100%;
@@ -333,8 +305,6 @@
   user-select: none;
 }
 
-
-
 /* ---------- Google button ---------- */
 .auth-btn-google {
   width: 100%;
@@ -352,7 +322,9 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 .auth-btn-google:hover {
   background: rgba(255, 255, 255, 0.11);

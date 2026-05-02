@@ -22,11 +22,6 @@ export default function SignupPage() {
     const trimmedEmail = email.trim(); // ⭐ ADDED
     const trimmedPassword = password.trim(); // ⭐ ADDED
 
-    // if (!e.target.checkValidity()) {
-    //   e.target.reportValidity();
-    //   return;
-    // }
-
     if (!trimmedEmail) {
       setErrorMsg("Email is required");
       return;
@@ -37,17 +32,12 @@ export default function SignupPage() {
       return;
     }
 
-    // if (trimmedPassword.length < 6) {
-    //   setErrorMsg("Password must be at least 6 characters");
-    //   return;
-    // }
-
     if (!validatePassword(trimmedPassword)) {
-  setErrorMsg(
-    "Password must be 8+ chars with uppercase, lowercase, number & special character"
-  );
-  return;
-}
+      setErrorMsg(
+        "Password must be 8+ chars with uppercase, lowercase, number & special character",
+      );
+      return;
+    }
 
     const { error } = await supabase.auth.signUp({
       email: trimmedEmail, // ⭐ UPDATED
@@ -65,10 +55,6 @@ export default function SignupPage() {
 
       navigate("/login/password");
     }
-    // else {
-    //   alert("Account created");
-    //   navigate("/");
-    // }
   }
 
   useEffect(() => {
@@ -78,14 +64,14 @@ export default function SignupPage() {
   }, [user, navigate]);
 
   function validatePassword(password) {
-  return (
-    password.length >= 8 &&
-    /[A-Z]/.test(password) &&
-    /[a-z]/.test(password) &&
-    /[0-9]/.test(password) &&
-    /[!@#$%^&*]/.test(password)
-  );
-}
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[!@#$%^&*]/.test(password)
+    );
+  }
 
   return (
     <div className="auth-page">
@@ -133,47 +119,30 @@ export default function SignupPage() {
               Password
             </label>
 
-            {/* <input
-              id="password" // ⭐ ADDED
-              name="password" // ⭐ ADDED
-              className="auth-input"
-              // type="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Create a strong password"
-              value={password}
-              // onChange={(e) => setPassword(e.target.value)}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setErrorMsg("");
-              }}
-              autoComplete="new-password"
-              required // ⭐ ADDED
-            /> */}
-
             <div className="password-wrapper">
-    <input
-      id="password"
-      name="password"
-      className="auth-input"
-      type={showPassword ? "text" : "password"}
-      placeholder="Create a strong password"
-      value={password}
-      onChange={(e) => {
-        setPassword(e.target.value);
-        setErrorMsg("");
-      }}
-      autoComplete="new-password"
-      required
-    />
+              <input
+                id="password"
+                name="password"
+                className="auth-input"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a strong password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMsg("");
+                }}
+                autoComplete="new-password"
+                required
+              />
 
-    <span
-      className="toggle-password"
-      onClick={() => setShowPassword((prev) => !prev)}
-    >
-      {showPassword ? "Hide" : "Show"}
-    </span>
-  </div>
-        
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </span>
+            </div>
+
             {errorMsg && <p className="auth-error">{errorMsg}</p>}
           </div>
 
@@ -201,85 +170,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-// import { useState } from "react";
-// import { supabase } from "../supabaseClient";
-// import { useNavigate } from "react-router-dom";
-// import { IoArrowBack } from "react-icons/io5";
-// import "./auth.css";
-
-// export default function SignupPage() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   async function handleSignup() {
-//     const { error } = await supabase.auth.signUp({ email, password });
-
-//     if (error) alert(error.message);
-//     else {
-//       alert("Account created");
-//       navigate("/");
-//     }
-//   }
-
-//   return (
-//     <div className="auth-page">
-//       <div className="auth-logo">
-//         <div className="auth-logo-icon">♪</div>
-//         <span className="auth-logo-text">Raagam</span>
-//       </div>
-
-//       <div className="auth-card">
-//         <button className="auth-back-btn" onClick={() => navigate(-1)}>
-//           <IoArrowBack />
-//         </button>
-
-//         <h2 className="auth-heading">Create account</h2>
-//         <p className="auth-subheading">Free forever. No credit card needed.</p>
-
-//         <div className="auth-input-group">
-//           <label className="auth-label">Email</label>
-//           <input
-//             className="auth-input"
-//             placeholder="you@example.com"
-//             value={email}
-//             onChange={(e) => setEmail(e.target.value)}
-//             type="email"
-//             autoComplete="email"
-//           />
-//         </div>
-
-//         <div className="auth-input-group">
-//           <label className="auth-label">Password</label>
-//           <input
-//             className="auth-input"
-//             type="password"
-//             placeholder="Create a strong password"
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             onKeyDown={(e) => e.key === "Enter" && handleSignup()}
-//             autoComplete="new-password"
-//           />
-//         </div>
-
-//         <button className="auth-btn-primary" onClick={handleSignup}>
-//           Create Account
-//         </button>
-
-//         <div className="auth-divider">
-//           <div className="auth-divider-line" />
-//           <span className="auth-divider-text">OR</span>
-//           <div className="auth-divider-line" />
-//         </div>
-
-//         <p className="auth-footer">
-//           Already have an account?{" "}
-//           <span className="auth-footer-link" onClick={() => navigate("/login")}>
-//             Log in
-//           </span>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }

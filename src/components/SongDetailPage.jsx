@@ -19,7 +19,6 @@ import ColorThief from "color-thief-browser";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
 
-
 function formatTime(sec = 0) {
   if (!Number.isFinite(sec) || sec <= 0) return "00:00";
   const m = Math.floor(sec / 60)
@@ -48,66 +47,34 @@ export default function SongDetailPage() {
   // const [snack, setSnack] = useState("");
   const { showToast } = useToast();
   const touchStartY = useRef(0);
-const touchEndY = useRef(0);
-const isSwipingDown = useRef(false);
-const pageRef = useRef(null);
-
-  // const index = tracks.findIndex((t) => String(t.id) === String(id));
-  // const track = index >= 0 ? tracks[index] : null;
-
-//   const track = currentTrack; 
-// const index = tracks.findIndex(
-//   (t) => String(t.id) === String(currentTrack?.id)
-// );
-
-  // const {
-  //   currentTrack,
-  //   playing,
-  //   togglePlay,
-  //   playNext,
-  //   playPrev,
-  //   setNewQueue,
-  //   loopOne,
-  //   shuffle,
-  //   setLoopOne,
-  //   setShuffle,
-  //   audioRef,
-  //   addToQueue,
-  //   playNextInsert,
-  //   currentTime,
-  // } = useAudio();
-
+  const touchEndY = useRef(0);
+  const isSwipingDown = useRef(false);
+  const pageRef = useRef(null);
 
   // ✅ FIRST get from context
-const {
-  currentTrack,
-  playing,
-  togglePlay,
-  playNext,
-  playPrev,
-  setNewQueue,
-  loopOne,
-  shuffle,
-  setLoopOne,
-  setShuffle,
-  audioRef,
-  addToQueue,
-  playNextInsert,
-  currentTime,
-} = useAudio();
+  const {
+    currentTrack,
+    playing,
+    togglePlay,
+    playNext,
+    playPrev,
+    setNewQueue,
+    loopOne,
+    shuffle,
+    setLoopOne,
+    setShuffle,
+    audioRef,
+    addToQueue,
+    playNextInsert,
+    currentTime,
+  } = useAudio();
 
-// ✅ THEN use it
-const track = currentTrack;
+  // ✅ THEN use it
+  const track = currentTrack;
 
-const index = tracks.findIndex(
-  (t) => String(t.id) === String(currentTrack?.id)
-);
-
-  /* ---------------- TIME SYNC (READ-ONLY) ---------------- */
-// function showSnack(msg) {
-//   setSnack(msg);
-//   setTimeout(() => setSnack(""), 2500);
-// }
+  const index = tracks.findIndex(
+    (t) => String(t.id) === String(currentTrack?.id),
+  );
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -168,16 +135,15 @@ const index = tracks.findIndex(
     isSongLiked(track.id).then(setLiked);
   }, [track]);
 
+  useEffect(() => {
+    setTime(currentTime || 0);
+  }, [currentTime]);
 
   useEffect(() => {
-  setTime(currentTime || 0);
-}, [currentTime]);
-
-useEffect(() => {
-  if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
-    nav(`/track/${currentTrack.id}`, { replace: true });
-  }
-}, [currentTrack]);
+    if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
+      nav(`/track/${currentTrack.id}`, { replace: true });
+    }
+  }, [currentTrack]);
 
   /* ---------------- GUARDS ---------------- */
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
@@ -207,150 +173,84 @@ useEffect(() => {
     setTime(audio.currentTime);
   }
 
-  /* ---------------- LIKE / UNLIKE ---------------- */
-  // async function toggleLike() {
-  //   if (!track) return;
-
-  //   if (liked) {
-  //     await unlikeSong(track.id);
-  //     setLiked(false);
-  //   } else {
-  //     await likeSong(track.id);
-  //     setLiked(true);
-  //   }
-  // }
-
   async function toggleLike() {
-  if (!track) return;
+    if (!track) return;
 
-  if (liked) {
-    await unlikeSong(track.id);
-    setLiked(false);
-    showToast("Removed from Liked Songs");
-  } else {
-    await likeSong(track.id);
-    setLiked(true);
-    showToast("Added to Liked Songs");
-  }
-}
-
-
-// const handleTouchStart = (e) => {
-//   const startY = e.touches[0].clientY;
-
-//   // ONLY allow swipe from top header area
-//   if (startY < 120) {
-//     touchStartY.current = startY;
-//   } else {
-//     touchStartY.current = null;
-//   }
-
-//   isSwipingDown.current = false;
-// };
-
-// const handleTouchMove = (e) => {
-//   if (touchStartY.current === null) return;
-
-//   touchEndY.current = e.touches[0].clientY;
-
-//   const diff = touchEndY.current - touchStartY.current;
-
-//   if (diff > 10) {
-//     isSwipingDown.current = true;
-//   }
-// };
-
-// const handleTouchEnd = () => {
-//   if (touchStartY.current === null) return;
-
-//   const diff = touchEndY.current - touchStartY.current;
-
-//   if (diff > 100) {
-//     nav(-1);
-//   }
-// };
-
-
-const handleTouchStart = (e) => {
-  const startY = e.touches[0].clientY;
-
-  // Only allow from top header
-  if (startY < 120) {
-    touchStartY.current = startY;
-  } else {
-    touchStartY.current = null;
-  }
-};
-
-const handleTouchMove = (e) => {
-  if (touchStartY.current === null) return;
-
-  touchEndY.current = e.touches[0].clientY;
-
-  const diff = touchEndY.current - touchStartY.current;
-
-  if (diff > 0) {
-    // 🔥 Move screen with finger
-    if (pageRef.current) {
-      pageRef.current.style.transform = `translateY(${diff}px)`;
-    }
-  }
-};
-
-const handleTouchEnd = () => {
-  if (touchStartY.current === null) return;
-
-  const diff = touchEndY.current - touchStartY.current;
-
-  if (pageRef.current) {
-    pageRef.current.style.transition = "transform 0.25s ease";
-  }
-
-  if (diff > 120) {
-    // Close
-    nav(-1);
-  } else {
-    // Snap back
-    if (pageRef.current) {
-      pageRef.current.style.transform = "translateY(0)";
+    if (liked) {
+      await unlikeSong(track.id);
+      setLiked(false);
+      showToast("Removed from Liked Songs");
+    } else {
+      await likeSong(track.id);
+      setLiked(true);
+      showToast("Added to Liked Songs");
     }
   }
 
-  // cleanup
-  setTimeout(() => {
-    if (pageRef.current) {
-      pageRef.current.style.transition = "";
-    }
-  }, 300);
-};
+  const handleTouchStart = (e) => {
+    const startY = e.touches[0].clientY;
 
+    // Only allow from top header
+    if (startY < 120) {
+      touchStartY.current = startY;
+    } else {
+      touchStartY.current = null;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (touchStartY.current === null) return;
+
+    touchEndY.current = e.touches[0].clientY;
+
+    const diff = touchEndY.current - touchStartY.current;
+
+    if (diff > 0) {
+      // 🔥 Move screen with finger
+      if (pageRef.current) {
+        pageRef.current.style.transform = `translateY(${diff}px)`;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartY.current === null) return;
+
+    const diff = touchEndY.current - touchStartY.current;
+
+    if (pageRef.current) {
+      pageRef.current.style.transition = "transform 0.25s ease";
+    }
+
+    if (diff > 120) {
+      // Close
+      nav(-1);
+    } else {
+      // Snap back
+      if (pageRef.current) {
+        pageRef.current.style.transform = "translateY(0)";
+      }
+    }
+
+    // cleanup
+    setTimeout(() => {
+      if (pageRef.current) {
+        pageRef.current.style.transition = "";
+      }
+    }, 300);
+  };
 
   return (
-    // <main
-    //   className="page-safe detials-page-main"
-    //   style={{
-    //     "--background-color": bgColor,
-    //   }}
-    // >
-//     <main
-//   className="page-safe detials-page-main slide-up"
-//   style={{
-//     "--background-color": bgColor,
-//   }}
-// >
-
-
-  <main
-  ref={pageRef}
-  className="page-safe detials-page-main slide-up"
-  style={{
-    "--background-color": bgColor,
-  }}
-  onTouchStart={handleTouchStart}
-  onTouchMove={handleTouchMove}
-  onTouchEnd={handleTouchEnd}
->
-
+    <main
+      ref={pageRef}
+      className="page-safe detials-page-main slide-up"
+      style={{
+        "--background-color": bgColor,
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="song-detail-header">
         <button className="back-btn" onClick={() => nav("/")}>
           <IoArrowBack />
@@ -456,29 +356,22 @@ const handleTouchEnd = () => {
         </div>
       </div>
 
-      {/* {showPicker && (
+      {showPicker && (
         <PlaylistPicker
           trackId={track.id}
-          onClose={() => setShowPicker(false)}
+          onClose={(status) => {
+            setShowPicker(false);
+
+            if (status === "added") {
+              // showSnack("added to playlist");
+              showToast("Added to Playlist");
+            } else if (status === "exists") {
+              // showSnack("already in playlist");
+              showToast("Already in Playlist");
+            }
+          }}
         />
-      )} */}
-
-      {showPicker && (
-  <PlaylistPicker
-    trackId={track.id}
-    onClose={(status) => {
-      setShowPicker(false);
-
-      if (status === "added") {
-        // showSnack("added to playlist");
-        showToast("Added to Playlist");
-      } else if (status === "exists") {
-        // showSnack("already in playlist");
-        showToast("Already in Playlist");
-      }
-    }}
-  />
-)}
+      )}
       {showMenu && (
         <div className="song-menu-overlay" onClick={() => setShowMenu(false)}>
           <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>

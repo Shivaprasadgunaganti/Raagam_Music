@@ -39,21 +39,9 @@ function AppContent() {
   const hideGlobalUI = location.pathname.startsWith("/track/");
   const isLoginPage =
     location.pathname.startsWith("/login") || location.pathname === "/signup";
-    const isPlaylistPage = location.pathname.startsWith("/playlist/");
-    const isMovietPage = location.pathname.startsWith("/movie/");
-  // const isLoginPage = location.pathname === "/login";
-  // useEffect(() => {
-  //   if (!user) {
-  //     clearQueue();
-  //     localStorage.removeItem("audio_state_v1");
-  //   }
-  // }, [user, clearQueue]);
-  // useEffect(() => {
-  //   if (!loading && !user) {
-  //     clearQueue();
-  //     localStorage.removeItem("audio_state_v1");
-  //   }
-  // }, [user, loading, clearQueue]);
+  const isPlaylistPage = location.pathname.startsWith("/playlist/");
+  const isMovietPage = location.pathname.startsWith("/movie/");
+
   useEffect(() => {
     if (!loading && !user) {
       clearQueue();
@@ -69,15 +57,6 @@ function AppContent() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const hash = window.location.hash;
-
-  //   if (hash && hash.includes("type=recovery")) {
-  //     navigate("/reset-password");
-  //   }
-  // }, []);
-
-  // if (loading) return null;
   if (loading) {
     return (
       <div className="auth-loading">
@@ -93,8 +72,7 @@ function AppContent() {
       <div
         className={`app-content ${
           // hideGlobalUI || isLoginPage || isPlaylistPage || isMovietPage ? "no-footer" : ""
-                    hideGlobalUI || isLoginPage ? "no-footer" : ""
-
+          hideGlobalUI || isLoginPage ? "no-footer" : ""
         }`}
       >
         <Routes>
@@ -216,141 +194,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-// src/App.js
-// import React, { useEffect, useState } from "react";
-// import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-
-// import { AuthProvider } from "./context/AuthContext";
-// import { useAuth } from "./context/AuthContext";
-// import ProtectedRoute from "./components/ProtectedRoute";
-// import LoginPage from "./pages/LoginPage";
-
-// import CollectionPage from "./components/CollectionPage";
-// import MiniPlayer from "./components/MiniPlayer";
-// import SongDetailPage from "./components/SongDetailPage";
-// import MoviesPage from "./components/MoviesPage";
-// import MovieSongsPage from "./components/MovieSongsPage";
-// import PlaylistsPage from "./components/PlaylistsPage";
-// import LikedSongsPage from "./components/LikedSongsPage";
-// import PlaylistDetailPage from "./components/PlaylistSongsPage";
-// import QueuePage from "./pages/QueuePage";
-// import BottomNav from "./components/BottomNav";
-// import AllSongsPage from "./pages/AllSongsPage";
-// import SearchPage from "./pages/SearchPage";
-// import "./styles.css";
-// import { LikeProvider } from "./context/LikeContext";
-
-// function AppContent() {
-//   const location = useLocation();
-//   const { user, loading } = useAuth();
-
-//   const hideGlobalUI = location.pathname.startsWith("/track/");
-//   const isLoginPage = location.pathname === "/login";
-
-//   if (loading) return null;
-
-//   return (
-//     <>
-//       <div className={`app-content ${hideGlobalUI ? "no-footer" : ""}`}>
-//         <Routes>
-//           <Route path="/login" element={<LoginPage />} />
-
-//           <Route
-//             path="/"
-//             element={
-//               <ProtectedRoute>
-//                 <CollectionPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/track/:id"
-//             element={
-//               <ProtectedRoute>
-//                 <SongDetailPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/movies"
-//             element={
-//               <ProtectedRoute>
-//                 <MoviesPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/movie/:movieId"
-//             element={
-//               <ProtectedRoute>
-//                 <MovieSongsPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/playlist/:playlistId"
-//             element={
-//               <ProtectedRoute>
-//                 <PlaylistDetailPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/playlists"
-//             element={
-//               <ProtectedRoute>
-//                 <PlaylistsPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/liked"
-//             element={
-//               <ProtectedRoute>
-//                 <LikedSongsPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/queue"
-//             element={
-//               <ProtectedRoute>
-//                 <QueuePage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/all-songs"
-//             element={
-//               <ProtectedRoute>
-//                 <AllSongsPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/search"
-//             element={
-//               <ProtectedRoute>
-//                 <SearchPage />
-//               </ProtectedRoute>
-//             }
-//           />
-//         </Routes>
-//       </div>
-
-//       {!hideGlobalUI && !isLoginPage && user && <MiniPlayer />}
-//       {!hideGlobalUI && !isLoginPage && user && <BottomNav />}
-//     </>
-//   );
-// }
-
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       <AuthProvider>
-//         <AppContent />
-//       </AuthProvider>
-//     </BrowserRouter>
-//   );
-// }
