@@ -674,17 +674,17 @@ body {
   background: linear-gradient(135deg, #132b5a, #081433);
 }
 
-.horizontal-row {
+/* .horizontal-row {
   display: flex;
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 6px;
-}
+} */
 
-.album-card {
+/* .album-card {
   min-width: 140px;
   cursor: pointer;
-}
+} */
 
 .album-card img {
   width: 140px;
@@ -700,13 +700,33 @@ body {
   text-align: center;
 }
 
+.album-subtitle {
+  font-size: 11px;
+  opacity: 0.65;
+  margin-top: 2px;
+  text-align: center;
+}
 
 
+/* .horizontal-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+} */
 .horizontal-row {
   display: flex;
   gap: 14px;
   overflow-x: auto;
   padding-bottom: 6px;
+
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-row::-webkit-scrollbar {
+  display: none;
 }
 
 .playlist-card {
@@ -757,12 +777,17 @@ body {
 
 .album-card {
   width: 150px;
+  flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.25s ease;
 }
 
 .album-card:hover {
   transform: scale(1.05);
+}
+
+.album-card:active {
+  transform: scale(0.96);
 }
 
 .album-img-wrapper {

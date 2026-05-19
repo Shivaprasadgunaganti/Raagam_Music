@@ -52,6 +52,64 @@ export default function CollectionPage() {
     }));
   }, [recent]);
 
+  const trendingTracks = useMemo(() => {
+  if (!tracks?.length) return [];
+
+  // newest first
+  const sorted = [...tracks].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  );
+
+  // take latest 20
+  const latest = sorted.slice(0, 20);
+
+  // slight shuffle for dynamic feel
+  return latest.sort(() => Math.random() - 0.5).slice(0, 10);
+}, [tracks]);
+
+// Made for you
+const madeForYou = useMemo(() => {
+  if (!tracks?.length) return [];
+
+  // recent artists
+  const recentArtists = recent.map((t) => t.artist).filter(Boolean);
+
+  // liked song ids
+  const likedIds = Object.keys(likedMap).filter((id) => likedMap[id]);
+
+  // liked tracks
+  const likedTracks = tracks.filter((t) =>
+    likedIds.includes(String(t.id))
+  );
+
+  // liked artists
+  const likedArtists = likedTracks
+    .map((t) => t.artist)
+    .filter(Boolean);
+
+  // combine preference artists
+  const favoriteArtists = [
+    ...new Set([...recentArtists, ...likedArtists]),
+  ];
+
+  // recommendation candidates
+  const recommended = tracks.filter((track) => {
+    return favoriteArtists.includes(track.artist);
+  });
+
+  // remove duplicates already in recent
+  const recentIds = recent.map((t) => t.id);
+
+  const filtered = recommended.filter(
+    (t) => !recentIds.includes(t.id)
+  );
+
+  // shuffle for dynamic feel
+  return [...filtered]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 10);
+}, [tracks, recent, likedMap]);
+
   /* ---------------- SEARCH ---------------- */
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -294,6 +352,7 @@ export default function CollectionPage() {
         <button onClick={createPlaylist}>Create Playlist</button>
       </div>
 
+        {/* continue listing */}
       {recent?.length > 0 && (
         <section style={{ marginBottom: 20 }}>
           <h3>Continue Listening</h3>
@@ -335,6 +394,64 @@ export default function CollectionPage() {
           </div>
         </section>
       )}
+
+      {/* trending songs  */}
+{trendingTracks.length > 0 && (
+  <section style={{ marginBottom: 24 }}>
+    <h3>Trending Now</h3>
+
+    <div className="horizontal-row">
+      {trendingTracks.map((track, index) => (
+        <div
+          key={track.id}
+          className="album-card"
+          onClick={() => setNewQueue(trendingTracks, index)}
+        >
+          <LazyImage
+            src={track.cover_url || "/covers/default.jpg"}
+            alt={track.title}
+          />
+
+          <div className="album-title">
+            {track.title}
+          </div>
+         
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Made for you  */}
+{madeForYou.length > 0 && (
+  <section style={{ marginBottom: 24 }}>
+    <h3>Made For You</h3>
+
+    <div className="horizontal-row">
+      {madeForYou.map((track, index) => (
+        <div
+          key={track.id}
+          className="album-card"
+          onClick={() => setNewQueue(madeForYou, index)}
+        >
+          <LazyImage
+            src={track.cover_url || "/covers/default.jpg"}
+            alt={track.title}
+          />
+
+          <div className="album-title">
+            {track.title}
+          </div>
+
+          <div className="album-subtitle">
+            {track.artist || "Unknown Artist"}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+    
 
       {/* ---------------- RECENTLY PLAYED ---------------- */}
 
