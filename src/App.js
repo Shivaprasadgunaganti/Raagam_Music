@@ -155,8 +155,16 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/Logout"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          /> */}
+           <Route
+            path="/account"
             element={
               <ProtectedRoute>
                 <ProfilePage />

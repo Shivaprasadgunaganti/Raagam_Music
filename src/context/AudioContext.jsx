@@ -26,6 +26,7 @@ export function AudioProvider({ children }) {
   const [shuffle, setShuffle] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  
   const saveProgress = async (trackId, position, duration) => {
     if (!user || !trackId) return;
     if (position < 5) return;

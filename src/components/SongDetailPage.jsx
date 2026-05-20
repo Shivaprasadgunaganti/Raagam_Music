@@ -252,7 +252,9 @@ export default function SongDetailPage() {
       onTouchEnd={handleTouchEnd}
     >
       <div className="song-detail-header">
-        <button className="back-btn" onClick={() => nav("/")}>
+        {/* <button className="back-btn" onClick={() => nav("/")}> */}
+<button className="back-btn" onClick={() => nav(-1)}>
+          
           <IoArrowBack />
         </button>
 

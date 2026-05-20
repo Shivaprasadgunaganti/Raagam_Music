@@ -28,7 +28,7 @@ export default function BottomNav() {
         <span>Liked</span>
       </NavLink>
 
-      <button
+      {/* <button
         className="nav-item"
         disabled={!currentTrack}
         onClick={() => currentTrack && nav(`/track/${currentTrack.id}`)}
@@ -36,7 +36,12 @@ export default function BottomNav() {
         <MdOutlineAccountCircle />
 
         <span>Account</span>
-      </button>
+      </button> */}
+
+      <NavLink to="/account" className="nav-item">
+        <MdOutlineAccountCircle />
+        <span>Account</span>
+      </NavLink>
     </nav>
   );
 }

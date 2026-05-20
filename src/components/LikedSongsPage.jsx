@@ -6,6 +6,7 @@ import { useAudio } from "../context/AudioContext";
 import { FcLike } from "react-icons/fc";
 import { IoArrowBack } from "react-icons/io5";
 import PlaylistPicker from "./PlaylistPicker";
+import { FaShuffle } from "react-icons/fa6";
 import "./liked.css";
 import {
   likeSong,
@@ -21,7 +22,7 @@ import { useToast } from "../context/ToastContext";
 export default function LikedSongsPage() {
   const nav = useNavigate();
   // ✅ Added addToQueue
-  const { setNewQueue, playNextInsert, currentTrack, addToQueue } = useAudio();
+  const { setNewQueue, playNextInsert, currentTrack, addToQueue, shufflePlay  } = useAudio();
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   // ✅ Changed snack from boolean to string
@@ -33,6 +34,7 @@ export default function LikedSongsPage() {
   const [likedMap, setLikedMap] = useState({});
   const [pickerTrackId, setPickerTrackId] = useState(null);
   const { showToast } = useToast();
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
 
   useEffect(() => {
     async function loadLikedSongs() {
@@ -89,6 +91,19 @@ export default function LikedSongsPage() {
     loadLikedSongs();
   }, []);
 
+
+  useEffect(() => {
+  const handleScroll = () => {
+    setShowStickyHeader(window.scrollY > 120);
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+}, []);
+
   useEffect(() => {
     async function loadLikes() {
       const map = await getLikedSongsMap();
@@ -106,9 +121,23 @@ export default function LikedSongsPage() {
 
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 
+  
+
   return (
     <main className="liked-page page-safe">
       {/* HERO */}
+<div
+  className={`liked-sticky-header ${
+    showStickyHeader ? "show" : ""
+  }`}
+>
+  <button onClick={() => nav(-1)}>
+    <IoArrowBack />
+  </button>
+
+  <span>Liked Songs</span>
+</div>
+
       <div className="liked-hero">
         <button className="liked-back-btn" onClick={() => nav("/")}>
           <IoArrowBack />
@@ -122,14 +151,32 @@ export default function LikedSongsPage() {
           </p>
         </div>
 
-        {songs.length > 0 && (
+        {/* {songs.length > 0 && (
           <button
             className="liked-play-btn"
             onClick={() => setNewQueue(songs, 0)}
           >
             ▶
           </button>
-        )}
+        )} */}
+        {songs.length > 0 && (
+  <div className="liked-action-buttons">
+    <button
+      className="liked-play-btn"
+      onClick={() => setNewQueue(songs, 0)}
+    >
+      ▶
+    </button>
+
+    <button
+      className="liked-shuffle-btn"
+      onClick={() => shufflePlay(songs)}
+    >
+      <FaShuffle/>
+      
+    </button>
+  </div>
+)}
       </div>
 
       {/* EMPTY STATE */}
@@ -156,7 +203,20 @@ export default function LikedSongsPage() {
                   alt={song.title}
                 />
                 <div className="liked-meta">
-                  <div className="liked-song-title">{song.title}</div>
+                  {/* <div className="liked-song-title">{song.title}</div> */}
+                  <div className="liked-song-title-row">
+  <div className="liked-song-title">
+    {song.title}
+  </div>
+
+  {isActive && (
+    <div className="playing-bars">
+      <span />
+      <span />
+      <span />
+    </div>
+  )}
+</div>
                   <div className="liked-song-artist">
                     {song.artist || "Unknown Artist"}
                   </div>
@@ -216,7 +276,8 @@ export default function LikedSongsPage() {
           className="song-menu-overlay"
           onClick={() => setSelectedSong(null)}
         >
-          <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>
+          {/* <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}> */}
+            <div className="song-menu-sheet slide-up-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="sheet-song-info">
               <img
                 src={selectedSong.cover_url || "/covers/default.jpg"}
