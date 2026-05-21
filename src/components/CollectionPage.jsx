@@ -875,19 +875,19 @@ export default function CollectionPage() {
                   src={track.cover_url || "/covers/default.jpg"}
                   alt={track.title}
                 />
-                {isContinue && percent > 0 && (
+                {/* {isContinue && percent > 0 && (
                   <div className="card-progress overlay-progress">
                     <div
                       className="card-progress-fill"
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                )}
+                )} */}
               </div>
               <div className="album-title">{track.title}</div>
-              <div className="album-subtitle">
+              {/* <div className="album-subtitle">
                 {track.artist || "Unknown Artist"}
-              </div>
+              </div> */}
             </div>
           );
         })}
@@ -985,8 +985,8 @@ export default function CollectionPage() {
 
       <header className="home-header">
         <div>
-          <p className="home-greeting">Hi, {username}</p>
-          <h1 className="home-title">Welcome back</h1>
+          {/* <p className="home-greeting">Hi, {username}</p> */}
+          <h1 className="home-title">Hi, {username}</h1>
         </div>
 
         <div className="home-actions">
@@ -1080,32 +1080,42 @@ export default function CollectionPage() {
       </section>
 
       {madeForYou.length > 0 && (
-        <section className="home-section">
+        <section className="home-section made-for-you">
           {renderSectionHeader("Made for You", () => nav("/recommended"))}
           {renderTrackRail(madeForYou.slice(0, 8), madeForYou)}
         </section>
       )}
 
-      {recentList.length > 0 && (
+      {/* {recentList.length > 0 && (
         <section className="home-section">
           {renderSectionHeader("Recently Played", () => nav("/recent"))}
           {renderTrackRail(recentList.slice(0, 8), recent)}
         </section>
-      )}
+      )} */}
 
-      {playlists.length > 0 && (
+    {recentList.length > 0 && (
+  <section className="home-section recently-played-section">
+    {renderSectionHeader("Recently Played", () => nav("/recent"))}
+
+    <div className="recently-played-wrapper">
+      {renderTrackRail(recentList.slice(0, 8), recent)}
+    </div>
+  </section>
+)}
+
+      {/* {playlists.length > 0 && (
         <section className="home-section">
           {renderSectionHeader("Your Playlists", () => nav("/playlists"))}
           {renderPlaylistsRail()}
         </section>
-      )}
+      )} */}
 
-      {movies.length > 0 && (
+      {/* {movies.length > 0 && (
         <section className="home-section">
           {renderSectionHeader("Albums for You", () => nav("/movies"))}
           {renderMoviesRail()}
         </section>
-      )}
+      )} */}
 
       <section className="home-section">
         {renderSectionHeader("Songs", () => nav("/all-songs"))}
@@ -1155,7 +1165,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      <section className="home-section utility-bar">
+      {/* <section className="home-section utility-bar">
         <div className="utility-search">
           <input
             type="text"
@@ -1169,9 +1179,9 @@ export default function CollectionPage() {
           <button onClick={() => playAll(filtered)}>▶ Play All</button>
           <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button>
         </div>
-      </section>
+      </section> */}
 
-      <section className="home-section create-playlist-card">
+      {/* <section className="home-section create-playlist-card">
         <div className="create-playlist-head">
           <h3>Create Playlist</h3>
           <p>Save your mood, mixes, and favorite tracks.</p>
@@ -1186,7 +1196,7 @@ export default function CollectionPage() {
           />
           <button onClick={createPlaylist}>Create</button>
         </div>
-      </section>
+      </section> */}
     </main>
   );
 }
