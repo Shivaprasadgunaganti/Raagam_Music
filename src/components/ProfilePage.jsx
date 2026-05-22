@@ -427,7 +427,7 @@
 
 import "./profile.css";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { supabase } from "../supabaseClient";
@@ -473,6 +473,14 @@ export default function ProfilePage() {
   const username =
     user?.email?.split("@")[0] || "Listener";
 
+  const [likedCount, setLikedCount] =
+  useState(0);  
+
+  const [playlistCount, setPlaylistCount] =
+  useState(0);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+const [showCreatePopup, setShowCreatePopup] = useState(false);
+
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
 
@@ -495,35 +503,114 @@ export default function ProfilePage() {
     window.location.href = "/login";
   }
 
+  useEffect(() => {
+  async function loadLikedCount() {
+    const { count } = await supabase
+      .from("liked_songs")
+      .select("*", {
+        count: "exact",
+        head: true,
+      });
+
+    setLikedCount(count || 0);
+  }
+
+  loadLikedCount();
+}, []);
+
+  useEffect(() => {
+  async function loadPlaylistCount() {
+    const { count } = await supabase
+      .from("playlists")
+      .select("*", {
+        count: "exact",
+        head: true,
+      });
+
+    setPlaylistCount(count || 0);
+  }
+
+  loadPlaylistCount();
+}, []);
+
   const libraryItems = [
     {
       title: "Liked Songs",
-      count: tracks?.length || 0,
+      // count: tracks?.length || 0,
+      count: likedCount,
       icon: <FaHeart />,
       path: "/liked",
     },
 
     {
       title: "Playlists",
-      count:  0,
+      // count:  0,
+        count: playlistCount,
       icon: <MdQueueMusic />,
       path: "/playlists",
     },
 
     {
       title: "Queue",
-      count: recent?.length || 0,
+      count: tracks?.length || 0,
       icon: <MdQueueMusic />,
       path: "/queue",
     },
 
-    {
-      title: "Recently Played",
-      count: recent?.length || 0,
-      icon: <MdHistory />,
-      path: "/all-songs",
-    },
+    // {
+    //   title: "Recently Played",
+    //   count: recent?.length || 0,
+    //   icon: <MdHistory />,
+    //   path: "/all-songs",
+    // },
   ];
+
+  const loadPlaylists = async () => {
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(`
+      id,
+      name,
+      playlist_tracks (
+        track_id,
+        tracks (cover_url)
+      )
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log("Fetch playlist error:", error);
+    return;
+  }
+
+  setPlaylists(data || []);
+};
+
+const createPlaylist = async () => {
+  if (!newPlaylistName.trim() || !user) return;
+
+  const { error } = await supabase.from("playlists").insert({
+    name: newPlaylistName.trim(),
+    user_id: user.id,
+  });
+
+  if (error) {
+    if (error.code === "23505") {
+      alert("Playlist with this name already exists!");
+    } else {
+      console.log("Error creating playlist:", error);
+    }
+    return;
+  }
+
+  setNewPlaylistName("");
+  setShowCreatePopup(false); // close popup
+  loadPlaylists();
+  showToast("Playlist created");
+};
 
   return (
     <main className="library-page page-safe">
@@ -534,7 +621,7 @@ export default function ProfilePage() {
             {greeting}
           </p>
 
-          <h1>Your Library</h1>
+          {/* <h1>Your Library</h1> */}
         </div>
 
         <button className="library-settings-btn">
@@ -560,13 +647,13 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <button className="library-edit-btn">
+        <button className="library-edit-btn"  onClick={() => nav("/edit-info")}>
           Edit
         </button>
       </section>
 
       {/* FILTERS */}
-      <section className="library-filters">
+      {/* <section className="library-filters">
         {[
           "All",
           "Playlists",
@@ -588,7 +675,7 @@ export default function ProfilePage() {
             {item}
           </button>
         ))}
-      </section>
+      </section> */}
 
       {/* LIBRARY LIST */}
       <section className="library-list">
@@ -623,7 +710,8 @@ export default function ProfilePage() {
       <section className="library-actions">
         <button
           className="create-playlist-btn"
-          onClick={() => nav("/playlists")}
+          // onClick={() => nav("/playlists")}
+          onClick={() => setShowCreatePopup(true)}
         >
           <FaPlus />
           Create Playlist
@@ -683,6 +771,43 @@ export default function ProfilePage() {
           </div>
         </section>
       )}
+{/* <button onClick={() => setShowCreatePopup(true)}>
+  + Create Playlist
+</button> */}
+
+{showCreatePopup && (
+  <div
+    className="popup-overlay"
+    onClick={() => setShowCreatePopup(false)}
+  >
+    <div
+      className="popup-box"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3>Create Playlist</h3>
+
+      <input
+        type="text"
+        placeholder="New Playlist Name"
+        value={newPlaylistName}
+        onChange={(e) =>
+          setNewPlaylistName(e.target.value)
+        }
+      />
+
+      <div className="popup-actions">
+        <button onClick={() => setShowCreatePopup(false)}>
+          Cancel
+        </button>
+
+        <button onClick={createPlaylist}>
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* FOOTER */}
       <section className="library-footer">

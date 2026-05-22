@@ -1132,3 +1132,49 @@
     flex-direction: column;
   }
 }
+
+
+/* popup */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-box {
+  width: 80%;
+  max-width: 380px;
+  /* background: #1e1e1e; */
+  background: #1db954;;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  
+}
+
+.popup-box input {
+  width: 95%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.popup-actions button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

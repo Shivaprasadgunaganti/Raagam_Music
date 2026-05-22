@@ -27,6 +27,7 @@ import SignupPage from "./pages/SignupPage";
 import LoginEmailPage from "./pages/LoginEmailPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { useNavigate } from "react-router-dom";
+import EditProfilePage from "./components/EditProfilePage";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
@@ -168,6 +169,15 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
+            <Route
+            path="/edit-info"
+            element={
+              <ProtectedRoute>
+               <EditProfilePage/>
               </ProtectedRoute>
             }
           />

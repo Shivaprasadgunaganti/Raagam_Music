@@ -415,7 +415,7 @@
 //           <div className="album-title">
 //             {track.title}
 //           </div>
-         
+
 //         </div>
 //       ))}
 //     </div>
@@ -451,7 +451,6 @@
 //     </div>
 //   </section>
 // )}
-    
 
 //       {/* ---------------- RECENTLY PLAYED ---------------- */}
 
@@ -599,8 +598,6 @@
 //   );
 // }
 
-
-
 // src/components/CollectionPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -615,6 +612,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import LazyImage from "../components/LazyImage";
 import SkeletonCard from "../components/SkeletonCard";
+import { FiSearch } from "react-icons/fi";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -630,14 +628,14 @@ export default function CollectionPage() {
   const [playlists, setPlaylists] = useState([]);
   const [continueTracks, setContinueTracks] = useState([]);
   const [activeTab, setActiveTab] = useState("continue");
-  const [heroIndex, setHeroIndex] = useState(() => Math.floor(Math.random() * 2));
+  const [heroIndex, setHeroIndex] = useState(() =>
+    Math.floor(Math.random() * 2),
+  );
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
   const username =
-    user?.user_metadata?.username ||
-    user?.email?.split("@")[0] ||
-    "User";
+    user?.user_metadata?.username || user?.email?.split("@")[0] || "User";
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -672,14 +670,16 @@ export default function CollectionPage() {
 
     const { data, error } = await supabase
       .from("playlists")
-      .select(`
+      .select(
+        `
         id,
         name,
         playlist_tracks (
           track_id,
           tracks (cover_url)
         )
-      `)
+      `,
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -744,7 +744,7 @@ export default function CollectionPage() {
     setResumeTime(startTime || 0);
     setNewQueue(
       recent,
-      recent.findIndex((t) => t.id === track.id)
+      recent.findIndex((t) => t.id === track.id),
     );
   };
 
@@ -779,7 +779,7 @@ export default function CollectionPage() {
   const trendingTracks = useMemo(() => {
     if (!tracks?.length) return [];
     const sorted = [...tracks].sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      (a, b) => new Date(b.created_at) - new Date(a.created_at),
     );
     const latest = sorted.slice(0, 20);
     return latest.sort(() => Math.random() - 0.5).slice(0, 10);
@@ -790,15 +790,13 @@ export default function CollectionPage() {
 
     const recentArtists = recent.map((t) => t.artist).filter(Boolean);
     const likedIds = Object.keys(likedMap).filter((id) => likedMap[id]);
-    const likedTracks = tracks.filter((t) =>
-      likedIds.includes(String(t.id))
-    );
+    const likedTracks = tracks.filter((t) => likedIds.includes(String(t.id)));
     const likedArtists = likedTracks.map((t) => t.artist).filter(Boolean);
 
     const favoriteArtists = [...new Set([...recentArtists, ...likedArtists])];
 
     const recommended = tracks.filter((track) =>
-      favoriteArtists.includes(track.artist)
+      favoriteArtists.includes(track.artist),
     );
 
     const recentIds = recent.map((t) => t.id);
@@ -839,10 +837,18 @@ export default function CollectionPage() {
     { key: "albums", label: "Albums for You" },
   ];
 
-  const renderSectionHeader = (title, onClick) => (
+  // const renderSectionHeader = (title, onClick) => (
+  //   <div className="section-row-header">
+  //     <h3>{title}</h3>
+  //     <button onClick={onClick}>See all</button>
+  //   </div>
+  // );
+
+  const renderSectionHeader = (title, onClick, showButton = false) => (
     <div className="section-row-header">
       <h3>{title}</h3>
-      <button onClick={onClick}>See all</button>
+
+      {showButton && <button onClick={onClick}>See all</button>}
     </div>
   );
 
@@ -953,10 +959,28 @@ export default function CollectionPage() {
     );
   };
 
+  // profile icon
+  const userName = user?.name || "User";
+
+  const colors = [
+    "#FF8A65",
+    "#4DB6AC",
+    "#9575CD",
+    "#64B5F6",
+    "#F06292",
+    "#81C784",
+  ];
+
+  const profileColor = colors[userName.length % colors.length];
+
   const renderActiveTabContent = () => {
     switch (activeTab) {
       case "continue":
-        return renderTrackRail(continueTracks.slice(0, 6), continueTracks, true);
+        return renderTrackRail(
+          continueTracks.slice(0, 6),
+          continueTracks,
+          true,
+        );
       case "trending":
         return renderTrackRail(trendingTracks.slice(0, 8), trendingTracks);
       case "recent":
@@ -990,11 +1014,30 @@ export default function CollectionPage() {
         </div>
 
         <div className="home-actions">
-          <button onClick={() => nav("/search")} aria-label="Search">
+          {/* <button onClick={() => nav("/search")} aria-label="Search">
             🔍
+             <FiSearch />
+          </button> */}
+          <button onClick={() => nav("/search")} aria-label="Search">
+            <FiSearch />
           </button>
-          <button onClick={() => nav("/profile")} aria-label="Profile">
+          {/* <button onClick={() => nav("/account")} aria-label="Profile">
             👤
+          </button> */}
+          <button
+            className="profile-btn"
+            onClick={() => nav("/account")}
+            aria-label="Profile"
+            style={{
+              background: profileColor,
+            }}
+          >
+            {userName
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase()}
           </button>
         </div>
       </header>
@@ -1074,7 +1117,7 @@ export default function CollectionPage() {
                 ? () => nav("/recent")
                 : activeTab === "playlists"
                   ? () => nav("/playlists")
-                  : () => nav("/movies")
+                  : () => nav("/movies"),
         )}
         {renderActiveTabContent()}
       </section>
@@ -1093,15 +1136,15 @@ export default function CollectionPage() {
         </section>
       )} */}
 
-    {recentList.length > 0 && (
-  <section className="home-section recently-played-section">
-    {renderSectionHeader("Recently Played", () => nav("/recent"))}
+      {recentList.length > 0 && (
+        <section className="home-section recently-played-section">
+          {renderSectionHeader("Recently Played", () => nav("/recent"))}
 
-    <div className="recently-played-wrapper">
-      {renderTrackRail(recentList.slice(0, 8), recent)}
-    </div>
-  </section>
-)}
+          <div className="recently-played-wrapper">
+            {renderTrackRail(recentList.slice(0, 8), recent)}
+          </div>
+        </section>
+      )}
 
       {/* {playlists.length > 0 && (
         <section className="home-section">
@@ -1118,7 +1161,9 @@ export default function CollectionPage() {
       )} */}
 
       <section className="home-section">
-        {renderSectionHeader("Songs", () => nav("/all-songs"))}
+        {/* {renderSectionHeader("Songs", () => nav("/all-songs"))} */}
+    
+        {renderSectionHeader("Songs", () => nav("/all-songs"), true)}
 
         <div className="songs-list">
           {filtered.length === 0
@@ -1165,21 +1210,21 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* <section className="home-section utility-bar">
-        <div className="utility-search">
+      <section className="home-section utility-bar">
+        {/* <div className="utility-search">
           <input
             type="text"
             placeholder="Search songs or artists"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-        </div>
+        </div> */}
 
         <div className="utility-buttons">
           <button onClick={() => playAll(filtered)}>▶ Play All</button>
           <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button>
         </div>
-      </section> */}
+      </section>
 
       {/* <section className="home-section create-playlist-card">
         <div className="create-playlist-head">
