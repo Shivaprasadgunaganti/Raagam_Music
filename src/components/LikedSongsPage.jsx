@@ -151,14 +151,7 @@ export default function LikedSongsPage() {
           </p>
         </div>
 
-        {/* {songs.length > 0 && (
-          <button
-            className="liked-play-btn"
-            onClick={() => setNewQueue(songs, 0)}
-          >
-            ▶
-          </button>
-        )} */}
+        
         {songs.length > 0 && (
   <div className="liked-action-buttons">
     <button

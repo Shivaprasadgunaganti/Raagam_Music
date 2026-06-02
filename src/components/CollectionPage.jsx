@@ -651,13 +651,30 @@ export default function CollectionPage() {
     });
   }, [tracks]);
 
+  // useEffect(() => {
+  //   async function loadMovies() {
+  //     const { data } = await supabase
+  //       .from("movies")
+  //       .select("id, title, cover_url")
+  //       .order("id", { ascending: false })
+  //       .limit(8);
+
+  //     setMovies(data || []);
+  //   }
+
+  //   loadMovies();
+  // }, []);
+
   useEffect(() => {
     async function loadMovies() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("movies")
         .select("id, title, cover_url")
         .order("id", { ascending: false })
         .limit(8);
+
+      console.log("MOVIES DATA:", data);
+      console.log("MOVIES ERROR:", error);
 
       setMovies(data || []);
     }
@@ -817,24 +834,90 @@ export default function CollectionPage() {
     });
   }, [tracks, debounced]);
 
-  const heroSlides = useMemo(() => {
-    const base = [trendingTracks[0], madeForYou[0]].filter(Boolean);
-    return base.slice(0, 2).map((track, index) => ({
-      id: track.id,
-      title: track.title,
-      artist: track.artist || "Unknown Artist",
-      description: "A fresh pick based on your recent listening.",
-      image: track.cover_url || "/covers/default.jpg",
-      onClick: () => setNewQueue(base, index),
-    }));
-  }, [trendingTracks, madeForYou, setNewQueue]);
+  // const heroSlides = useMemo(() => {
+  //   const base = [trendingTracks[0], madeForYou[0]].filter(Boolean);
+  //   return base.slice(0, 2).map((track, index) => ({
+  //     id: track.id,
+  //     title: track.title,
+  //     artist: track.artist || "Unknown Artist",
+  //     description: "A fresh pick based on your recent listening.",
+  //     image: track.cover_url || "/covers/default.jpg",
+  //     onClick: () => setNewQueue(base, index),
+  //   }));
+  // }, [trendingTracks, madeForYou, setNewQueue]);
+
+const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+
+const heroSlides = useMemo(() => {
+  const hour = new Date().getHours();
+
+  let timeGreeting, timeMood;
+  if (hour >= 5 && hour < 12) {
+    timeGreeting = "Start your morning right";
+    timeMood = "Morning Boost";
+  } else if (hour >= 12 && hour < 17) {
+    timeGreeting = "Power through your afternoon";
+    timeMood = "Midday Energy";
+  } else if (hour >= 17 && hour < 21) {
+    timeGreeting = "Wind down your evening";
+    timeMood = "Evening Unwind";
+  } else {
+    timeGreeting = "Perfect for the night";
+    timeMood = "Late Night Chill";
+  }
+
+  // Slide 3 — first letter of email matched tracks
+  const emailInitial = user?.email?.[0]?.toLowerCase() || "";
+  const matchedTracks = tracks.filter(
+    (t) => t.title?.toLowerCase().startsWith(emailInitial)
+  );
+  const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
+  const slide3Title = matchedTracks.length > 0
+    ? `Tracks starting with "${emailInitial.toUpperCase()}"`
+    : "Albums picked for you";
+
+  return [
+    {
+      id: "slide-time",
+      type: "time",
+      title: timeGreeting,
+      // artist: timeMood,
+      description: "Browse songs that match your current vibe.",
+      // image: trendingTracks[0]?.cover_url || "/covers/default.jpg",
+      badge: timeMood,
+      // onClick: () => nav("/all-songs"),
+       onClick: () => shufflePlay(filtered),
+    },
+    {
+      id: "slide-playlist",
+      type: "playlist",
+      title: "Build your perfect playlist",
+      // artist: "Create · Customize",
+      description: "Mix your favourite tracks into one place.",
+      image: movies[0]?.cover_url || trendingTracks[1]?.cover_url || "/covers/default.jpg",
+      badge: "FOR YOU",
+      onClick: () => setShowPlaylistModal(true),
+    },
+    {
+      id: "slide-personal",
+      type: "personal",
+      title: slide3Title,
+      artist: `Just for ${emailInitial.toUpperCase()}`,
+      description: "Personally picked based on your initial.",
+      image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
+      badge: "PERSONAL",
+      onClick: () => setNewQueue(slide3Tracks, 0),
+    },
+  ];
+}, [tracks, trendingTracks, movies, user, nav, setNewQueue]);
 
   const switchTabs = [
     { key: "continue", label: "Continue Listening" },
     { key: "trending", label: "Trending" },
+    { key: "madeforyou", label: "Made For You" },
     { key: "recent", label: "Recently Played" },
     { key: "playlists", label: "Your Playlists" },
-    { key: "albums", label: "Albums for You" },
+    // { key: "albums", label: "Albums for You" },
   ];
 
   // const renderSectionHeader = (title, onClick) => (
@@ -952,7 +1035,7 @@ export default function CollectionPage() {
               />
             </div>
             <div className="album-title">{m.title}</div>
-            <div className="album-subtitle">Album pick</div>
+            <div className="album-subtitle">{m.artist}</div>
           </div>
         ))}
       </div>
@@ -987,8 +1070,10 @@ export default function CollectionPage() {
         return renderTrackRail(recentList.slice(0, 8), recent);
       case "playlists":
         return renderPlaylistsRail();
-      case "albums":
-        return renderMoviesRail();
+      // case "albums":
+      //   return renderMoviesRail();
+      case "madeforyou":
+        return renderTrackRail(madeForYou.slice(0, 8), madeForYou);
       default:
         return null;
     }
@@ -1042,7 +1127,7 @@ export default function CollectionPage() {
         </div>
       </header>
 
-      {heroSlides.length > 0 && (
+      {/* {heroSlides.length > 0 && (
         <section className="home-section featured-carousel-section">
           <div className="featured-carousel-shell">
             <div
@@ -1090,7 +1175,59 @@ export default function CollectionPage() {
             </div>
           </div>
         </section>
-      )}
+      )} */}
+
+      {heroSlides.length > 0 && (
+  <section className="home-section featured-carousel-section">
+    <div className="featured-carousel-shell">
+      <div
+        className="featured-carousel-track"
+        style={{ transform: `translateX(-${heroIndex * 100}%)` }}
+      >
+        {heroSlides.map((slide) => (
+          <div
+            key={slide.id}
+            className="featured-slide"
+            onClick={slide.onClick}
+          >
+            {/* <LazyImage src={slide.image} alt={slide.title} /> */}
+            <div className="featured-overlay" />
+            <div className="featured-content">
+              <span className="featured-badge">{slide.badge}</span>
+              <h2>{slide.title}</h2>
+              <h4>{slide.artist}</h4>
+              <p>{slide.description}</p>
+              <div className="featured-buttons">
+                <button
+                  className="play-pill"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    slide.onClick();
+                  }}
+                >
+                  {/* {slide.type === "playlist" ? "+ Create" : "▶ Play"} */}
+{slide.type === "playlist" ? "+ Create" : "▶ Play"}
+                  {/* <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button> */}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hero-dots">
+        {heroSlides.map((_, index) => (
+          <button
+            key={index}
+            className={heroIndex === index ? "active" : ""}
+            onClick={() => setHeroIndex(index)}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+)}
 
       <section className="home-section">
         <div className="switch-tabs">
@@ -1122,10 +1259,18 @@ export default function CollectionPage() {
         {renderActiveTabContent()}
       </section>
 
-      {madeForYou.length > 0 && (
+      {/* {madeForYou.length > 0 && (
         <section className="home-section made-for-you">
           {renderSectionHeader("Made for You", () => nav("/recommended"))}
           {renderTrackRail(madeForYou.slice(0, 8), madeForYou)}
+        </section>
+      )} */}
+
+      {movies.length > 0 && (
+        <section className="home-section">
+          {renderSectionHeader("Albums For You", () => nav("/movies"), true)}
+
+          {renderMoviesRail()}
         </section>
       )}
 
@@ -1162,7 +1307,7 @@ export default function CollectionPage() {
 
       <section className="home-section">
         {/* {renderSectionHeader("Songs", () => nav("/all-songs"))} */}
-    
+
         {renderSectionHeader("Songs", () => nav("/all-songs"), true)}
 
         <div className="songs-list">
@@ -1242,6 +1387,39 @@ export default function CollectionPage() {
           <button onClick={createPlaylist}>Create</button>
         </div>
       </section> */}
+
+      {showPlaylistModal && (
+  <div
+    className="modal-overlay"
+    onClick={() => setShowPlaylistModal(false)}
+  >
+    <div
+      className="modal-sheet"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3>Create Playlist</h3>
+      <p>Save your mood, mixes, and favourite tracks.</p>
+      <input
+        type="text"
+        placeholder="Playlist name..."
+        value={newPlaylistName}
+        onChange={(e) => setNewPlaylistName(e.target.value)}
+      />
+      <div className="modal-actions">
+        <button onClick={() => setShowPlaylistModal(false)}>Cancel</button>
+        <button
+          className="modal-confirm"
+          onClick={async () => {
+            await createPlaylist();
+            setShowPlaylistModal(false);
+          }}
+        >
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </main>
   );
 }

@@ -12,7 +12,7 @@ import {
   isSongLiked,
   getLikedSongsMap,
 } from "../utils/likeHelpers";
-import { FaHeart } from "react-icons/fa6";
+import { FaHeart, FaShuffle } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
@@ -21,7 +21,8 @@ export default function PlaylistDetailPage() {
   const { playlistId } = useParams();
   const nav = useNavigate();
   // ✅ Added addToQueue
-  const { setNewQueue, playNextInsert, currentTrack, addToQueue } = useAudio();
+  const { setNewQueue, playNextInsert, currentTrack, addToQueue, shufflePlay } =
+    useAudio();
 
   const [playlist, setPlaylist] = useState(null);
   const [songs, setSongs] = useState([]);
@@ -180,9 +181,23 @@ export default function PlaylistDetailPage() {
         </div>
 
         {songs.length > 0 && (
-          <button className="pd-play-btn" onClick={() => setNewQueue(songs, 0)}>
-            ▶
-          </button>
+          <div className="pd-action-buttons pl">
+            
+            <button
+              className="pd-play-btn"
+              onClick={() => setNewQueue(songs, 0)}
+            >
+              ▶
+            </button>
+
+            
+            <button
+              className="pd-shuffle-btn"
+              onClick={() => shufflePlay(songs)}
+            >
+              <FaShuffle />
+            </button>
+          </div>
         )}
       </div>
 

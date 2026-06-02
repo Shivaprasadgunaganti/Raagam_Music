@@ -113,10 +113,11 @@
 
 /* Play button — bottom right */
 .pd-play-btn {
-  position: absolute;
-  /* bottom: 24px; */
+  /* position: absolute;
+ 
   bottom: 12px;
-  right: 24px;
+  right: 24px; */
+    position: static;   /* or just remove position */
   width: 54px;
   height: 54px;
   border-radius: 50%;
@@ -362,4 +363,41 @@
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
   margin: 0 24px 8px;
+}
+
+
+/* .pd-action-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-left: 0;   
+} */
+
+.pd-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+  /* background-color: black; */
+  width: 100%;
+}
+
+
+.pd-shuffle-btn {
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: #1db954;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.pd-shuffle-btn:hover {
+  transform: scale(1.04);
 }
