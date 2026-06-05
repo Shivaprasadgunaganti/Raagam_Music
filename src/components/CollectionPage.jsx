@@ -1,603 +1,3 @@
-// // src/components/CollectionPage.jsx
-// import React, { useEffect, useMemo, useRef, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import useTracks from "../hooks/useTracks";
-// import useRecent from "../hooks/useRecent";
-// import "./collection.css";
-// import { Card } from "react-bootstrap";
-// import { likeSong, unlikeSong, isSongLiked } from "../utils/likeHelpers";
-// import { useAudio } from "../context/AudioContext";
-// import { supabase } from "../supabaseClient";
-// import { useLikes } from "../context/LikeContext";
-// import { useAuth } from "../context/AuthContext";
-// import PlaylistModal from "../components/PlaylistModal";
-// import { useToast } from "../context/ToastContext";
-// import LazyImage from "../components/LazyImage";
-// import SkeletonCard from "../components/SkeletonCard";
-
-// export default function CollectionPage() {
-//   const { tracks, loading } = useTracks();
-//   const { recent } = useRecent();
-//   const nav = useNavigate();
-//   const [newPlaylistName, setNewPlaylistName] = useState("");
-//   const { playAll, shufflePlay, setNewQueue, setResumeTime } = useAudio();
-//   const [loadedImages, setLoadedImages] = useState({});
-
-//   const playFromContinue = (track, startTime) => {
-//     if (!track) return;
-
-//     setResumeTime(startTime || 0); // 🔥 set resume time
-//     // setNewQueue([track], 0);
-//     setNewQueue(
-//       recent,
-//       recent.findIndex((t) => t.id === track.id),
-//     );
-//   };
-
-//   const [query, setQuery] = useState("");
-//   const [debounced, setDebounced] = useState("");
-//   const { user } = useAuth();
-//   const [continueTracks, setContinueTracks] = useState([]);
-
-//   // ❤️ Like state map
-//   const [likedMap, setLikedMap] = useState({});
-//   const [movies, setMovies] = useState([]);
-//   const [playlists, setPlaylists] = useState([]);
-//   const { showToast } = useToast();
-
-//   const recentList = useMemo(() => {
-//     return recent.slice(0, 8).map((track, index) => ({
-//       ...track,
-//       index,
-//     }));
-//   }, [recent]);
-
-//   const trendingTracks = useMemo(() => {
-//   if (!tracks?.length) return [];
-
-//   // newest first
-//   const sorted = [...tracks].sort(
-//     (a, b) => new Date(b.created_at) - new Date(a.created_at)
-//   );
-
-//   // take latest 20
-//   const latest = sorted.slice(0, 20);
-
-//   // slight shuffle for dynamic feel
-//   return latest.sort(() => Math.random() - 0.5).slice(0, 10);
-// }, [tracks]);
-
-// // Made for you
-// const madeForYou = useMemo(() => {
-//   if (!tracks?.length) return [];
-
-//   // recent artists
-//   const recentArtists = recent.map((t) => t.artist).filter(Boolean);
-
-//   // liked song ids
-//   const likedIds = Object.keys(likedMap).filter((id) => likedMap[id]);
-
-//   // liked tracks
-//   const likedTracks = tracks.filter((t) =>
-//     likedIds.includes(String(t.id))
-//   );
-
-//   // liked artists
-//   const likedArtists = likedTracks
-//     .map((t) => t.artist)
-//     .filter(Boolean);
-
-//   // combine preference artists
-//   const favoriteArtists = [
-//     ...new Set([...recentArtists, ...likedArtists]),
-//   ];
-
-//   // recommendation candidates
-//   const recommended = tracks.filter((track) => {
-//     return favoriteArtists.includes(track.artist);
-//   });
-
-//   // remove duplicates already in recent
-//   const recentIds = recent.map((t) => t.id);
-
-//   const filtered = recommended.filter(
-//     (t) => !recentIds.includes(t.id)
-//   );
-
-//   // shuffle for dynamic feel
-//   return [...filtered]
-//     .sort(() => Math.random() - 0.5)
-//     .slice(0, 10);
-// }, [tracks, recent, likedMap]);
-
-//   /* ---------------- SEARCH ---------------- */
-//   useEffect(() => {
-//     const id = setTimeout(() => setDebounced(query.trim()), 300);
-//     return () => clearTimeout(id);
-//   }, [query]);
-
-//   /* ---------------- INIT LIKES ---------------- */
-//   useEffect(() => {
-//     if (!tracks?.length) return;
-
-//     tracks.forEach((t) => {
-//       isSongLiked(t.id).then((liked) => {
-//         setLikedMap((prev) => ({ ...prev, [t.id]: liked }));
-//       });
-//     });
-//   }, [tracks]);
-
-//   useEffect(() => {
-//     async function loadMovies() {
-//       const { data } = await supabase
-//         .from("movies")
-//         .select("id, title, cover_url")
-//         .order("id", { ascending: false })
-//         .limit(8);
-
-//       setMovies(data || []);
-//     }
-
-//     loadMovies();
-//   }, []);
-
-//   const loadPlaylists = async () => {
-//     if (!user) return;
-
-//     const { data, error } = await supabase
-//       .from("playlists")
-//       // .select("id, name, cover_url")
-//       .select(
-//         `
-//   id,
-//   name,
-//   playlist_tracks (
-//     track_id,
-//     tracks (cover_url)
-//   )
-// `,
-//       )
-//       .eq("user_id", user.id) // 🔥 VERY IMPORTANT
-//       .order("created_at", { ascending: false });
-
-//     if (error) {
-//       console.log("Fetch playlist error:", error);
-//       return;
-//     }
-
-//     setPlaylists(data || []);
-//   };
-
-//   useEffect(() => {
-//     loadPlaylists();
-//   }, [user]);
-
-//   useEffect(() => {
-//     fetchContinueListening();
-//   }, [user]);
-
-//   const getPlaylistCovers = (playlist) => {
-//     if (!playlist.playlist_tracks) return [];
-
-//     return playlist.playlist_tracks
-//       .slice(0, 4)
-//       .map((pt) => pt.tracks?.cover_url)
-//       .filter(Boolean);
-//   };
-
-//   const filtered = useMemo(() => {
-//     if (!debounced) return tracks || [];
-//     const q = debounced.toLowerCase();
-//     return (tracks || []).filter((t) => {
-//       const title = (t.title || "").toLowerCase();
-//       const artist = (t.artist || "").toLowerCase();
-//       return title.includes(q) || artist.includes(q);
-//     });
-//   }, [tracks, debounced]);
-
-//   /* ---------------- RECENT MARQUEE ---------------- */
-//   const fetchContinueListening = async () => {
-//     if (!user) return;
-
-//     const { data, error } = await supabase
-//       .from("continue_listening")
-//       .select("track_id, last_position, duration, tracks(*)")
-//       .eq("user_id", user.id) // 🔥 IMPORTANT FILTER
-//       .order("updated_at", { ascending: false })
-//       .limit(10);
-
-//     if (error) {
-//       console.log(error);
-//       return;
-//     }
-
-//     setContinueTracks(data || []);
-//   };
-
-//   const createPlaylist = async () => {
-//     if (!newPlaylistName.trim() || !user) return;
-
-//     const { error } = await supabase.from("playlists").insert({
-//       name: newPlaylistName.trim(),
-//       user_id: user.id,
-//     });
-
-//     if (error) {
-//       // 🔥 Handle duplicate error
-//       if (error.code === "23505") {
-//         alert("Playlist with this name already exists!");
-//       } else {
-//         console.log("Error creating playlist:", error);
-//       }
-//       return;
-//     }
-
-//     setNewPlaylistName("");
-//     loadPlaylists();
-//   };
-
-//   // add to playlist
-//   const addToPlaylist = async (playlistId, trackId) => {
-//     if (!playlistId || !trackId) return;
-
-//     const { error } = await supabase.from("playlist_tracks").insert({
-//       playlist_id: playlistId,
-//       track_id: trackId,
-//     });
-
-//     if (error) {
-//       console.log("Error adding to playlist:", error);
-//     } else {
-//       // alert("Added to playlist ✅");
-//       showToast("Added to Playlist");
-//     }
-//   };
-
-//   //
-//   const recentRowRef = useRef(null);
-
-//   useEffect(() => {
-//     const row = recentRowRef.current;
-//     if (!row) return;
-
-//     if (
-//       !Array.from(row.children).some((c) => c.classList.contains("original"))
-//     ) {
-//       Array.from(row.children).forEach((c) => c.classList.add("original"));
-//     }
-
-//     Array.from(row.querySelectorAll(".recent-track-card.clone")).forEach((c) =>
-//       c.remove(),
-//     );
-
-//     const originals = Array.from(row.children).filter((c) =>
-//       c.classList.contains("original"),
-//     );
-
-//     originals.forEach((node) => {
-//       const clone = node.cloneNode(true);
-//       clone.classList.remove("original");
-//       clone.classList.add("clone");
-//       row.appendChild(clone);
-//     });
-
-//     if (row.scrollWidth > row.clientWidth) {
-//       row.classList.add("marquee");
-//       row.style.animationDuration = `${Math.max(12, row.scrollWidth * 0.02)}s`;
-//     } else {
-//       row.classList.remove("marquee");
-//     }
-
-//     return () => {
-//       Array.from(row.querySelectorAll(".recent-track-card.clone")).forEach(
-//         (c) => c.remove(),
-//       );
-//       row.classList.remove("marquee");
-//     };
-//   }, [recent]);
-
-//   if (loading) return <div style={{ padding: 20 }}>Loading tracks…</div>;
-
-//   return (
-//     <main style={{ padding: 20 }} className="page-safe">
-//       {/* ---------------- HEADER ---------------- */}
-//       <header style={{ textAlign: "center", marginBottom: 12 }}>
-//         <h1 style={{ margin: 0 }}>Collection</h1>
-//         <p style={{ color: "#9aa4b2" }}>Browse songs & albums</p>
-//       </header>
-//       <div
-//         style={{
-//           display: "flex",
-//           gap: 12,
-//           justifyContent: "center",
-//           marginBottom: 16,
-//         }}
-//       >
-//         <button onClick={() => playAll(filtered)}>▶ Play All</button>
-//         <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button>
-//       </div>
-
-//       {/* ---------------- HOME SHORTCUTS (NEW) ---------------- */}
-//       <section className="home-shortcuts">
-//         {/* <div className="shortcut-card" onClick={() => nav("/liked")}>
-//           ❤️
-//           <span>Liked Songs</span>
-//         </div> */}
-
-//         <div className="shortcut-card" onClick={() => nav("/playlists")}>
-//           📂
-//           <span>Playlists</span>
-//         </div>
-
-//         <div className="shortcut-card" onClick={() => nav("/movies")}>
-//           🎬
-//           <span>Movies</span>
-//         </div>
-
-//         {/* Logout  */}
-//         <div onClick={() => nav("/logout")}>
-//           <span>Logout</span>
-//         </div>
-//       </section>
-
-//       {/* ---------------- SEARCH ---------------- */}
-//       <div style={{ marginBottom: 20 }}>
-//         <input
-//           type="text"
-//           placeholder="New Playlist Name"
-//           value={newPlaylistName}
-//           onChange={(e) => setNewPlaylistName(e.target.value)}
-//         />
-
-//         <button onClick={createPlaylist}>Create Playlist</button>
-//       </div>
-
-//         {/* continue listing */}
-//       {recent?.length > 0 && (
-//         <section style={{ marginBottom: 20 }}>
-//           <h3>Continue Listening</h3>
-
-//           <div className="horizontal-row">
-//             {continueTracks.slice(0, 4).map((item) => {
-//               const track = item.tracks;
-
-//               const percent =
-//                 item.duration > 0
-//                   ? (item.last_position / item.duration) * 100
-//                   : 0;
-
-//               return (
-//                 <div
-//                   key={track.id}
-//                   className="album-card"
-//                   // onClick={() => nav(`/track/${track.id}`)}
-//                   onClick={() => playFromContinue(track, item.last_position)}
-//                 >
-//                   <img
-//                     src={track.cover_url || "/covers/default.jpg"}
-//                     alt={track.title}
-//                   />
-
-//                   {percent > 0 && (
-//                     <div className="card-progress">
-//                       <div
-//                         className="card-progress-fill"
-//                         style={{ width: `${percent}%` }}
-//                       />
-//                     </div>
-//                   )}
-
-//                   <div className="album-title">{track.title}</div>
-//                 </div>
-//               );
-//             })}
-//           </div>
-//         </section>
-//       )}
-
-//       {/* trending songs  */}
-// {trendingTracks.length > 0 && (
-//   <section style={{ marginBottom: 24 }}>
-//     <h3>Trending Now</h3>
-
-//     <div className="horizontal-row">
-//       {trendingTracks.map((track, index) => (
-//         <div
-//           key={track.id}
-//           className="album-card"
-//           onClick={() => setNewQueue(trendingTracks, index)}
-//         >
-//           <LazyImage
-//             src={track.cover_url || "/covers/default.jpg"}
-//             alt={track.title}
-//           />
-
-//           <div className="album-title">
-//             {track.title}
-//           </div>
-
-//         </div>
-//       ))}
-//     </div>
-//   </section>
-// )}
-
-// {/* Made for you  */}
-// {madeForYou.length > 0 && (
-//   <section style={{ marginBottom: 24 }}>
-//     <h3>Made For You</h3>
-
-//     <div className="horizontal-row">
-//       {madeForYou.map((track, index) => (
-//         <div
-//           key={track.id}
-//           className="album-card"
-//           onClick={() => setNewQueue(madeForYou, index)}
-//         >
-//           <LazyImage
-//             src={track.cover_url || "/covers/default.jpg"}
-//             alt={track.title}
-//           />
-
-//           <div className="album-title">
-//             {track.title}
-//           </div>
-
-//           <div className="album-subtitle">
-//             {track.artist || "Unknown Artist"}
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   </section>
-// )}
-
-//       {/* ---------------- RECENTLY PLAYED ---------------- */}
-
-//       {recent?.length > 0 && (
-//         <section style={{ marginBottom: 20 }}>
-//           <h3>Recently Played</h3>
-
-//           <div className="horizontal-row">
-//             {recent?.length === 0
-//               ? Array.from({ length: 6 }).map((_, i) => (
-//                   <SkeletonCard key={i} />
-//                 ))
-//               : recentList.map((track) => (
-//                   <div
-//                     key={track.id}
-//                     className="album-card"
-//                     onClick={() => setNewQueue(recent, track.index)}
-//                   >
-//                     <LazyImage
-//                       src={track.cover_url || "/covers/default.jpg"}
-//                       alt={track.title}
-//                     />
-//                     <div className="album-title">{track.title}</div>
-//                   </div>
-//                 ))}
-//           </div>
-//         </section>
-//       )}
-
-//       {playlists.length > 0 && (
-//         <section style={{ marginBottom: 20 }}>
-//           <h3>Your Playlists</h3>
-
-//           <div className="horizontal-row">
-//             {playlists.length === 0
-//               ? Array.from({ length: 6 }).map((_, i) => (
-//                   <SkeletonCard key={i} />
-//                 ))
-//               : playlists.map((p) => {
-//                   const covers = getPlaylistCovers(p);
-
-//                   return (
-//                     <div
-//                       key={p.id}
-//                       className="playlist-card"
-//                       onClick={() => nav(`/playlist/${p.id}`)}
-//                     >
-//                       <div className="playlist-cover">
-//                         {covers.length > 0 ? (
-//                           <div
-//                             className={`playlist-cover-grid count-${covers.length}`}
-//                           >
-//                             {covers.map((c, i) => (
-//                               <LazyImage key={i} src={c} alt="cover" />
-//                             ))}
-//                           </div>
-//                         ) : (
-//                           <LazyImage src="/covers/default.jpg" alt={p.name} />
-//                         )}
-//                       </div>
-
-//                       <div className="playlist-title">{p.name}</div>
-//                     </div>
-//                   );
-//                 })}
-//           </div>
-//         </section>
-//       )}
-
-//       {movies.length > 0 && (
-//         <section style={{ marginBottom: 20 }}>
-//           <h3>Albums for you</h3>
-
-//           <div className="horizontal-row">
-//             {movies.length === 0
-//               ? Array.from({ length: 6 }).map((_, i) => (
-//                   <SkeletonCard key={i} />
-//                 ))
-//               : movies.map((m) => (
-//                   <div
-//                     key={m.id}
-//                     className="album-card"
-//                     onClick={() => nav(`/movie/${m.id}`)}
-//                   >
-//                     <LazyImage
-//                       src={m.cover_url || "/covers/default.jpg"}
-//                       alt={m.title}
-//                     />
-//                     <div className="album-title">{m.title}</div>
-//                   </div>
-//                 ))}
-//           </div>
-//         </section>
-//       )}
-
-//       {/* ---------------- COLLECTION GRID ---------------- */}
-
-//       <div className="music-grid">
-//         {filtered.length === 0
-//           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
-//           : filtered.slice(0, 12).map((t) => (
-//               <Card
-//                 key={t.id}
-//                 className="music-card"
-//                 onClick={() => nav(`/track/${t.id}`)}
-//               >
-//                 <div className="music-card-cover">
-//                   <LazyImage
-//                     src={t.cover_url || "/covers/default.jpg"}
-//                     alt={t.title}
-//                     className="music-card-img"
-//                   />
-
-//                   <button
-//                     onClick={(e) => {
-//                       e.stopPropagation();
-//                       if (likedMap[t.id]) {
-//                         unlikeSong(t.id);
-//                       } else {
-//                         likeSong(t.id);
-//                       }
-//                       setLikedMap((prev) => ({
-//                         ...prev,
-//                         [t.id]: !prev[t.id],
-//                       }));
-//                     }}
-//                   >
-//                     ♥
-//                   </button>
-//                 </div>
-
-//                 <Card.Body>
-//                   <h2>{t.title}</h2>
-//                   <p>{t.artist}</p>
-//                 </Card.Body>
-//               </Card>
-//             ))}
-//       </div>
-//       {filtered.length > 12 && (
-//         <div style={{ textAlign: "center", marginTop: 12 }}>
-//           <button onClick={() => nav("/all-songs")}>View All Songs</button>
-//         </div>
-//       )}
-//     </main>
-//   );
-// }
-
 // src/components/CollectionPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -613,6 +13,13 @@ import { useToast } from "../context/ToastContext";
 import LazyImage from "../components/LazyImage";
 import SkeletonCard from "../components/SkeletonCard";
 import { FiSearch } from "react-icons/fi";
+import { Swiper, SwiperSlide } from "swiper/react";
+
+import { Autoplay, Pagination,EffectCoverflow } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -628,14 +35,18 @@ export default function CollectionPage() {
   const [playlists, setPlaylists] = useState([]);
   const [continueTracks, setContinueTracks] = useState([]);
   const [activeTab, setActiveTab] = useState("continue");
-  const [heroIndex, setHeroIndex] = useState(() =>
-    Math.floor(Math.random() * 2),
-  );
+  // const [heroIndex, setHeroIndex] = useState(() =>
+  //   Math.floor(Math.random() * 2),
+  // );
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
-  const username =
-    user?.user_metadata?.username || user?.email?.split("@")[0] || "User";
+  const [displayName, setDisplayName] = useState("");
+
+  // const username =
+  //   user?.user_metadata?.username || user?.email?.split("@")[0] || "User";
+
+  const username = displayName || user?.email?.split("@")[0] || "Listener";
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -732,6 +143,24 @@ export default function CollectionPage() {
 
   useEffect(() => {
     fetchContinueListening();
+  }, [user]);
+
+  useEffect(() => {
+    async function loadProfile() {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from("profiles_data")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setDisplayName(data.display_name || "");
+      }
+    }
+
+    loadProfile();
   }, [user]);
 
   const createPlaylist = async () => {
@@ -846,70 +275,74 @@ export default function CollectionPage() {
   //   }));
   // }, [trendingTracks, madeForYou, setNewQueue]);
 
-const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
-const heroSlides = useMemo(() => {
-  const hour = new Date().getHours();
+  const heroSlides = useMemo(() => {
+    const hour = new Date().getHours();
 
-  let timeGreeting, timeMood;
-  if (hour >= 5 && hour < 12) {
-    timeGreeting = "Start your morning right";
-    timeMood = "Morning Boost";
-  } else if (hour >= 12 && hour < 17) {
-    timeGreeting = "Power through your afternoon";
-    timeMood = "Midday Energy";
-  } else if (hour >= 17 && hour < 21) {
-    timeGreeting = "Wind down your evening";
-    timeMood = "Evening Unwind";
-  } else {
-    timeGreeting = "Perfect for the night";
-    timeMood = "Late Night Chill";
-  }
+    let timeGreeting, timeMood;
+    if (hour >= 5 && hour < 12) {
+      timeGreeting = "Start your morning right";
+      timeMood = "Morning Boost";
+    } else if (hour >= 12 && hour < 17) {
+      timeGreeting = "Power through your afternoon";
+      timeMood = "Midday Energy";
+    } else if (hour >= 17 && hour < 21) {
+      timeGreeting = "Wind down your evening";
+      timeMood = "Evening Unwind";
+    } else {
+      timeGreeting = "Perfect for the night";
+      timeMood = "Late Night Chill";
+    }
 
-  // Slide 3 — first letter of email matched tracks
-  const emailInitial = user?.email?.[0]?.toLowerCase() || "";
-  const matchedTracks = tracks.filter(
-    (t) => t.title?.toLowerCase().startsWith(emailInitial)
-  );
-  const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
-  const slide3Title = matchedTracks.length > 0
-    ? `Tracks starting with "${emailInitial.toUpperCase()}"`
-    : "Albums picked for you";
+    // Slide 3 — first letter of email matched tracks
+    const emailInitial = user?.email?.[0]?.toLowerCase() || "";
+    const matchedTracks = tracks.filter((t) =>
+      t.title?.toLowerCase().startsWith(emailInitial),
+    );
+    const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
+    const slide3Title =
+      matchedTracks.length > 0
+        ? `Tracks starting with "${emailInitial.toUpperCase()}"`
+        : "Albums picked for you";
 
-  return [
-    {
-      id: "slide-time",
-      type: "time",
-      title: timeGreeting,
-      // artist: timeMood,
-      description: "Browse songs that match your current vibe.",
-      // image: trendingTracks[0]?.cover_url || "/covers/default.jpg",
-      badge: timeMood,
-      // onClick: () => nav("/all-songs"),
-       onClick: () => shufflePlay(filtered),
-    },
-    {
-      id: "slide-playlist",
-      type: "playlist",
-      title: "Build your perfect playlist",
-      // artist: "Create · Customize",
-      description: "Mix your favourite tracks into one place.",
-      image: movies[0]?.cover_url || trendingTracks[1]?.cover_url || "/covers/default.jpg",
-      badge: "FOR YOU",
-      onClick: () => setShowPlaylistModal(true),
-    },
-    {
-      id: "slide-personal",
-      type: "personal",
-      title: slide3Title,
-      artist: `Just for ${emailInitial.toUpperCase()}`,
-      description: "Personally picked based on your initial.",
-      image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
-      badge: "PERSONAL",
-      onClick: () => setNewQueue(slide3Tracks, 0),
-    },
-  ];
-}, [tracks, trendingTracks, movies, user, nav, setNewQueue]);
+    return [
+      {
+        id: "slide-time",
+        type: "time",
+        title: timeGreeting,
+        // artist: timeMood,
+        description: "Browse songs that match your current vibe.",
+        // image: trendingTracks[0]?.cover_url || "/covers/default.jpg",
+        badge: timeMood,
+        // onClick: () => nav("/all-songs"),
+        onClick: () => shufflePlay(filtered),
+      },
+      {
+        id: "slide-playlist",
+        type: "playlist",
+        title: "Build your perfect playlist",
+        // artist: "Create · Customize",
+        description: "Mix your favourite tracks into one place.",
+        image:
+          movies[0]?.cover_url ||
+          trendingTracks[1]?.cover_url ||
+          "/covers/default.jpg",
+        badge: "FOR YOU",
+        onClick: () => setShowPlaylistModal(true),
+      },
+      {
+        id: "slide-personal",
+        type: "personal",
+        title: slide3Title,
+        artist: `Just for ${emailInitial.toUpperCase()}`,
+        description: "Personally picked based on your initial.",
+        image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
+        badge: "PERSONAL",
+        onClick: () => setNewQueue(slide3Tracks, 0),
+      },
+    ];
+  }, [tracks, trendingTracks, movies, user, nav, setNewQueue]);
 
   const switchTabs = [
     { key: "continue", label: "Continue Listening" },
@@ -1092,23 +525,17 @@ const heroSlides = useMemo(() => {
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
-      <header className="home-header">
+      {/* <header className="home-header">
         <div>
-          {/* <p className="home-greeting">Hi, {username}</p> */}
           <h1 className="home-title">Hi, {username}</h1>
         </div>
 
         <div className="home-actions">
-          {/* <button onClick={() => nav("/search")} aria-label="Search">
-            🔍
-             <FiSearch />
-          </button> */}
+          
           <button onClick={() => nav("/search")} aria-label="Search">
             <FiSearch />
           </button>
-          {/* <button onClick={() => nav("/account")} aria-label="Profile">
-            👤
-          </button> */}
+         
           <button
             className="profile-btn"
             onClick={() => nav("/account")}
@@ -1125,7 +552,39 @@ const heroSlides = useMemo(() => {
               .toUpperCase()}
           </button>
         </div>
-      </header>
+      </header> */}
+      <header className="home-header">
+  <div className="home-left">
+    <p className="home-greeting">Hi,</p>
+    <h1 className="home-title">{username}</h1>
+  </div>
+
+  <div className="home-actions">
+    <button
+      className="icon-btn"
+      onClick={() => nav("/search")}
+      aria-label="Search"
+    >
+      <FiSearch />
+    </button>
+
+    <button
+      className="profile-btn"
+      onClick={() => nav("/account")}
+      aria-label="Profile"
+      style={{ background: profileColor }}
+    >
+      {userName
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()}
+    </button>
+  </div>
+</header>
+
+    
 
       {/* {heroSlides.length > 0 && (
         <section className="home-section featured-carousel-section">
@@ -1140,10 +599,9 @@ const heroSlides = useMemo(() => {
                   className="featured-slide"
                   onClick={slide.onClick}
                 >
-                  <LazyImage src={slide.image} alt={slide.title} />
                   <div className="featured-overlay" />
                   <div className="featured-content">
-                    <span className="featured-badge">NEW RELEASE</span>
+                    <span className="featured-badge">{slide.badge}</span>
                     <h2>{slide.title}</h2>
                     <h4>{slide.artist}</h4>
                     <p>{slide.description}</p>
@@ -1155,7 +613,7 @@ const heroSlides = useMemo(() => {
                           slide.onClick();
                         }}
                       >
-                        ▶ Play
+                        {slide.type === "playlist" ? "+ Create" : "▶ Play"}
                       </button>
                     </div>
                   </div>
@@ -1177,26 +635,100 @@ const heroSlides = useMemo(() => {
         </section>
       )} */}
 
-      {heroSlides.length > 0 && (
+      <section className="home-section featured-carousel-section">
+  <Swiper
+    modules={[Autoplay, Pagination]}
+    pagination={{ clickable: true }}
+    autoplay={{
+      delay: 3000,
+      disableOnInteraction: false,
+    }}
+    loop={true}
+    spaceBetween={16}
+  >
+    {/* {heroSlides.map((slide) => (
+      <SwiperSlide key={slide.id}>
+        <div
+          className="featured-slide"
+          onClick={slide.onClick}
+        >
+          <div className="featured-overlay" />
+
+          <div className="featured-content">
+            <span className="featured-badge">
+              {slide.badge}
+            </span>
+
+            <h2>{slide.title}</h2>
+
+            <h4>{slide.artist}</h4>
+
+            <p>{slide.description}</p>
+
+            <div className="featured-buttons">
+              <button
+                className="play-pill"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  slide.onClick();
+                }}
+              >
+                {slide.type === "playlist"
+                  ? "+ Create"
+                  : "▶ Play"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </SwiperSlide>
+    ))} */}
+    {heroSlides.length > 0 && (
   <section className="home-section featured-carousel-section">
-    <div className="featured-carousel-shell">
-      <div
-        className="featured-carousel-track"
-        style={{ transform: `translateX(-${heroIndex * 100}%)` }}
-      >
-        {heroSlides.map((slide) => (
+    <Swiper
+      modules={[
+        Autoplay,
+        Pagination,
+        EffectCoverflow,
+      ]}
+      effect="coverflow"
+      centeredSlides
+      slidesPerView={1.1}
+      spaceBetween={16}
+      loop
+      autoplay={{
+        delay: 5000,
+        disableOnInteraction: false,
+      }}
+      pagination={{
+        clickable: true,
+      }}
+      coverflowEffect={{
+        rotate: 0,
+        stretch: 0,
+        depth: 120,
+        modifier: 2,
+        slideShadows: false,
+      }}
+    >
+      {heroSlides.map((slide) => (
+        <SwiperSlide key={slide.id}>
           <div
-            key={slide.id}
             className="featured-slide"
             onClick={slide.onClick}
           >
-            {/* <LazyImage src={slide.image} alt={slide.title} /> */}
             <div className="featured-overlay" />
+
             <div className="featured-content">
-              <span className="featured-badge">{slide.badge}</span>
+              <span className="featured-badge">
+                {slide.badge}
+              </span>
+
               <h2>{slide.title}</h2>
+
               <h4>{slide.artist}</h4>
+
               <p>{slide.description}</p>
+
               <div className="featured-buttons">
                 <button
                   className="play-pill"
@@ -1205,29 +737,20 @@ const heroSlides = useMemo(() => {
                     slide.onClick();
                   }}
                 >
-                  {/* {slide.type === "playlist" ? "+ Create" : "▶ Play"} */}
-{slide.type === "playlist" ? "+ Create" : "▶ Play"}
-                  {/* <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button> */}
+                  {slide.type === "playlist"
+                    ? "+ Create"
+                    : "▶ Play"}
                 </button>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="hero-dots">
-        {heroSlides.map((_, index) => (
-          <button
-            key={index}
-            className={heroIndex === index ? "active" : ""}
-            onClick={() => setHeroIndex(index)}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
-    </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
   </section>
 )}
+  </Swiper>
+</section>
 
       <section className="home-section">
         <div className="switch-tabs">
@@ -1389,37 +912,36 @@ const heroSlides = useMemo(() => {
       </section> */}
 
       {showPlaylistModal && (
-  <div
-    className="modal-overlay"
-    onClick={() => setShowPlaylistModal(false)}
-  >
-    <div
-      className="modal-sheet"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <h3>Create Playlist</h3>
-      <p>Save your mood, mixes, and favourite tracks.</p>
-      <input
-        type="text"
-        placeholder="Playlist name..."
-        value={newPlaylistName}
-        onChange={(e) => setNewPlaylistName(e.target.value)}
-      />
-      <div className="modal-actions">
-        <button onClick={() => setShowPlaylistModal(false)}>Cancel</button>
-        <button
-          className="modal-confirm"
-          onClick={async () => {
-            await createPlaylist();
-            setShowPlaylistModal(false);
-          }}
+        <div
+          className="modal-overlay"
+          onClick={() => setShowPlaylistModal(false)}
         >
-          Create
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <h3>Create Playlist</h3>
+            <p>Save your mood, mixes, and favourite tracks.</p>
+            <input
+              type="text"
+              placeholder="Playlist name..."
+              value={newPlaylistName}
+              onChange={(e) => setNewPlaylistName(e.target.value)}
+            />
+            <div className="modal-actions">
+              <button onClick={() => setShowPlaylistModal(false)}>
+                Cancel
+              </button>
+              <button
+                className="modal-confirm"
+                onClick={async () => {
+                  await createPlaylist();
+                  setShowPlaylistModal(false);
+                }}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,6 +1,3 @@
-
-
-
 // import "./profile.css";
 
 // import { useNavigate } from "react-router-dom";
@@ -192,7 +189,6 @@
 //     </main>
 //   );
 // }
-
 
 // import "./profile.css";
 
@@ -422,7 +418,6 @@
 //   );
 // }
 
-
 // ProfilePage.jsx
 
 import "./profile.css";
@@ -438,21 +433,11 @@ import { useAuth } from "../context/AuthContext";
 import useRecent from "../hooks/useRecent";
 import useTracks from "../hooks/useTracks";
 
-import {
-  FaHeart,
-  FaPlus,
-  FaRandom,
-} from "react-icons/fa";
+import { FaHeart, FaPlus, FaRandom } from "react-icons/fa";
 
-import {
-  IoChevronForward,
-  IoSettingsOutline,
-} from "react-icons/io5";
+import { IoChevronForward, IoSettingsOutline } from "react-icons/io5";
 
-import {
-  MdQueueMusic,
-  MdHistory,
-} from "react-icons/md";
+import { MdQueueMusic, MdHistory } from "react-icons/md";
 
 import { BiSearch } from "react-icons/bi";
 
@@ -466,20 +451,23 @@ export default function ProfilePage() {
   const { recent } = useRecent();
 
   const { tracks } = useTracks();
+   const [displayName, setDisplayName] = useState("");
 
-  const [activeFilter, setActiveFilter] =
-    useState("All");
+  const [activeFilter, setActiveFilter] = useState("All");
 
-  const username =
-    user?.email?.split("@")[0] || "Listener";
+  // const username = user?.email?.split("@")[0] || "Listener";
+const username =
+  displayName ||
+  user?.email?.split("@")[0] ||
+  "Listener";
 
-  const [likedCount, setLikedCount] =
-  useState(0);  
+  const [likedCount, setLikedCount] = useState(0);
 
-  const [playlistCount, setPlaylistCount] =
-  useState(0);
+  const [playlistCount, setPlaylistCount] = useState(0);
   const [newPlaylistName, setNewPlaylistName] = useState("");
-const [showCreatePopup, setShowCreatePopup] = useState(false);
+  const [showCreatePopup, setShowCreatePopup] = useState(false);
+
+ 
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
@@ -504,34 +492,48 @@ const [showCreatePopup, setShowCreatePopup] = useState(false);
   }
 
   useEffect(() => {
-  async function loadLikedCount() {
-    const { count } = await supabase
-      .from("liked_songs")
-      .select("*", {
+    async function loadLikedCount() {
+      const { count } = await supabase.from("liked_songs").select("*", {
         count: "exact",
         head: true,
       });
 
-    setLikedCount(count || 0);
-  }
+      setLikedCount(count || 0);
+    }
 
-  loadLikedCount();
-}, []);
+    loadLikedCount();
+  }, []);
 
   useEffect(() => {
-  async function loadPlaylistCount() {
-    const { count } = await supabase
-      .from("playlists")
-      .select("*", {
+    async function loadPlaylistCount() {
+      const { count } = await supabase.from("playlists").select("*", {
         count: "exact",
         head: true,
       });
 
-    setPlaylistCount(count || 0);
-  }
+      setPlaylistCount(count || 0);
+    }
 
-  loadPlaylistCount();
-}, []);
+    loadPlaylistCount();
+  }, []);
+
+  useEffect(() => {
+    async function loadProfile() {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from("profiles_data")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setDisplayName(data.display_name || "");
+      }
+    }
+
+    loadProfile();
+  }, [user]);
 
   const libraryItems = [
     {
@@ -545,7 +547,7 @@ const [showCreatePopup, setShowCreatePopup] = useState(false);
     {
       title: "Playlists",
       // count:  0,
-        count: playlistCount,
+      count: playlistCount,
       icon: <MdQueueMusic />,
       path: "/playlists",
     },
@@ -566,60 +568,60 @@ const [showCreatePopup, setShowCreatePopup] = useState(false);
   ];
 
   const loadPlaylists = async () => {
-  if (!user) return;
+    if (!user) return;
 
-  const { data, error } = await supabase
-    .from("playlists")
-    .select(`
+    const { data, error } = await supabase
+      .from("playlists")
+      .select(
+        `
       id,
       name,
       playlist_tracks (
         track_id,
         tracks (cover_url)
       )
-    `)
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    `,
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.log("Fetch playlist error:", error);
-    return;
-  }
-
-  setPlaylists(data || []);
-};
-
-const createPlaylist = async () => {
-  if (!newPlaylistName.trim() || !user) return;
-
-  const { error } = await supabase.from("playlists").insert({
-    name: newPlaylistName.trim(),
-    user_id: user.id,
-  });
-
-  if (error) {
-    if (error.code === "23505") {
-      alert("Playlist with this name already exists!");
-    } else {
-      console.log("Error creating playlist:", error);
+    if (error) {
+      console.log("Fetch playlist error:", error);
+      return;
     }
-    return;
-  }
 
-  setNewPlaylistName("");
-  setShowCreatePopup(false); // close popup
-  loadPlaylists();
-  showToast("Playlist created");
-};
+    setPlaylists(data || []);
+  };
+
+  const createPlaylist = async () => {
+    if (!newPlaylistName.trim() || !user) return;
+
+    const { error } = await supabase.from("playlists").insert({
+      name: newPlaylistName.trim(),
+      user_id: user.id,
+    });
+
+    if (error) {
+      if (error.code === "23505") {
+        alert("Playlist with this name already exists!");
+      } else {
+        console.log("Error creating playlist:", error);
+      }
+      return;
+    }
+
+    setNewPlaylistName("");
+    setShowCreatePopup(false); // close popup
+    loadPlaylists();
+    showToast("Playlist created");
+  };
 
   return (
     <main className="library-page page-safe">
       {/* HEADER */}
       <section className="library-header">
         <div>
-          <p className="library-greeting">
-            {greeting}
-          </p>
+          <p className="library-greeting">{greeting}</p>
 
           {/* <h1>Your Library</h1> */}
         </div>
@@ -637,17 +639,13 @@ const createPlaylist = async () => {
           </div>
 
           <div>
-            <div className="library-username">
-              {username}
-            </div>
+            <div className="library-username">{username}</div>
 
-            <div className="library-subtitle">
-              Music Lover
-            </div>
+            <div className="library-subtitle">Music Lover</div>
           </div>
         </div>
 
-        <button className="library-edit-btn"  onClick={() => nav("/edit-info")}>
+        <button className="library-edit-btn" onClick={() => nav("/edit-info")}>
           Edit
         </button>
       </section>
@@ -686,18 +684,12 @@ const createPlaylist = async () => {
             onClick={() => nav(item.path)}
           >
             <div className="library-row-left">
-              <div className="library-row-icon">
-                {item.icon}
-              </div>
+              <div className="library-row-icon">{item.icon}</div>
 
               <div>
-                <div className="library-row-title">
-                  {item.title}
-                </div>
+                <div className="library-row-title">{item.title}</div>
 
-                <div className="library-row-sub">
-                  {item.count} items
-                </div>
+                <div className="library-row-sub">{item.count} items</div>
               </div>
             </div>
 
@@ -719,9 +711,7 @@ const createPlaylist = async () => {
 
         <button
           className="shuffle-btn"
-          onClick={() =>
-            shufflePlay(recent || [])
-          }
+          onClick={() => shufflePlay(recent || [])}
         >
           <FaRandom />
           Shuffle All
@@ -738,82 +728,60 @@ const createPlaylist = async () => {
           </div>
 
           <div className="history-list">
-            {recent
-              .slice(0, 5)
-              .map((track) => (
-                <div
-                  key={track.id}
-                  className="history-row"
-                  onClick={() =>
-                    nav(`/track/${track.id}`)
-                  }
-                >
-                  <img
-                    src={
-                      track.cover_url ||
-                      "/covers/default.jpg"
-                    }
-                    alt={track.title}
-                  />
+            {recent.slice(0, 5).map((track) => (
+              <div
+                key={track.id}
+                className="history-row"
+                onClick={() => nav(`/track/${track.id}`)}
+              >
+                <img
+                  src={track.cover_url || "/covers/default.jpg"}
+                  alt={track.title}
+                />
 
-                  <div className="history-info">
-                    <div className="history-title">
-                      {track.title}
-                    </div>
+                <div className="history-info">
+                  <div className="history-title">{track.title}</div>
 
-                    <div className="history-artist">
-                      {track.artist ||
-                        "Unknown Artist"}
-                    </div>
+                  <div className="history-artist">
+                    {track.artist || "Unknown Artist"}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </section>
       )}
-{/* <button onClick={() => setShowCreatePopup(true)}>
+      {/* <button onClick={() => setShowCreatePopup(true)}>
   + Create Playlist
 </button> */}
 
-{showCreatePopup && (
-  <div
-    className="popup-overlay"
-    onClick={() => setShowCreatePopup(false)}
-  >
-    <div
-      className="popup-box"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <h3>Create Playlist</h3>
+      {showCreatePopup && (
+        <div
+          className="popup-overlay"
+          onClick={() => setShowCreatePopup(false)}
+        >
+          <div className="popup-box" onClick={(e) => e.stopPropagation()}>
+            <h3>Create Playlist</h3>
 
-      <input
-        type="text"
-        placeholder="New Playlist Name"
-        value={newPlaylistName}
-        onChange={(e) =>
-          setNewPlaylistName(e.target.value)
-        }
-      />
+            <input
+              type="text"
+              placeholder="New Playlist Name"
+              value={newPlaylistName}
+              onChange={(e) => setNewPlaylistName(e.target.value)}
+            />
 
-      <div className="popup-actions">
-        <button onClick={() => setShowCreatePopup(false)}>
-          Cancel
-        </button>
+            <div className="popup-actions">
+              <button onClick={() => setShowCreatePopup(false)}>Cancel</button>
 
-        <button onClick={createPlaylist}>
-          Create
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+              <button onClick={createPlaylist}>Create</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FOOTER */}
       <section className="library-footer">
-        <button onClick={handleLogout}>
-          Logout
-        </button>
+        <button onClick={handleLogout}>Logout</button>
       </section>
     </main>
   );
