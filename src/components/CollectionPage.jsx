@@ -574,12 +574,13 @@ export default function CollectionPage() {
       aria-label="Profile"
       style={{ background: profileColor }}
     >
-      {userName
+      {/* {userName
         .split(" ")
         .map((w) => w[0])
         .join("")
         .slice(0, 2)
-        .toUpperCase()}
+        .toUpperCase()} */}
+        {username.charAt(0).toUpperCase()}
     </button>
   </div>
 </header>

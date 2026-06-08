@@ -38,10 +38,15 @@ export default function BottomNav() {
         <span>Account</span>
       </button> */}
 
-      <NavLink to="/account" className="nav-item">
+       <NavLink to="/account" className="nav-item">
+        <MdOutlineAccountCircle />
+        <span>Library</span>
+      </NavLink>
+
+      {/* <NavLink to="/account" className="nav-item">
         <MdOutlineAccountCircle />
         <span>Account</span>
-      </NavLink>
+      </NavLink> */}
     </nav>
   );
 }

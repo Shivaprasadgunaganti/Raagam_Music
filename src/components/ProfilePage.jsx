@@ -464,6 +464,7 @@ const username =
   const [likedCount, setLikedCount] = useState(0);
 
   const [playlistCount, setPlaylistCount] = useState(0);
+  const [moviesCount, setMoviesCount] = useState(0);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
@@ -517,6 +518,20 @@ const username =
     loadPlaylistCount();
   }, []);
 
+
+   useEffect(() => {
+    async function loadMoviesCount() {
+      const { count } = await supabase.from("movies").select("*", {
+        count: "exact",
+        head: true,
+      });
+
+      setMoviesCount(count || 0);
+    }
+
+    loadMoviesCount();
+  }, []);
+
   useEffect(() => {
     async function loadProfile() {
       if (!user?.id) return;
@@ -552,12 +567,19 @@ const username =
       path: "/playlists",
     },
 
-    {
-      title: "Queue",
-      count: tracks?.length || 0,
+     {
+      title: "Albums",
+      count: moviesCount,
       icon: <MdQueueMusic />,
-      path: "/queue",
-    },
+      path: "/movies",
+    }
+
+    // {
+    //   title: "Queue",
+    //   count: tracks?.length || 0,
+    //   icon: <MdQueueMusic />,
+    //   path: "/queue",
+    // },
 
     // {
     //   title: "Recently Played",
@@ -719,7 +741,7 @@ const username =
       </section>
 
       {/* HISTORY */}
-      {recent?.length > 0 && (
+      {/* {recent?.length > 0 && (
         <section className="library-history">
           <div className="section-top">
             <h2>History</h2>
@@ -750,7 +772,7 @@ const username =
             ))}
           </div>
         </section>
-      )}
+      )} */}
       {/* <button onClick={() => setShowCreatePopup(true)}>
   + Create Playlist
 </button> */}
