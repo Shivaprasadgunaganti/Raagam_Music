@@ -190,14 +190,24 @@ export default function CollectionPage() {
     showToast("Playlist created");
   };
 
+  // const playFromContinue = (track, startTime) => {
+  //    console.log("CONTINUE TRACK", track);
+  // console.log("START TIME", startTime);
+  //   if (!track) return;
+  //   setResumeTime(startTime || 0);
+  //   setNewQueue(
+  //     recent,
+  //     recent.findIndex((t) => t.id === track.id),
+  //   );
+  // };
+
   const playFromContinue = (track, startTime) => {
-    if (!track) return;
-    setResumeTime(startTime || 0);
-    setNewQueue(
-      recent,
-      recent.findIndex((t) => t.id === track.id),
-    );
-  };
+  if (!track) return;
+
+  setResumeTime(startTime || 0);
+
+  setNewQueue([track], 0);
+};
 
   const addToLiked = (e, trackId) => {
     e.stopPropagation();

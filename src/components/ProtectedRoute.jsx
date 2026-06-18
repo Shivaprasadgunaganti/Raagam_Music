@@ -21,11 +21,7 @@ import { useAuth } from "../context/AuthContext";
 export default function ProtectedRoute({ children }) {
   const { user, loading, isGuest } = useAuth();
 
-  // console.log("ProtectedRoute", {
-  //   user,
-  //   loading,
-  //   isGuest,
-  // });
+  
 
   if (loading) return null;
 

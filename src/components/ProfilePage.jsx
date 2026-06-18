@@ -478,19 +478,35 @@ const username =
     return "Good Evening 🌙";
   }, []);
 
+  // async function handleLogout() {
+  //   await supabase.auth.signOut();
+
+  //   clearQueue();
+
+  //   Object.keys(localStorage).forEach((key) => {
+  //     if (key.startsWith("audio_state_")) {
+  //       localStorage.removeItem(key);
+  //     }
+  //   });
+
+  //   window.location.href = "/login";
+  // }
+
   async function handleLogout() {
-    await supabase.auth.signOut();
+  clearQueue();
 
-    clearQueue();
+  localStorage.removeItem("raagam_guest");
 
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith("audio_state_")) {
-        localStorage.removeItem(key);
-      }
-    });
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith("audio_state_")) {
+      localStorage.removeItem(key);
+    }
+  });
 
-    window.location.href = "/login";
-  }
+  await supabase.auth.signOut();
+
+  nav("/login", { replace: true });
+}
 
   useEffect(() => {
     async function loadLikedCount() {
