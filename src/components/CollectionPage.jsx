@@ -14,12 +14,14 @@ import LazyImage from "../components/LazyImage";
 import SkeletonCard from "../components/SkeletonCard";
 import { FiSearch } from "react-icons/fi";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { IoIosShuffle } from "react-icons/io";
 
-import { Autoplay, Pagination,EffectCoverflow } from "swiper/modules";
+import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
+import AuthRequiredModal from "./AuthRequiredModal";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -46,7 +48,10 @@ export default function CollectionPage() {
   // const username =
   //   user?.user_metadata?.username || user?.email?.split("@")[0] || "User";
 
+  const { isGuest } = useAuth();
+
   const username = displayName || user?.email?.split("@")[0] || "Listener";
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -554,38 +559,38 @@ export default function CollectionPage() {
         </div>
       </header> */}
       <header className="home-header">
-  <div className="home-left">
-    <p className="home-greeting">Hi,</p>
-    <h1 className="home-title">{username}</h1>
-  </div>
+        <div className="home-left">
+          <p className="home-greeting">Hi,</p>
+          <h1 className="home-title">{username}</h1>
+        </div>
 
-  <div className="home-actions">
-    <button
-      className="icon-btn"
-      onClick={() => nav("/search")}
-      aria-label="Search"
-    >
-      <FiSearch />
-    </button>
+        <div className="home-actions">
+          <button
+            className="icon-btn"
+            onClick={() => nav("/search")}
+            aria-label="Search"
+          >
+            <FiSearch />
+          </button>
 
-    <button
-      className="profile-btn"
-      onClick={() => nav("/account")}
-      aria-label="Profile"
-      style={{ background: profileColor }}
-    >
-      {/* {userName
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()} */}
-        {username.charAt(0).toUpperCase()}
-    </button>
-  </div>
-</header>
+          <button
+            className="profile-btn"
+            // onClick={() => nav("/account")}
+            onClick={() => {
+              if (isGuest) {
+                setShowAuthModal(true);
+                return;
+              }
 
-    
+              nav("/account");
+            }}
+            aria-label="Profile"
+            style={{ background: profileColor }}
+          >
+            {username.charAt(0).toUpperCase()}
+          </button>
+        </div>
+      </header>
 
       {/* {heroSlides.length > 0 && (
         <section className="home-section featured-carousel-section">
@@ -637,17 +642,17 @@ export default function CollectionPage() {
       )} */}
 
       <section className="home-section featured-carousel-section">
-  <Swiper
-    modules={[Autoplay, Pagination]}
-    pagination={{ clickable: true }}
-    autoplay={{
-      delay: 3000,
-      disableOnInteraction: false,
-    }}
-    loop={true}
-    spaceBetween={16}
-  >
-    {/* {heroSlides.map((slide) => (
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          pagination={{ clickable: true }}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          loop={true}
+          spaceBetween={16}
+        >
+          {/* {heroSlides.map((slide) => (
       <SwiperSlide key={slide.id}>
         <div
           className="featured-slide"
@@ -683,75 +688,64 @@ export default function CollectionPage() {
         </div>
       </SwiperSlide>
     ))} */}
-    {heroSlides.length > 0 && (
-  <section className="home-section featured-carousel-section">
-    <Swiper
-      modules={[
-        Autoplay,
-        Pagination,
-        EffectCoverflow,
-      ]}
-      effect="coverflow"
-      centeredSlides
-      slidesPerView={1.1}
-      spaceBetween={16}
-      loop
-      autoplay={{
-        delay: 5000,
-        disableOnInteraction: false,
-      }}
-      pagination={{
-        clickable: true,
-      }}
-      coverflowEffect={{
-        rotate: 0,
-        stretch: 0,
-        depth: 120,
-        modifier: 2,
-        slideShadows: false,
-      }}
-    >
-      {heroSlides.map((slide) => (
-        <SwiperSlide key={slide.id}>
-          <div
-            className="featured-slide"
-            onClick={slide.onClick}
-          >
-            <div className="featured-overlay" />
+          {heroSlides.length > 0 && (
+            <section className="home-section featured-carousel-section">
+              <Swiper
+                modules={[Autoplay, Pagination, EffectCoverflow]}
+                effect="coverflow"
+                centeredSlides
+                slidesPerView={1.1}
+                spaceBetween={16}
+                loop
+                autoplay={{
+                  delay: 5000,
+                  disableOnInteraction: false,
+                }}
+                pagination={{
+                  clickable: true,
+                }}
+                coverflowEffect={{
+                  rotate: 0,
+                  stretch: 0,
+                  depth: 120,
+                  modifier: 2,
+                  slideShadows: false,
+                }}
+              >
+                {heroSlides.map((slide) => (
+                  <SwiperSlide key={slide.id}>
+                    <div className="featured-slide" onClick={slide.onClick}>
+                      <div className="featured-overlay" />
 
-            <div className="featured-content">
-              <span className="featured-badge">
-                {slide.badge}
-              </span>
+                      <div className="featured-content">
+                        <span className="featured-badge">{slide.badge}</span>
 
-              <h2>{slide.title}</h2>
+                        <h2>{slide.title}</h2>
 
-              <h4>{slide.artist}</h4>
+                        <h4>{slide.artist}</h4>
 
-              <p>{slide.description}</p>
+                        <p>{slide.description}</p>
 
-              <div className="featured-buttons">
-                <button
-                  className="play-pill"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    slide.onClick();
-                  }}
-                >
-                  {slide.type === "playlist"
-                    ? "+ Create"
-                    : "▶ Play"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  </section>
-)}
-  </Swiper>
-</section>
+                        <div className="featured-buttons">
+                          <button
+                            className="play-pill"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              slide.onClick();
+                            }}
+                          >
+                            {slide.type === "playlist" ? "+ Create" : "▶ Play"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </section>
+          )}
+        </Swiper>
+      </section>
 
       <section className="home-section">
         <div className="switch-tabs">
@@ -891,7 +885,12 @@ export default function CollectionPage() {
 
         <div className="utility-buttons">
           <button onClick={() => playAll(filtered)}>▶ Play All</button>
-          <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button>
+          <button onClick={() => shufflePlay(filtered)}>
+             Shuffle
+          </button>
+
+          {/* <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button> */}
+          {/* <button onClick={() => shufflePlay(filtered)}><IoIosShuffle /> Shuffle</button> */}
         </div>
       </section>
 
@@ -943,6 +942,12 @@ export default function CollectionPage() {
           </div>
         </div>
       )}
+      <AuthRequiredModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        title="Sign in to access your library"
+        description="Create playlists, save favorites and manage your profile."
+      />
     </main>
   );
 }

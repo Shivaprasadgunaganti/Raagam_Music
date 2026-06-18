@@ -5,11 +5,14 @@ import "./auth1.css";
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabaseClient";
+// import { RiMusic2Fill } from "react-icons/ri";
+import { RiMusic2Fill } from "react-icons/ri";
+
 
 export default function LoginEmailPage() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, continueAsGuest, signInWithGoogle  } = useAuth();
   const [errorMsg, setErrorMsg] = useState("");
 
   function handleNext(e) {
@@ -37,14 +40,20 @@ export default function LoginEmailPage() {
     }
   }, [user, navigate]);
 
-  async function handleGoogleLogin() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-  }
+  // async function handleGoogleLogin() {
+  //   await supabase.auth.signInWithOAuth({
+  //     provider: "google",
+  //     options: {
+  //       redirectTo: window.location.origin,
+  //     },
+  //   });
+  // }
+
+  // continue as guest
+  function handleGuestLogin() {
+  continueAsGuest();
+  navigate("/");
+}
 
   return (
     <div className="auth-page">
@@ -109,15 +118,24 @@ export default function LoginEmailPage() {
             Sign up free
           </span>
         </p>
-        {/* <button onClick={handleGoogleLogin}>Continue with Google</button> */}
-        <button className="auth-btn-google" onClick={handleGoogleLogin}>
+        {/* <button className="auth-btn-google" onClick={handleGoogleLogin}> */}
+        <button className="auth-btn-google" onClick={signInWithGoogle}>
           <img
             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
             alt="Google"
           />
           Continue with Google
         </button>
+
+        <button
+  className="auth-btn-guest"
+  onClick={handleGuestLogin}
+><RiMusic2Fill color="#c084fc"/>
+  Explore Raagam
+</button>
       </div>
     </div>
   );
 }
+
+{/* <div className="auth-logo-icon">♪</div> */}

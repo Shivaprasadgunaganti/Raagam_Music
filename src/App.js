@@ -28,13 +28,14 @@ import LoginEmailPage from "./pages/LoginEmailPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { useNavigate } from "react-router-dom";
 import EditProfilePage from "./components/EditProfilePage";
+import GuestRestrictedRoute from "./components/GuestRestrictedRoute";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, loading, isGuest } = useAuth();
   const { clearQueue } = useAudio();
 
   const hideGlobalUI = location.pathname.startsWith("/track/");
@@ -43,12 +44,19 @@ function AppContent() {
   const isPlaylistPage = location.pathname.startsWith("/playlist/");
   const isMovietPage = location.pathname.startsWith("/movie/");
 
+  // useEffect(() => {
+  //   if (!loading && !user) {
+  //     clearQueue();
+  //     localStorage.removeItem("audio_state_v1");
+  //   }
+  // }, [user, loading]);
+
   useEffect(() => {
-    if (!loading && !user) {
-      clearQueue();
-      localStorage.removeItem("audio_state_v1");
-    }
-  }, [user, loading]);
+  if (!loading && !user && !isGuest) {
+    clearQueue();
+    localStorage.removeItem("audio_state_v1");
+  }
+}, [user, loading, isGuest]);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -116,28 +124,54 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/playlist/:playlistId"
             element={
               <ProtectedRoute>
                 <PlaylistDetailPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
+            path="/playlist/:playlistId"
+            element={
+              <GuestRestrictedRoute>
+                <PlaylistDetailPage />
+              </GuestRestrictedRoute>
+            }
+          />
+
+          {/* <Route
             path="/playlists"
             element={
               <ProtectedRoute>
                 <PlaylistsPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
+
           <Route
+            path="/playlists"
+            element={
+              <GuestRestrictedRoute>
+                <PlaylistsPage />
+              </GuestRestrictedRoute>
+            }
+          />
+          {/* <Route
             path="/liked"
             element={
               <ProtectedRoute>
                 <LikedSongsPage />
               </ProtectedRoute>
+            }
+          /> */}
+          <Route
+            path="/liked"
+            element={
+              <GuestRestrictedRoute>
+                <LikedSongsPage />
+              </GuestRestrictedRoute>
             }
           />
           <Route
@@ -164,21 +198,39 @@ function AppContent() {
               </ProtectedRoute>
             }
           /> */}
-           <Route
+          {/* <Route
             path="/account"
             element={
               <ProtectedRoute>
                 <ProfilePage />
               </ProtectedRoute>
             }
+          /> */}
+
+          <Route
+            path="/account"
+            element={
+              <GuestRestrictedRoute>
+                <ProfilePage />
+              </GuestRestrictedRoute>
+            }
           />
 
-            <Route
+          {/* <Route
             path="/edit-info"
             element={
               <ProtectedRoute>
                <EditProfilePage/>
               </ProtectedRoute>
+            }
+          /> */}
+
+          <Route
+            path="/edit-info"
+            element={
+              <GuestRestrictedRoute>
+                <EditProfilePage />
+              </GuestRestrictedRoute>
             }
           />
 
@@ -195,8 +247,10 @@ function AppContent() {
       </div>
 
       {/* Hide global UI on login page OR track page */}
-      {!hideGlobalUI && !isLoginPage && user && <MiniPlayer />}
-      {!hideGlobalUI && !isLoginPage && user && <BottomNav />}
+      {/* {!hideGlobalUI && !isLoginPage && user && <MiniPlayer />}
+      {!hideGlobalUI && !isLoginPage && user && <BottomNav />} */}
+      {!hideGlobalUI && !isLoginPage && (user || isGuest) && <MiniPlayer />}
+      {!hideGlobalUI && !isLoginPage && (user || isGuest) && <BottomNav />}
     </>
   );
 }

@@ -338,3 +338,36 @@
   width: 18px;
   height: 18px;
 }
+
+/* continue as gues */
+.auth-btn-guest {
+  /* width: 100%;
+  margin-top: 12px; */
+
+   width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "Nunito", sans-serif;
+  cursor: pointer;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.auth-btn-guest:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.auth-btn-guest:active {
+  background: rgba(255, 255, 255, 0.15);
+}

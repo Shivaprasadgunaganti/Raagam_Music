@@ -506,8 +506,10 @@ body {
 }
 
 .utility-buttons button:last-child {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  /* background: rgba(255, 255, 255, 0.08); */
+  background: #8dfc54;
+  /* color: white; */
+  color: #081008;
 }
 
 .create-playlist-card {
@@ -1023,3 +1025,5 @@ body {
 .profile-btn:active {
   transform: scale(0.95);
 }
+
+/* auth image */
