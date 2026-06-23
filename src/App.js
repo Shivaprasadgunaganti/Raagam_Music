@@ -183,7 +183,7 @@ function AppContent() {
             }
           />
           <Route
-            path="/all-songs"
+            path="/overall"
             element={
               <ProtectedRoute>
                 <AllSongsPage />

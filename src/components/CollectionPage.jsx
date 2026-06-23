@@ -836,7 +836,8 @@ export default function CollectionPage() {
       <section className="home-section">
         {/* {renderSectionHeader("Songs", () => nav("/all-songs"))} */}
 
-        {renderSectionHeader("Songs", () => nav("/all-songs"), true)}
+        {/* {renderSectionHeader("Songs", () => nav("/all-songs"), true)} */}
+        {renderSectionHeader("Songs", () => nav("/overall"), true)}
 
         <div className="songs-list">
           {filtered.length === 0

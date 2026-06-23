@@ -3,48 +3,73 @@ import { useNavigate } from "react-router-dom";
 import useTracks from "../hooks/useTracks";
 import { Card } from "react-bootstrap";
 import "../components/collection.css";
+import { IoArrowBack } from "react-icons/io5";
+import { useAudio } from "../context/AudioContext";
+
 
 export default function AllSongsPage() {
   const { tracks, loading } = useTracks();
   const nav = useNavigate();
+  const { setNewQueue } = useAudio();
 
   if (loading) {
     return <div style={{ padding: 20 }}>Loading songs…</div>;
   }
 
   return (
-    <main style={{ padding: 20 }}>
-      {/* HEADER */}
-      <header style={{ marginBottom: 16 }}>
-        <button onClick={() => nav(-1)}>← Back</button>
-        <h2 style={{ marginTop: 8 }}>All Songs</h2>
-        <p style={{ opacity: 0.7 }}>{tracks.length} songs</p>
-      </header>
+    <main className="all-songs-page">
+     
 
-      {/* GRID */}
-      <div className="music-grid">
-        {tracks.map((t) => (
-          <Card
-            key={t.id}
-            className="music-card"
-            onClick={() => nav(`/track/${t.id}`)}
-          >
-            <div className="music-card-cover">
-              <Card.Img
-                className="music-card-img"
-                src={t.cover_url || "/covers/default.jpg"}
-              />
-            </div>
+  <div className="all-songs-hero">
+  <header className="all-songs-header">
+    <button className="icon" onClick={() => nav("/")}>
+      <IoArrowBack />
+    </button>
 
-            <Card.Body className="music-card-body">
-              <h2 className="music-card-title-below">{t.title}</h2>
-              <p className="music-card-artist-below">
-                {t.artist || "Unknown Artist"}
-              </p>
-            </Card.Body>
-          </Card>
-        ))}
+    <div className="all-songs-header-text">
+      <h1>All Songs</h1>
+      <p>{tracks.length} songs</p>
+    </div>
+  </header>
+</div>
+
+     
+      <div className="all-songs-list">
+  {/* {tracks.map((t) => (
+    <div
+      key={t.id}
+      className="song-row"
+      onClick={() => nav(`/track/${t.id}`)}
+    
+    > */}
+    {tracks.map((t, index) => (
+  <div
+    key={t.id}
+    className="song-row"
+    onClick={() => {
+      setNewQueue(tracks, index);
+      nav(`/track/${t.id}`);
+    }}
+  >
+      <img
+        src={t.cover_url || "/covers/default.jpg"}
+        alt={t.title}
+        className="song-cover"
+      />
+
+      <div className="song-info">
+        <h3 className="song-title">{t.title}</h3>
+        <p className="song-artist">
+          {t.artist || "Unknown Artist"}
+        </p>
       </div>
+
+      <div className="song-arrow">
+        ›
+      </div>
+    </div>
+  ))}
+</div>
     </main>
   );
 }
