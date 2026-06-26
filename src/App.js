@@ -29,6 +29,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { useNavigate } from "react-router-dom";
 import EditProfilePage from "./components/EditProfilePage";
 import GuestRestrictedRoute from "./components/GuestRestrictedRoute";
+// import OfflineTest from "./components/OfflineTest";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
@@ -84,6 +85,7 @@ function AppContent() {
           hideGlobalUI || isLoginPage ? "no-footer" : ""
         }`}
       >
+        {/* <OfflineTest/> */}
         <Routes>
           {/* Public Route */}
           {/* <Route path="/login" element={<LoginPage />} /> */}
@@ -265,4 +267,20 @@ export default function App() {
       </AuthProvider>
     </BrowserRouter>
   );
+}
+
+
+import { saveTrack } from "./utils/offlineCache";
+
+async function testOffline(track) {
+  try {
+    const response = await fetch(track.external_url);
+    const blob = await response.blob();
+
+    await saveTrack(track.id, blob);
+
+    console.log("Saved:", track.title);
+  } catch (err) {
+    console.error(err);
+  }
 }
