@@ -1,0 +1,22 @@
+
+
+{
+  "short_name": "Raagam",
+  "name": "Raagam Music",
+  "icons": [
+    {
+      "src": "raagam_icon_v3.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "raagam_icon_v3.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#121212",
+  "background_color": "#121212"
+}
