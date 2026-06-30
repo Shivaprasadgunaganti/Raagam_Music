@@ -22,6 +22,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 import AuthRequiredModal from "./AuthRequiredModal";
+import useOnlineStatus from "../hooks/useOnlineStatus";
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -44,6 +45,7 @@ export default function CollectionPage() {
   const [debounced, setDebounced] = useState("");
 
   const [displayName, setDisplayName] = useState("");
+  const isOnline = useOnlineStatus();
 
   // const username =
   //   user?.user_metadata?.username || user?.email?.split("@")[0] || "User";
@@ -82,6 +84,8 @@ export default function CollectionPage() {
   // }, []);
 
   useEffect(() => {
+    if (!isOnline) return;
+
     async function loadMovies() {
       const { data, error } = await supabase
         .from("movies")
@@ -89,14 +93,27 @@ export default function CollectionPage() {
         .order("id", { ascending: false })
         .limit(8);
 
-      console.log("MOVIES DATA:", data);
-      console.log("MOVIES ERROR:", error);
-
       setMovies(data || []);
     }
 
     loadMovies();
-  }, []);
+  }, [isOnline]);
+  // useEffect(() => {
+  //   async function loadMovies() {
+  //     const { data, error } = await supabase
+  //       .from("movies")
+  //       .select("id, title, cover_url")
+  //       .order("id", { ascending: false })
+  //       .limit(8);
+
+  //     // console.log("MOVIES DATA:", data);
+  //     // console.log("MOVIES ERROR:", error);
+
+  //     setMovies(data || []);
+  //   }
+
+  //   loadMovies();
+  // }, []);
 
   const loadPlaylists = async () => {
     if (!user) return;
@@ -124,9 +141,15 @@ export default function CollectionPage() {
     setPlaylists(data || []);
   };
 
+  // useEffect(() => {
+  //   loadPlaylists();
+  // }, [user]);
+
   useEffect(() => {
+    if (!isOnline) return;
+
     loadPlaylists();
-  }, [user]);
+  }, [user, isOnline]);
 
   const fetchContinueListening = async () => {
     if (!user) return;
@@ -146,9 +169,15 @@ export default function CollectionPage() {
     setContinueTracks(data || []);
   };
 
+  // useEffect(() => {
+  //   fetchContinueListening();
+  // }, [user]);
+
   useEffect(() => {
+    if (!isOnline) return;
+
     fetchContinueListening();
-  }, [user]);
+  }, [user, isOnline]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -202,12 +231,12 @@ export default function CollectionPage() {
   // };
 
   const playFromContinue = (track, startTime) => {
-  if (!track) return;
+    if (!track) return;
 
-  setResumeTime(startTime || 0);
+    setResumeTime(startTime || 0);
 
-  setNewQueue([track], 0);
-};
+    setNewQueue([track], 0);
+  };
 
   const addToLiked = (e, trackId) => {
     e.stopPropagation();
@@ -896,9 +925,7 @@ export default function CollectionPage() {
 
         <div className="utility-buttons">
           <button onClick={() => playAll(filtered)}>▶ Play All</button>
-          <button onClick={() => shufflePlay(filtered)}>
-             Shuffle
-          </button>
+          <button onClick={() => shufflePlay(filtered)}>Shuffle</button>
 
           {/* <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button> */}
           {/* <button onClick={() => shufflePlay(filtered)}><IoIosShuffle /> Shuffle</button> */}

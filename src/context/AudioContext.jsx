@@ -11,6 +11,7 @@ import useRecent from "../hooks/useRecent";
 import { useAuth } from "./AuthContext";
 import { supabase } from "../supabaseClient";
 import { cacheTrack } from "../utils/cacheTrack";
+import { getTrack } from "../utils/offlineCache";
 
 const AudioContext = createContext(null);
 
@@ -352,17 +353,66 @@ export function AudioProvider({ children }) {
     setPlaying(false);
   }, []);
 
+  // useEffect(() => {
+  //   const audio = audioRef.current;
+  //   if (!currentTrack) return;
+
+  //   audio.src = currentTrack.external_url || currentTrack.storage_path || "";
+
+  //   audio
+  //     .play()
+  //     .then(() => {
+  //       setPlaying(true);
+  //       addRecent(currentTrack);
+  //       cacheTrack(currentTrack);
+
+  //       if (resumeTime > 0) {
+  //         audio.currentTime = resumeTime;
+  //         setResumeTime(0);
+  //       }
+
+  //       saveProgress(currentTrack.id, 0, audio.duration);
+  //     })
+  //     .catch(() => setPlaying(false));
+  // }, [currentTrack]);
+
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!currentTrack) return;
+    const loadTrack = async () => {
+      const audio = audioRef.current;
 
-    audio.src = currentTrack.external_url || currentTrack.storage_path || "";
+      if (!currentTrack) return;
 
-    audio
-      .play()
-      .then(() => {
+      try {
+        const cachedBlob = await getTrack(currentTrack.id);
+
+        console.log("Cached Blob:", !!cachedBlob);
+        console.log(
+          "Track:",
+          currentTrack.id,
+          currentTrack.title,
+          "Cached:",
+          !!cachedBlob,
+        );
+
+        if (cachedBlob) {
+          console.log("Playing from cache:", currentTrack.title);
+
+          const blobUrl = URL.createObjectURL(cachedBlob);
+
+          audio.src = blobUrl;
+        } else {
+          console.log("Playing from network:", currentTrack.title);
+
+          audio.src =
+            currentTrack.external_url || currentTrack.storage_path || "";
+        }
+
+        await audio.play();
+
         setPlaying(true);
+
         addRecent(currentTrack);
+
         cacheTrack(currentTrack);
 
         if (resumeTime > 0) {
@@ -371,8 +421,22 @@ export function AudioProvider({ children }) {
         }
 
         saveProgress(currentTrack.id, 0, audio.duration);
-      })
-      .catch(() => setPlaying(false));
+      } 
+      // catch (err) {
+      //   console.error(err);
+      //   setPlaying(false);
+      // }
+      catch (err) {
+  if (err.name === "AbortError") {
+    return;
+  }
+
+  console.error(err);
+  setPlaying(false);
+}
+    };
+
+    loadTrack();
   }, [currentTrack]);
 
   useEffect(() => {

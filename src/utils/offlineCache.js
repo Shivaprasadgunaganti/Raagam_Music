@@ -42,6 +42,37 @@ export async function saveTrack(trackId, blob) {
   });
 }
 
+// export async function getTrack(trackId) {
+//   const db = await openDB();
+
+//   return new Promise((resolve, reject) => {
+//     const tx = db.transaction(STORE_NAME, "readonly");
+//     const store = tx.objectStore(STORE_NAME);
+
+//     const request = store.get(trackId);
+
+//     request.onsuccess = () => {
+//       resolve(request.result?.blob || null);
+//     };
+
+//     request.onerror = () => reject(request.error);
+//   });
+// }
+
+// export async function deleteTrack(trackId) {
+//   const db = await openDB();
+
+//   return new Promise((resolve, reject) => {
+//     const tx = db.transaction(STORE_NAME, "readwrite");
+//     const store = tx.objectStore(STORE_NAME);
+
+//     const request = store.delete(trackId);
+
+//     request.onsuccess = () => resolve(true);
+//     request.onerror = () => reject(request.error);
+//   });
+// }
+
 export async function getTrack(trackId) {
   const db = await openDB();
 
@@ -57,6 +88,11 @@ export async function getTrack(trackId) {
 
     request.onerror = () => reject(request.error);
   });
+}
+
+export async function hasTrack(trackId) {
+  const blob = await getTrack(trackId);
+  return !!blob;
 }
 
 export async function deleteTrack(trackId) {

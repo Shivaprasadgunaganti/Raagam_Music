@@ -29,7 +29,8 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { useNavigate } from "react-router-dom";
 import EditProfilePage from "./components/EditProfilePage";
 import GuestRestrictedRoute from "./components/GuestRestrictedRoute";
-// import OfflineTest from "./components/OfflineTest";
+import OfflineTest from "./components/OfflineTest";
+import OfflineBanner from "./components/OfflineBanner";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
@@ -79,6 +80,7 @@ function AppContent() {
   return (
     <>
       {/* <div className={`app-content ${hideGlobalUI ? "no-footer" : ""}`}> */}
+      <OfflineBanner/>
       <div
         className={`app-content ${
           // hideGlobalUI || isLoginPage || isPlaylistPage || isMovietPage ? "no-footer" : ""
