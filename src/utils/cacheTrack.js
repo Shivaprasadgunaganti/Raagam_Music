@@ -12,7 +12,8 @@ export async function cacheTrack(track) {
 
     const blob = await response.blob();
 
-    await saveTrack(track.id, blob);
+    // await saveTrack(track.id, blob);
+    await saveTrack(track, blob);
 
     console.log("Cached:", track.title);
   } catch (err) {

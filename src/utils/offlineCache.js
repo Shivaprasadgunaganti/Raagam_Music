@@ -24,18 +24,29 @@ function openDB() {
   });
 }
 
-export async function saveTrack(trackId, blob) {
+// export async function saveTrack(trackId, blob)
+export async function saveTrack(track, blob) {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
 
-    const request = store.put({
-      id: trackId,
-      blob,
-      cachedAt: Date.now(),
-    });
+    const request = 
+    // store.put({
+    //   id: trackId,
+    //   blob,
+    //   cachedAt: Date.now(),
+    // });
+    store.put({
+  id: track.id,
+  title: track.title,
+  artist: track.artist,
+  cover_url: track.cover_url,
+  movie_id: track.movie_id,
+  blob,
+  cachedAt: Date.now(),
+});
 
     request.onsuccess = () => resolve(true);
     request.onerror = () => reject(request.error);
@@ -121,4 +132,57 @@ export async function clearCache() {
     request.onsuccess = () => resolve(true);
     request.onerror = () => reject(request.error);
   });
+}
+
+export async function getCacheStats() {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
+
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      const records = request.result || [];
+
+      const count = records.length;
+
+      const bytes = records.reduce((total, item) => {
+        return total + (item.blob?.size || 0);
+      }, 0);
+
+      resolve({
+        count,
+        bytes,
+      });
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getAllCachedTracks() {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
+
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result || []);
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getCachedTrackIds() {
+  const tracks = await getAllCachedTracks();
+
+  return new Set(
+    tracks.map((track) => track.id)
+  );
 }

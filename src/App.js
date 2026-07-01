@@ -31,6 +31,8 @@ import EditProfilePage from "./components/EditProfilePage";
 import GuestRestrictedRoute from "./components/GuestRestrictedRoute";
 import OfflineTest from "./components/OfflineTest";
 import OfflineBanner from "./components/OfflineBanner";
+import OfflineSongsPage from "./components/OfflineSongsPage";
+
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
@@ -230,13 +232,22 @@ function AppContent() {
           /> */}
 
           <Route
-            path="/edit-info"
+            path="/edit"
             element={
               <GuestRestrictedRoute>
                 <EditProfilePage />
               </GuestRestrictedRoute>
             }
           />
+
+          <Route
+  path="/offline"
+  element={
+    <ProtectedRoute>
+      <OfflineSongsPage />
+    </ProtectedRoute>
+  }
+/>
 
           <Route
             path="/search"

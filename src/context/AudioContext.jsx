@@ -544,7 +544,7 @@ export function AudioProvider({ children }) {
       shufflePointer,
     ],
   );
-
+// console.log(currentTrack);
   return (
     <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
   );
