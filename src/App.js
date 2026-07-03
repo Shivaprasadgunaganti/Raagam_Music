@@ -32,7 +32,7 @@ import GuestRestrictedRoute from "./components/GuestRestrictedRoute";
 import OfflineTest from "./components/OfflineTest";
 import OfflineBanner from "./components/OfflineBanner";
 import OfflineSongsPage from "./components/OfflineSongsPage";
-
+import useNetworkSync from "./hooks/useNetworkSync";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
@@ -54,6 +54,8 @@ function AppContent() {
   //     localStorage.removeItem("audio_state_v1");
   //   }
   // }, [user, loading]);
+
+useNetworkSync();
 
   useEffect(() => {
   if (!loading && !user && !isGuest) {

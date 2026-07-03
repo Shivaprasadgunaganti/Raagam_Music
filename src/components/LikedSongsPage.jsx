@@ -18,11 +18,21 @@ import { FaHeart } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
+// import { clearLikedTracks, saveLikedTracks } from "../utils/offlineCache";
+import useOfflineMode from "../hooks/useOfflineMode";
+
+import {
+  saveLikedTracks,
+  clearLikedTracks,
+  getLikedTrackIds,
+  getAllCachedTracks,
+} from "../utils/offlineCache";
 
 export default function LikedSongsPage() {
   const nav = useNavigate();
   // ✅ Added addToQueue
-  const { setNewQueue, playNextInsert, currentTrack, addToQueue, shufflePlay  } = useAudio();
+  const { setNewQueue, playNextInsert, currentTrack, addToQueue, shufflePlay } =
+    useAudio();
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   // ✅ Changed snack from boolean to string
@@ -35,9 +45,11 @@ export default function LikedSongsPage() {
   const [pickerTrackId, setPickerTrackId] = useState(null);
   const { showToast } = useToast();
   const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const { isOnline } = useOfflineMode();
 
-  useEffect(() => {
-    async function loadLikedSongs() {
+  
+
+async function loadOnlineLikedSongs() {
       setLoading(true);
 
       const { data: likedRows, error: likedError } = await supabase
@@ -45,8 +57,8 @@ export default function LikedSongsPage() {
         .select("track_id")
         .order("created_at", { ascending: false });
 
-      console.log("LIKED ROWS:", likedRows);
-      console.log("LIKED ERROR:", likedError);
+      // console.log("LIKED ROWS:", likedRows);
+      // console.log("LIKED ERROR:", likedError);
 
       if (likedError || !likedRows || likedRows.length === 0) {
         setSongs([]);
@@ -55,7 +67,7 @@ export default function LikedSongsPage() {
       }
 
       const trackIds = likedRows.map((r) => r.track_id);
-      console.log("TRACK IDS:", trackIds);
+      // console.log("TRACK IDS:", trackIds);
 
       const { data: tracks, error: tracksError } = await supabase
         .from("tracks")
@@ -71,38 +83,76 @@ export default function LikedSongsPage() {
         )
         .in("id", trackIds);
 
-      console.log("TRACKS:", tracks);
-      console.log("TRACKS ERROR:", tracksError);
+      // console.log("TRACKS:", tracks);
+      // console.log("TRACKS ERROR:", tracksError);
 
       if (!tracksError && tracks) {
         const ordered = trackIds
           .map((id) => tracks.find((t) => t.id === id))
           .filter(Boolean);
 
-        console.log("ORDERED TRACKS:", ordered);
+        // console.log("ORDERED TRACKS:", ordered);
         setSongs(ordered);
+        await clearLikedTracks();
+        await saveLikedTracks(trackIds);
       } else {
         setSongs([]);
       }
 
       setLoading(false);
+
+      console.log("likedRows:", likedRows);
+console.log("trackIds:", trackIds);
     }
 
-    loadLikedSongs();
-  }, []);
+    async function loadOfflineLikedSongs() {
+  setLoading(true);
 
+  try {
+    const likedIds = await getLikedTrackIds();
+
+    const cachedTracks = await getAllCachedTracks();
+
+    const likedSongs = cachedTracks.filter((track) =>
+      likedIds.includes(track.id)
+    );
+
+    setSongs(likedSongs);
+  } catch (err) {
+    console.error("Offline liked songs:", err);
+    setSongs([]);
+  } finally {
+    setLoading(false);
+  }
+}
+
+    useEffect(() => {
+  if (isOnline) {
+    loadOnlineLikedSongs();
+  } else {
+    loadOfflineLikedSongs();
+  }
+}, [isOnline]);
+
+  // useEffect(() => {
+  //   // async function loadLikedSongs() {
+    
+
+  //   // loadLikedSongs();
+  //   // loadOnlineLikedSongs();
+  // }, []);
 
   useEffect(() => {
-  const handleScroll = () => {
-    setShowStickyHeader(window.scrollY > 120);
-  };
+    const handleScroll = () => {
+      setShowStickyHeader(window.scrollY > 120);
+    };
 
-  window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
-  return () => {
-    window.removeEventListener("scroll", handleScroll);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadLikes() {
@@ -121,22 +171,18 @@ export default function LikedSongsPage() {
 
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 
-  
 
+  
   return (
     <main className="liked-page page-safe">
       {/* HERO */}
-<div
-  className={`liked-sticky-header ${
-    showStickyHeader ? "show" : ""
-  }`}
->
-  <button onClick={() => nav(-1)}>
-    <IoArrowBack />
-  </button>
+      <div className={`liked-sticky-header ${showStickyHeader ? "show" : ""}`}>
+        <button onClick={() => nav(-1)}>
+          <IoArrowBack />
+        </button>
 
-  <span>Liked Songs</span>
-</div>
+        <span>Liked Songs</span>
+      </div>
 
       <div className="liked-hero">
         <button className="liked-back-btn" onClick={() => nav("/")}>
@@ -151,25 +197,23 @@ export default function LikedSongsPage() {
           </p>
         </div>
 
-        
         {songs.length > 0 && (
-  <div className="liked-action-buttons">
-    <button
-      className="liked-play-btn"
-      onClick={() => setNewQueue(songs, 0)}
-    >
-      ▶
-    </button>
+          <div className="liked-action-buttons">
+            <button
+              className="liked-play-btn"
+              onClick={() => setNewQueue(songs, 0)}
+            >
+              ▶
+            </button>
 
-    <button
-      className="liked-shuffle-btn"
-      onClick={() => shufflePlay(songs)}
-    >
-      <FaShuffle/>
-      
-    </button>
-  </div>
-)}
+            <button
+              className="liked-shuffle-btn"
+              onClick={() => shufflePlay(songs)}
+            >
+              <FaShuffle />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* EMPTY STATE */}
@@ -198,18 +242,16 @@ export default function LikedSongsPage() {
                 <div className="liked-meta">
                   {/* <div className="liked-song-title">{song.title}</div> */}
                   <div className="liked-song-title-row">
-  <div className="liked-song-title">
-    {song.title}
-  </div>
+                    <div className="liked-song-title">{song.title}</div>
 
-  {isActive && (
-    <div className="playing-bars">
-      <span />
-      <span />
-      <span />
-    </div>
-  )}
-</div>
+                    {isActive && (
+                      <div className="playing-bars">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    )}
+                  </div>
                   <div className="liked-song-artist">
                     {song.artist || "Unknown Artist"}
                   </div>
@@ -232,7 +274,8 @@ export default function LikedSongsPage() {
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
                     showToast("Removed from Liked Songs");
                   } else {
-                    await likeSong(song.id);
+                    // await likeSong(song.id);
+                    await likeSong(song);
                     setLikedMap((prev) => ({ ...prev, [song.id]: true }));
                     showToast("Added to Liked Songs");
                   }
@@ -270,7 +313,10 @@ export default function LikedSongsPage() {
           onClick={() => setSelectedSong(null)}
         >
           {/* <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}> */}
-            <div className="song-menu-sheet slide-up-sheet" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="song-menu-sheet slide-up-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="sheet-song-info">
               <img
                 src={selectedSong.cover_url || "/covers/default.jpg"}

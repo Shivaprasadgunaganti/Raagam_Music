@@ -203,7 +203,8 @@ function MiniPlayer() {
               setLiked(false);
               showToast("Removed from Liked Songs");
             } else {
-              await likeSong(currentTrack.id);
+              // await likeSong(currentTrack.id);
+              await likeSong(currentTrack);
               setLiked(true);
               showToast("Added to Liked Songs");
             }

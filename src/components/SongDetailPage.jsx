@@ -181,7 +181,8 @@ export default function SongDetailPage() {
       setLiked(false);
       showToast("Removed from Liked Songs");
     } else {
-      await likeSong(track.id);
+      // await likeSong(track.id);
+      await likeSong(track);
       setLiked(true);
       showToast("Added to Liked Songs");
     }

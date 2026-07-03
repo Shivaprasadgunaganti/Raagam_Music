@@ -16,6 +16,7 @@ import { FaHeart, FaShuffle } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
+// import useOfflineMode from "../hooks/useOfflineMode"; // test
 
 export default function PlaylistDetailPage() {
   const { playlistId } = useParams();
@@ -37,6 +38,8 @@ export default function PlaylistDetailPage() {
   const [likedMap, setLikedMap] = useState({});
   const [pickerTrackId, setPickerTrackId] = useState(null);
   const { showToast } = useToast();
+  // const { isOffline } = useOfflineMode();
+// console.log(isOffline);
 
   useEffect(() => {
     async function loadPlaylist() {
@@ -148,6 +151,7 @@ export default function PlaylistDetailPage() {
     setSongs(updated);
   }
 
+
   return (
     <main className="pd-page page-safe">
       {/* HERO */}
@@ -241,7 +245,8 @@ export default function PlaylistDetailPage() {
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
                     showToast("Removed from Liked Songs");
                   } else {
-                    await likeSong(song.id);
+                    // await likeSong(song.id);
+                    await likeSong(song);
                     setLikedMap((prev) => ({ ...prev, [song.id]: true }));
                     showToast("Added to Liked Songs");
                   }

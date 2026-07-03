@@ -23,6 +23,12 @@ import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 import AuthRequiredModal from "./AuthRequiredModal";
 import useOnlineStatus from "../hooks/useOnlineStatus";
+import { useSync } from "../context/SyncContext";
+import {
+  savePlaylists,
+  clearPlaylists,
+} from "../utils/offlineCache";
+
 
 export default function CollectionPage() {
   const { tracks, loading } = useTracks();
@@ -54,6 +60,7 @@ export default function CollectionPage() {
 
   const username = displayName || user?.email?.split("@")[0] || "Listener";
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const { syncVersion } = useSync();
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -115,41 +122,79 @@ export default function CollectionPage() {
   //   loadMovies();
   // }, []);
 
+  // const loadPlaylists = async () => {
+  //   if (!user) return;
+
+  //   const { data, error } = await supabase
+  //     .from("playlists")
+  //     .select(
+  //       `
+  //       id,
+  //       name,
+  //       playlist_tracks (
+  //         track_id,
+  //         tracks (cover_url)
+  //       )
+  //     `,
+  //     )
+  //     .eq("user_id", user.id)
+  //     .order("created_at", { ascending: false });
+
+  //   if (error) {
+  //     console.log("Fetch playlist error:", error);
+  //     return;
+  //   }
+
+  //   setPlaylists(data || []);
+  // };
+
   const loadPlaylists = async () => {
-    if (!user) return;
+  if (!user) return;
 
-    const { data, error } = await supabase
-      .from("playlists")
-      .select(
-        `
-        id,
-        name,
-        playlist_tracks (
-          track_id,
-          tracks (cover_url)
-        )
-      `,
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(
+      `
+      id,
+      name,
+      playlist_tracks (
+        track_id,
+        tracks (cover_url)
       )
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    `
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
-    if (error) {
-      console.log("Fetch playlist error:", error);
-      return;
-    }
+  if (error) {
+    console.log("Fetch playlist error:", error);
+    return;
+  }
 
-    setPlaylists(data || []);
-  };
+  setPlaylists(data || []);
+
+  // ✅ Offline Snapshot Sync
+  await clearPlaylists();
+  await savePlaylists(data || []);
+};
 
   // useEffect(() => {
   //   loadPlaylists();
   // }, [user]);
 
+  // useEffect(() => {
+  //   if (!isOnline) return;
+
+  //   loadPlaylists();
+  // }, [user, isOnline]);
+
   useEffect(() => {
     if (!isOnline) return;
 
     loadPlaylists();
-  }, [user, isOnline]);
+  }, [user, isOnline, syncVersion]);
+
+  // console.log("Sync Version:", syncVersion);
 
   const fetchContinueListening = async () => {
     if (!user) return;
@@ -173,11 +218,17 @@ export default function CollectionPage() {
   //   fetchContinueListening();
   // }, [user]);
 
+  // useEffect(() => {
+  //   if (!isOnline) return;
+
+  //   fetchContinueListening();
+  // }, [user, isOnline]);
+
   useEffect(() => {
     if (!isOnline) return;
 
     fetchContinueListening();
-  }, [user, isOnline]);
+  }, [user, isOnline, syncVersion]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -238,18 +289,33 @@ export default function CollectionPage() {
     setNewQueue([track], 0);
   };
 
-  const addToLiked = (e, trackId) => {
-    e.stopPropagation();
-    if (likedMap[trackId]) {
-      unlikeSong(trackId);
-    } else {
-      likeSong(trackId);
-    }
-    setLikedMap((prev) => ({
-      ...prev,
-      [trackId]: !prev[trackId],
-    }));
-  };
+  // const addToLiked = (e, trackId) => {
+  //   e.stopPropagation();
+  //   if (likedMap[trackId]) {
+  //     unlikeSong(trackId);
+  //   } else {
+  //     likeSong(trackId);
+  //   }
+  //   setLikedMap((prev) => ({
+  //     ...prev,
+  //     [trackId]: !prev[trackId],
+  //   }));
+  // };
+
+const addToLiked = async (e, track) => {
+  e.stopPropagation();
+
+  if (likedMap[track.id]) {
+    await unlikeSong(track.id);
+  } else {
+    await likeSong(track);
+  }
+
+  setLikedMap((prev) => ({
+    ...prev,
+    [track.id]: !prev[track.id],
+  }));
+};
 
   const getPlaylistCovers = (playlist) => {
     if (!playlist.playlist_tracks) return [];
@@ -892,7 +958,8 @@ export default function CollectionPage() {
                   <div className="song-list-actions">
                     <button
                       className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
-                      onClick={(e) => addToLiked(e, t.id)}
+                      // onClick={(e) => addToLiked(e, t.id)}
+                      onClick={(e) => addToLiked(e, t)}
                       aria-label="Like song"
                     >
                       ♥

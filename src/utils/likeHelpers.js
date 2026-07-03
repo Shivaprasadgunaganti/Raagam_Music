@@ -1,6 +1,11 @@
 import { supabase } from "../supabaseClient";
+import { cacheTrack } from "./cacheTrack";
 
-export async function likeSong(trackId) {
+// export async function likeSong(trackId) {
+export async function likeSong(track) {
+   console.log("likeSong received:", track);
+     console.log("cacheTrack received:", track);
+
   const {
     data: { user },
     error: userError,
@@ -13,16 +18,31 @@ export async function likeSong(trackId) {
     return;
   }
 
-  const { data, error } = await supabase.from("liked_songs").insert([
-    {
-      track_id: trackId,
-      user_id: user.id,
-    },
-  ]);
+//   const { data, error } = await supabase.from("liked_songs").insert([
+//     {
+//       // track_id: trackId,
+//       track_id: track.id,
+//       user_id: user.id,
+//     },
+//   ]);
 
-  console.log("LIKE INSERT:", data, error);
+//   console.log("LIKE INSERT:", data, error);
 
-  return { data, error };
+//   return { data, error };
+// }
+
+const { data, error } = await supabase.from("liked_songs").insert([
+  {
+    track_id: track.id,
+    user_id: user.id,
+  },
+]);
+
+if (!error) {
+  await cacheTrack(track);
+}
+
+return { data, error };
 }
 
 export async function unlikeSong(trackId) {

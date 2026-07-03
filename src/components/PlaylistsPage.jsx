@@ -3,10 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import "./playlists.css";
+import useOfflineMode from "../hooks/useOfflineMode";
+
+import {
+  savePlaylists,
+  clearPlaylists,
+  getPlaylists,
+} from "../utils/offlineCache";
 
 export default function PlaylistsPage() {
   const nav = useNavigate();
   const { user } = useAuth();
+  const { isOnline } = useOfflineMode();
 
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,40 +29,98 @@ export default function PlaylistsPage() {
       .filter(Boolean);
   };
 
+  const loadOnlinePlaylists = async () => {
+  if (!user) return;
+
+  setLoading(true);
+
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(
+      `
+      id,
+      name,
+      description,
+      playlist_tracks (
+        track_id,
+        tracks (cover_url)
+      )
+    `
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+  } else {
+    setPlaylists(data || []);
+
+    // Offline snapshot
+    await clearPlaylists();
+    await savePlaylists(data || []);
+  }
+
+  setLoading(false);
+};
+
+const loadOfflinePlaylists = async () => {
+  setLoading(true);
+
+  try {
+    const data = await getPlaylists();
+
+    setPlaylists(data || []);
+  } catch (err) {
+    console.error(err);
+
+    setPlaylists([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (isOnline) {
+    loadOnlinePlaylists();
+  } else {
+    loadOfflinePlaylists();
+  }
+}, [user, isOnline]);
+
   // ✅ Load playlists with tracks
-  useEffect(() => {
-    const loadPlaylists = async () => {
-      if (!user) return;
+  // useEffect(() => {
+  //   const loadPlaylists = async () => {
+  //     if (!user) return;
 
-      setLoading(true);
+  //     setLoading(true);
 
-      const { data, error } = await supabase
-        .from("playlists")
-        .select(
-          `
-          id,
-          name,
-          description,
-          playlist_tracks (
-            track_id,
-            tracks (cover_url)
-          )
-        `,
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+  //     const { data, error } = await supabase
+  //       .from("playlists")
+  //       .select(
+  //         `
+  //         id,
+  //         name,
+  //         description,
+  //         playlist_tracks (
+  //           track_id,
+  //           tracks (cover_url)
+  //         )
+  //       `,
+  //       )
+  //       .eq("user_id", user.id)
+  //       .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error(error);
-      } else {
-        setPlaylists(data || []);
-      }
+  //     if (error) {
+  //       console.error(error);
+  //     } else {
+  //       setPlaylists(data || []);
+  //     }
 
-      setLoading(false);
-    };
+  //     setLoading(false);
+  //   };
 
-    loadPlaylists();
-  }, [user]);
+  //   loadPlaylists();
+  // }, [user]);
 
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 

@@ -143,7 +143,8 @@ export default function MovieSongsPage() {
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
                     showToast("Removed from Liked Songs");
                   } else {
-                    await likeSong(song.id);
+                    // await likeSong(song.id);
+                    await likeSong(song);
                     setLikedMap((prev) => ({ ...prev, [song.id]: true }));
                     showToast("Added to Liked Songs");
                   }

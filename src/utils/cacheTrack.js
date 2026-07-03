@@ -1,8 +1,9 @@
+// console.log("cacheTrack received:", track);
 import { saveTrack, getTrack } from "./offlineCache";
 
 export async function cacheTrack(track) {
   try {
-    const existing = await getTrack(track.id);
+    const existing = await getTrack(track.id);  
 
     if (existing) {
       return;
@@ -20,3 +21,4 @@ export async function cacheTrack(track) {
     console.error("Cache failed:", err);
   }
 }
+
