@@ -5,6 +5,7 @@ import { AudioProvider } from "./context/AudioContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { SyncProvider } from "./context/SyncContext";
+import { register } from "./serviceWorkerRegistration";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -26,3 +27,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </ToastProvider>
   </React.StrictMode>,
 );
+register();
