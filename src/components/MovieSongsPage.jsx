@@ -35,7 +35,8 @@ export default function MovieSongsPage() {
   const [selectedSong, setSelectedSong] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
   const [likedMap, setLikedMap] = useState({});
-  const [pickerTrackId, setPickerTrackId] = useState(null);
+  // const [pickerTrackId, setPickerTrackId] = useState(null);
+  const [pickerTrack, setPickerTrack] = useState(null);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -229,7 +230,9 @@ export default function MovieSongsPage() {
 
             <button
               onClick={() => {
-                setPickerTrackId(selectedSong.id); // ← save BEFORE clearing
+                // setPickerTrackId(selectedSong.id); 
+                setPickerTrack(selectedSong);
+
                 setSelectedSong(null);
                 setShowPicker(true);
               }}
@@ -241,15 +244,19 @@ export default function MovieSongsPage() {
       )}
 
       {showPicker && (
+        // <PlaylistPicker
+        //   trackId={pickerTrackId}
         <PlaylistPicker
-          trackId={pickerTrackId}
+  // track={selectedSong}
+    track={pickerTrack}
           // onClose={() => {
           //   setShowPicker(false);
           //   setPickerTrackId(null);
           // }}
           onClose={(status) => {
             setShowPicker(false);
-            setPickerTrackId(null);
+            // setPickerTrackId(null);
+            setPickerTrack(null);
 
             if (status === "added") {
               // showSnack("added to playlist");

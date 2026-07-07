@@ -27,6 +27,7 @@ import { useSync } from "../context/SyncContext";
 import {
   savePlaylists,
   clearPlaylists,
+  getAllCachedTracks,
 } from "../utils/offlineCache";
 
 
@@ -66,6 +67,16 @@ export default function CollectionPage() {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
     return () => clearTimeout(id);
   }, [query]);
+
+  // test
+  useEffect(() => {
+  async function test() {
+    const tracks = await getAllCachedTracks();
+    console.log("Cached Tracks:", tracks);
+  }
+
+  test();
+}, []);
 
   useEffect(() => {
     if (!tracks?.length) return;

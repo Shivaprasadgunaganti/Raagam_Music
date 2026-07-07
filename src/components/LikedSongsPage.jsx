@@ -42,7 +42,8 @@ export default function LikedSongsPage() {
   // ✅ Added showPicker
   const [showPicker, setShowPicker] = useState(false);
   const [likedMap, setLikedMap] = useState({});
-  const [pickerTrackId, setPickerTrackId] = useState(null);
+  // const [pickerTrackId, setPickerTrackId] = useState(null);
+  const [pickerTrack, setPickerTrack] = useState(null);
   const { showToast } = useToast();
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const { isOnline } = useOfflineMode();
@@ -370,7 +371,9 @@ console.log("trackIds:", trackIds);
               //   setShowPicker(true);
               // }}
               onClick={() => {
-                setPickerTrackId(selectedSong.id); // ← save BEFORE clearing
+                // setPickerTrackId(selectedSong.id); 
+                setPickerTrack(selectedSong);
+
                 setSelectedSong(null);
                 setShowPicker(true);
               }}
@@ -383,11 +386,15 @@ console.log("trackIds:", trackIds);
 
       {/* ✅ Playlist picker */}
       {showPicker && (
+        // <PlaylistPicker
+        //   trackId={pickerTrackId}
         <PlaylistPicker
-          trackId={pickerTrackId}
+  // track={selectedSong}
+    track={pickerTrack}
           onClose={(status) => {
             setShowPicker(false);
-            setPickerTrackId(null);
+            // setPickerTrackId(null);
+            setPickerTrack(null);
             if (status === "added") {
               // showSnack("added to playlist");.
               showToast("Added to Playlist");

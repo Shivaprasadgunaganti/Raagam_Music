@@ -22,6 +22,8 @@ import { MdQueueMusic, MdHistory } from "react-icons/md";
 import { BiSearch } from "react-icons/bi";
 import { getCacheStats, clearCache } from "../utils/offlineCache";
 import { MdOfflinePin } from "react-icons/md";
+import { useToast } from "../context/ToastContext";
+  
 
 export default function ProfilePage() {
   const nav = useNavigate();
@@ -41,6 +43,9 @@ export default function ProfilePage() {
   const username = displayName || user?.email?.split("@")[0] || "Listener";
 
   const [likedCount, setLikedCount] = useState(0);
+    const [playlists, setPlaylists] = useState([]);
+    const { showToast } = useToast();
+  
 
   const [playlistCount, setPlaylistCount] = useState(0);
   const [moviesCount, setMoviesCount] = useState(0);
@@ -111,6 +116,9 @@ export default function ProfilePage() {
 
       setPlaylistCount(count || 0);
     }
+
+    
+  // setPlaylists(data || []);
 
     loadPlaylistCount();
   }, []);

@@ -9,6 +9,10 @@ import {
   savePlaylists,
   clearPlaylists,
   getPlaylists,
+  savePlaylistTracks,
+  clearPlaylistTracks,
+  getPlaylistById,
+  getPlaylistTracksByPlaylistId,
 } from "../utils/offlineCache";
 
 export default function PlaylistsPage() {
@@ -20,72 +24,116 @@ export default function PlaylistsPage() {
   const [loading, setLoading] = useState(true);
 
   // ✅ Helper to get covers
+  // const getPlaylistCovers = (playlist) => {
+  //   if (!playlist.playlist_tracks) return [];
+
+  //   return playlist.playlist_tracks
+  //     .slice(0, 4)
+  //     .map((pt) => pt.tracks?.cover_url)
+  //     .filter(Boolean);
+  // };
   const getPlaylistCovers = (playlist) => {
     if (!playlist.playlist_tracks) return [];
 
     return playlist.playlist_tracks
       .slice(0, 4)
-      .map((pt) => pt.tracks?.cover_url)
+      .map((pt) => pt.track?.cover_url)
       .filter(Boolean);
   };
 
   const loadOnlinePlaylists = async () => {
-  if (!user) return;
+    if (!user) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  const { data, error } = await supabase
-    .from("playlists")
-    .select(
-      `
+    const { data, error } = await supabase
+      .from("playlists")
+      // .select(
+      //   `
+      //   id,
+      //   name,
+      //   description,
+      //   playlist_tracks (
+      //     track_id,
+      //     tracks (cover_url)
+      //   )
+      // `
+      // )
+
+      .select(
+        `
+  id,
+  name,
+  description,
+  playlist_tracks (
+    id,
+    playlist_id,
+    track_id,
+    position,
+    track:tracks (
       id,
-      name,
-      description,
-      playlist_tracks (
-        track_id,
-        tracks (cover_url)
-      )
-    `
+      title,
+      artist,
+      cover_url,
+      external_url,
+      storage_path,
+      movie_id
     )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  )
+`,
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-  } else {
-    setPlaylists(data || []);
+    if (error) {
+      console.error(error);
+    } else {
+      setPlaylists(data || []);
 
-    // Offline snapshot
-    await clearPlaylists();
-    await savePlaylists(data || []);
-  }
+      // Offline snapshot
+      await clearPlaylists();
+      await savePlaylists(data || []);
+      const allPlaylistTracks = (data || []).flatMap(
+        (playlist) => playlist.playlist_tracks || [],
+      );
 
-  setLoading(false);
-};
+      await clearPlaylistTracks();
+      await savePlaylistTracks(allPlaylistTracks);
+    }
 
-const loadOfflinePlaylists = async () => {
-  setLoading(true);
-
-  try {
-    const data = await getPlaylists();
-
-    setPlaylists(data || []);
-  } catch (err) {
-    console.error(err);
-
-    setPlaylists([]);
-  } finally {
     setLoading(false);
-  }
-};
+  };
 
-useEffect(() => {
-  if (isOnline) {
-    loadOnlinePlaylists();
-  } else {
-    loadOfflinePlaylists();
-  }
-}, [user, isOnline]);
+  const loadOfflinePlaylists = async () => {
+    // console.log("Playlist ID from URL:", playlistId);
+
+    // const playlist = await getPlaylistById(playlistId);
+    // console.log("Offline Playlist:", playlist);
+
+    // const rows = await getPlaylistTracksByPlaylistId(playlistId);
+    // console.log("Offline Rows:", rows);
+    setLoading(true);
+
+    try {
+      const data = await getPlaylists();
+
+      setPlaylists(data || []);
+    } catch (err) {
+      console.error(err);
+
+      setPlaylists([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOnline) {
+      loadOnlinePlaylists();
+    } else {
+      loadOfflinePlaylists();
+    }
+  }, [user, isOnline]);
 
   // ✅ Load playlists with tracks
   // useEffect(() => {

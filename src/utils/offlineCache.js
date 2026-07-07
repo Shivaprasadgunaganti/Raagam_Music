@@ -127,19 +127,19 @@ export async function hasTrack(trackId) {
   return !!blob;
 }
 
-export async function deleteTrack(trackId) {
-  const db = await openDB();
+// export async function deleteTrack(trackId) {
+//   const db = await openDB();
 
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, "readwrite");
-    const store = tx.objectStore(STORE_NAME);
+//   return new Promise((resolve, reject) => {
+//     const tx = db.transaction(STORE_NAME, "readwrite");
+//     const store = tx.objectStore(STORE_NAME);
 
-    const request = store.delete(trackId);
+//     const request = store.delete(trackId);
 
-    request.onsuccess = () => resolve(true);
-    request.onerror = () => reject(request.error);
-  });
-}
+//     request.onsuccess = () => resolve(true);
+//     request.onerror = () => reject(request.error);
+//   });
+// }
 
 export async function clearCache() {
   const db = await openDB();
@@ -218,7 +218,12 @@ export async function saveLikedTracks(trackIds) {
         track_id: trackId,
         cachedAt: Date.now(),
       });
+//       request.onsuccess = () => {
+//   console.log("Saved liked track:", trackId);
+// };
     });
+
+    
 
     tx.oncomplete = () => resolve(true);
     tx.onerror = () => reject(tx.error);
@@ -344,3 +349,82 @@ export async function clearPlaylistTracks() {
     request.onerror = () => reject(request.error);
   });
 }
+
+// export async function getPlaylistById(playlistId) {
+//   const playlists = await getPlaylists();
+
+//   return playlists.find((p) => p.id === Number(playlistId)) || null;
+// }
+export async function getPlaylistById(playlistId) {
+  const playlists = await getPlaylists();
+
+  return playlists.find((p) => p.id === playlistId) || null;
+}
+// export async function getPlaylistTracksByPlaylistId(playlistId) {
+//   const rows = await getPlaylistTracks();
+
+//   return rows.filter(
+//     (row) => row.playlist_id === Number(playlistId)
+//   );
+// }
+export async function getPlaylistTracksByPlaylistId(playlistId) {
+  const rows = await getPlaylistTracks();
+
+  return rows.filter(
+    (row) => row.playlist_id === playlistId
+  );
+}
+export async function savePlaylist(playlist) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PLAYLIST_STORE, "readwrite");
+    const store = tx.objectStore(PLAYLIST_STORE);
+
+    const request = store.put(playlist);
+
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject(request.error);
+  });
+}
+export async function savePlaylistTrack(track) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PLAYLIST_TRACK_STORE, "readwrite");
+    const store = tx.objectStore(PLAYLIST_TRACK_STORE);
+
+    const request = store.put(track);
+
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function deleteTrack(trackId) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
+
+    const request = store.delete(trackId);
+
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// export async function getAllCachedTracks() {
+//   const db = await openDB();
+
+//   return new Promise((resolve, reject) => {
+//     const tx = db.transaction(STORE_NAME, "readonly");
+//     const store = tx.objectStore(STORE_NAME);
+
+//     const request = store.getAll();
+
+//     request.onsuccess = () => resolve(request.result);
+//     request.onerror = () => reject(request.error);
+//   });
+// }

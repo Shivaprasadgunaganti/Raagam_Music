@@ -361,7 +361,9 @@ export default function SongDetailPage() {
 
       {showPicker && (
         <PlaylistPicker
-          trackId={track.id}
+          // trackId={track.id}
+            track={track}
+
           onClose={(status) => {
             setShowPicker(false);
 

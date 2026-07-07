@@ -17,6 +17,15 @@ import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
 // import useOfflineMode from "../hooks/useOfflineMode"; // test
+import useOfflineMode from "../hooks/useOfflineMode";
+
+import { savePlaylistTracks, clearPlaylistTracks } from "../utils/offlineCache";
+// import useOfflineMode from "../hooks/useOfflineMode";
+
+import {
+  getPlaylistById,
+  getPlaylistTracksByPlaylistId,
+} from "../utils/offlineCache";
 
 export default function PlaylistDetailPage() {
   const { playlistId } = useParams();
@@ -36,61 +45,191 @@ export default function PlaylistDetailPage() {
   const [showPicker, setShowPicker] = useState(false);
   // ✅ per-song liked map
   const [likedMap, setLikedMap] = useState({});
-  const [pickerTrackId, setPickerTrackId] = useState(null);
+  // const [pickerTrackId, setPickerTrackId] = useState(null);
+  const [pickerTrack, setPickerTrack] = useState(null);
   const { showToast } = useToast();
+  const { isOnline } = useOfflineMode();
   // const { isOffline } = useOfflineMode();
-// console.log(isOffline);
+  // console.log(isOffline);
 
-  useEffect(() => {
-    async function loadPlaylist() {
-      setLoading(true);
+  //   useEffect(() => {
+  //     async function loadPlaylist() {
+  //       setLoading(true);
 
-      const { data: pl } = await supabase
-        .from("playlists")
-        .select("*")
-        .eq("id", playlistId)
-        .single();
+  //       const { data: pl } = await supabase
+  //         .from("playlists")
+  //         .select("*")
+  //         .eq("id", playlistId)
+  //         .single();
 
-      const { data: rows } = await supabase
-        .from("playlist_tracks")
+  //       const { data: rows } = await supabase
+  //         .from("playlist_tracks")
 
-        .select(
-          `
-  id,
-  position,
-  track:tracks (
-    id,
-    title,
-    artist,
-    cover_url,
-    external_url,
-    storage_path
-  )
-`,
-        )
-        .eq("playlist_id", playlistId)
-        // .order("created_at");
-        .order("position", { ascending: true });
+  //         .select(
+  //           `
+  //   id,
+  //   position,
+  //   track:tracks (
+  //     id,
+  //     title,
+  //     artist,
+  //     cover_url,
+  //     external_url,
+  //     storage_path
+  //   )
+  // `,
+  //         )
+  //         .eq("playlist_id", playlistId)
+  //         // .order("created_at");
+  //         .order("position", { ascending: true });
+  //       await clearPlaylistTracks();
+  //       await savePlaylistTracks(rows || []);
 
-      setPlaylist(pl);
-      // ✅ Filter out null tracks to fix the crash
-      // setSongs(rows ? rows.map((r) => r.track).filter(Boolean) : []);
+  //       setPlaylist(pl);
+  //       // ✅ Filter out null tracks to fix the crash
+  //       // setSongs(rows ? rows.map((r) => r.track).filter(Boolean) : []);
+  //       setSongs(
+  //         rows
+  //           ? rows
+  //               .map((r) => ({
+  //                 ...r.track,
+  //                 pt_id: r.id, // 🔥 needed for update
+  //                 position: r.position, // 🔥 needed for swap
+  //               }))
+  //               .filter(Boolean)
+  //           : [],
+  //       );
+  //       setLoading(false);
+  //     }
+
+  //     loadPlaylist();
+  //   }, [playlistId]);
+
+  const loadPlaylist = async () => {
+    setLoading(true);
+
+    const { data: pl } = await supabase
+      .from("playlists")
+      .select("*")
+      .eq("id", playlistId)
+      .single();
+
+    const { data: rows } = await supabase
+      .from("playlist_tracks")
+      .select(
+        `
+      id,
+      playlist_id,
+      track_id,
+      position,
+      track:tracks (
+        id,
+        title,
+        artist,
+        cover_url,
+        external_url,
+        storage_path,
+        movie_id
+      )
+    `,
+      )
+      .eq("playlist_id", playlistId)
+      .order("position", { ascending: true });
+
+    // ✅ Cache playlist tracks for offline
+    // await clearPlaylistTracks();
+    // await savePlaylistTracks(rows || []);
+
+    setPlaylist(pl);
+
+    setSongs(
+      rows
+        ? rows
+            .map((r) => ({
+              ...r.track,
+              pt_id: r.id,
+              position: r.position,
+            }))
+            .filter(Boolean)
+        : [],
+    );
+
+    setLoading(false);
+  };
+
+  // const loadOfflinePlaylist = async () => {
+  //   setLoading(true);
+
+  //   try {
+  //     const playlist = await getPlaylistById(playlistId);
+
+  //     const rows = await getPlaylistTracksByPlaylistId(playlistId);
+
+  //     setPlaylist(playlist);
+
+  //     setSongs(
+  //       rows
+  //         .map((r) => ({
+  //           ...r.track,
+  //           pt_id: r.id,
+  //           position: r.position,
+  //         }))
+  //         .filter(Boolean)
+  //     );
+  //   } catch (err) {
+  //     console.error(err);
+  //     setPlaylist(null);
+  //     setSongs([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (!isOnline) return;
+
+  //   loadPlaylist();
+  // }, [playlistId, isOnline]);
+
+  const loadOfflinePlaylist = async () => {
+    setLoading(true);
+
+    try {
+      // 👇 Add these logs here
+      console.log("URL Playlist ID:", playlistId);
+
+      const playlist = await getPlaylistById(playlistId);
+      console.log("Offline Playlist:", playlist);
+
+      const rows = await getPlaylistTracksByPlaylistId(playlistId);
+      console.log("Offline Rows:", rows);
+
+      setPlaylist(playlist);
+
       setSongs(
         rows
-          ? rows
-              .map((r) => ({
-                ...r.track,
-                pt_id: r.id, // 🔥 needed for update
-                position: r.position, // 🔥 needed for swap
-              }))
-              .filter(Boolean)
-          : [],
+          .map((r) => ({
+            ...r.track,
+            pt_id: r.id,
+            position: r.position,
+          }))
+          .filter(Boolean),
       );
+    } catch (err) {
+      console.error(err);
+      setPlaylist(null);
+      setSongs([]);
+    } finally {
       setLoading(false);
     }
-
-    loadPlaylist();
-  }, [playlistId]);
+  };
+  useEffect(() => {
+    if (isOnline) {
+      loadPlaylist();
+    } else {
+      loadOfflinePlaylist();
+    }
+  }, [playlistId, isOnline]);
 
   useEffect(() => {
     async function loadLikes() {
@@ -151,7 +290,6 @@ export default function PlaylistDetailPage() {
     setSongs(updated);
   }
 
-
   return (
     <main className="pd-page page-safe">
       {/* HERO */}
@@ -186,7 +324,6 @@ export default function PlaylistDetailPage() {
 
         {songs.length > 0 && (
           <div className="pd-action-buttons pl">
-            
             <button
               className="pd-play-btn"
               onClick={() => setNewQueue(songs, 0)}
@@ -194,7 +331,6 @@ export default function PlaylistDetailPage() {
               ▶
             </button>
 
-            
             <button
               className="pd-shuffle-btn"
               onClick={() => shufflePlay(songs)}
@@ -346,7 +482,10 @@ export default function PlaylistDetailPage() {
 
             <button
               onClick={() => {
-                setPickerTrackId(selectedSong.id); // save id BEFORE clearing
+                // setPickerTrackId(selectedSong.id);
+                // setSelectedSong(null);
+                // setShowPicker(true);
+                setPickerTrack(selectedSong);
                 setSelectedSong(null);
                 setShowPicker(true);
               }}
@@ -368,11 +507,15 @@ export default function PlaylistDetailPage() {
       )}
 
       {showPicker && (
+        // <PlaylistPicker
+        //   trackId={pickerTrackId}
         <PlaylistPicker
-          trackId={pickerTrackId}
+          // track={selectedSong}
+            track={pickerTrack}
           onClose={(status) => {
             setShowPicker(false);
-            setPickerTrackId(null);
+            // setPickerTrackId(null);
+            setPickerTrack(null);
 
             if (status === "added") {
               // showSnack("added to playlist");.

@@ -3,7 +3,8 @@ import { supabase } from "../supabaseClient";
 import { addTrackToPlaylist } from "../utils/playlistHelpers";
 import "./playlistPicker.css";
 
-export default function PlaylistPicker({ trackId, onClose }) {
+// export default function PlaylistPicker({ trackId, onClose }) {
+export default function PlaylistPicker({ track, onClose }) {
   const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
@@ -24,7 +25,10 @@ export default function PlaylistPicker({ trackId, onClose }) {
   }, []);
 
   async function handleAdd(playlistId) {
-    const status = await addTrackToPlaylist(playlistId, trackId);
+    // const status = await addTrackToPlaylist(playlistId, trackId);
+      console.log("PlaylistPicker track:", track);
+
+    const status = await addTrackToPlaylist(playlistId, track);
     onClose(status);
     // onClose();
   }

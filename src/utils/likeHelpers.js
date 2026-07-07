@@ -1,6 +1,27 @@
 import { supabase } from "../supabaseClient";
 import { cacheTrack } from "./cacheTrack";
+import {
+  clearLikedTracks,
+  saveLikedTracks,
+} from "./offlineCache";
 
+
+async function refreshLikedSnapshot() {
+  const { data, error } = await supabase
+    .from("liked_songs")
+    .select("track_id")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to refresh liked snapshot:", error);
+    return;
+  }
+
+  const trackIds = (data || []).map((row) => row.track_id);
+
+  await clearLikedTracks();
+  await saveLikedTracks(trackIds);
+}
 // export async function likeSong(trackId) {
 export async function likeSong(track) {
    console.log("likeSong received:", track);
@@ -38,15 +59,37 @@ const { data, error } = await supabase.from("liked_songs").insert([
   },
 ]);
 
+// if (!error) {
+//   await cacheTrack(track);
+// }
+
 if (!error) {
   await cacheTrack(track);
+  await refreshLikedSnapshot();
 }
 
 return { data, error };
 }
 
+// export async function unlikeSong(trackId) {
+//   return supabase.from("liked_songs").delete().eq("track_id", trackId);
+// }
+
 export async function unlikeSong(trackId) {
-  return supabase.from("liked_songs").delete().eq("track_id", trackId);
+  const result = await supabase
+    .from("liked_songs")
+    .delete()
+    .eq("track_id", trackId);
+
+  if (!result.error) {
+    await refreshLikedSnapshot();
+  }
+  const db = await import("./offlineCache");
+const tracks = await db.getLikedTrackIds();
+
+console.log("Liked tracks after refresh:", tracks);
+
+  return result;
 }
 
 export async function isSongLiked(trackId) {
