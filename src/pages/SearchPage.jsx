@@ -130,7 +130,7 @@ export default function SearchPage() {
     setHistory(updated);
     localStorage.setItem("search_history", JSON.stringify(updated));
   };
-  console.log("PLAYLIST RAW:", playlists);
+  // console.log("PLAYLIST RAW:", playlists);
   return (
     <main className="search-page page-safe">
       <div className="search-header">
@@ -194,7 +194,10 @@ export default function SearchPage() {
                   </div>
                 ))
               ) : (
-                <div className="dropdown-empty">No results found</div>
+                // <div className="dropdown-empty">No results found</div>
+                <div className="dropdown-loading">
+  <div className="search-spinner"></div>
+</div>
               )
             ) : null}
           </div>
@@ -334,5 +337,3 @@ export default function SearchPage() {
     </main>
   );
 }
-
-

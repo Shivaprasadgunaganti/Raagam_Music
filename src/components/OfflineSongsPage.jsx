@@ -5,6 +5,7 @@ import { useAudio } from "../context/AudioContext";
 import { getAllCachedTracks } from "../utils/offlineCache";
 import { deleteTrack } from "../utils/offlineCache";
 import { useToast } from "../context/ToastContext";
+import "./OfflineSongsPage.css";
 
 export default function OfflineSongsPage() {
   const nav = useNavigate();
@@ -37,41 +38,60 @@ export default function OfflineSongsPage() {
     loadOfflineSongs();
   }, []);
 
-//   if (loading) {
-//     return <div style={{ padding: 20 }}>Loading...</div>;
-//   }
-if (!loading && songs.length === 0) {
-  return (
-    <div className="liked-page">
-      <div className="liked-header">
-        <button onClick={() => nav(-1)}>
-          <IoArrowBack />
-        </button>
+  //   if (loading) {
+  //     return <div style={{ padding: 20 }}>Loading...</div>;
+  //   }
+  if (!loading && songs.length === 0) {
+    return (
+      // <div className="liked-page">
+      //   <div className="liked-header">
+      //     <button onClick={() => nav(-1)}>
+      //       <IoArrowBack />
+      //     </button>
 
-        <h2>Offline Songs</h2>
+      //     <h2>Offline Songs</h2>
+      //   </div>
+
+      //   <div
+      //     style={{
+      //       textAlign: "center",
+      //       padding: "60px 20px",
+      //     }}
+      //   >
+      //     <h3>No Offline Songs Yet</h3>
+
+      //     <p>
+      //       Play songs online to make them available offline.
+      //     </p>
+      //   </div>
+      // </div>
+      <div className="offline-screen">
+        <div className="offline-topbar">
+          <button className="offline-back-btn" onClick={() => nav(-1)}>
+            <IoArrowBack />
+          </button>
+
+          <h2 className="offline-title">Offline Songs</h2>
+        </div>
+
+        <div className="offline-empty-state">
+          <h3>No Offline Songs Yet</h3>
+
+          <p>Play songs online to make them available offline.</p>
+        </div>
       </div>
-
-      <div
-        style={{
-          textAlign: "center",
-          padding: "60px 20px",
-        }}
-      >
-        <h3>No Offline Songs Yet</h3>
-
-        <p>
-          Play songs online to make them available offline.
-        </p>
-      </div>
-    </div>
-  );
-}
-
+    );
+  }
 
   return (
-    <div className="liked-page">
-      <div className="liked-header">
-        <button onClick={() => nav(-1)}>
+    // <div className="liked-page">
+    //   <div className="liked-header">
+    //     <button onClick={() => nav(-1)}>
+    //       <IoArrowBack />
+    //     </button>
+    <div className="offline-screen">
+      <div className="offline-topbar">
+        <button className="offline-back-btn" onClick={() => nav(-1)}>
           <IoArrowBack />
         </button>
 
@@ -133,88 +153,84 @@ if (!loading && songs.length === 0) {
         })}
       </ul>
       {selectedSong && (
-  <div
-    className="song-menu-overlay"
-    onClick={() => setSelectedSong(null)}
-  >
-    <div
-      className="song-menu-sheet slide-up-sheet"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="sheet-song-info">
-        <img
-          src={selectedSong.cover_url || "/covers/default.jpg"}
-          alt={selectedSong.title}
-          className="sheet-cover"
-        />
+        <div
+          className="song-menu-overlay"
+          onClick={() => setSelectedSong(null)}
+        >
+          <div
+            className="song-menu-sheet slide-up-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sheet-song-info">
+              <img
+                src={selectedSong.cover_url || "/covers/default.jpg"}
+                alt={selectedSong.title}
+                className="sheet-cover"
+              />
 
-        <div>
-          <div className="sheet-title">
-            {selectedSong.title}
-          </div>
+              <div>
+                <div className="sheet-title">{selectedSong.title}</div>
 
-          <div className="sheet-artist">
-            {selectedSong.artist || "Unknown Artist"}
+                <div className="sheet-artist">
+                  {selectedSong.artist || "Unknown Artist"}
+                </div>
+              </div>
+            </div>
+
+            <div className="sheet-divider" />
+
+            <button
+              onClick={() => {
+                addToQueue(selectedSong);
+
+                setSelectedSong(null);
+
+                showToast("Added to Queue");
+              }}
+            >
+              ➕ Add to Queue
+            </button>
+
+            <button
+              onClick={() => {
+                playNextInsert(selectedSong);
+
+                setSelectedSong(null);
+
+                showToast("Added to Play Next");
+              }}
+            >
+              ▶ Play Next
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedSong(null);
+
+                nav("/queue");
+              }}
+            >
+              🎵 View Queue
+            </button>
+
+            <button
+              onClick={async () => {
+                await deleteTrack(selectedSong.id);
+
+                setSongs((prev) =>
+                  prev.filter((s) => s.id !== selectedSong.id),
+                );
+
+                setSelectedSong(null);
+
+                showToast("Offline copy removed");
+              }}
+            >
+              🗑 Remove Offline Copy
+            </button>
           </div>
         </div>
-      </div>
-
-      <div className="sheet-divider" />
-
-      <button
-        onClick={() => {
-          addToQueue(selectedSong);
-
-          setSelectedSong(null);
-
-          showToast("Added to Queue");
-        }}
-      >
-        ➕ Add to Queue
-      </button>
-
-      <button
-        onClick={() => {
-          playNextInsert(selectedSong);
-
-          setSelectedSong(null);
-
-          showToast("Added to Play Next");
-        }}
-      >
-        ▶ Play Next
-      </button>
-
-      <button
-        onClick={() => {
-          setSelectedSong(null);
-
-          nav("/queue");
-        }}
-      >
-        🎵 View Queue
-      </button>
-
-      <button
-        onClick={async () => {
-          await deleteTrack(selectedSong.id);
-
-          setSongs((prev) =>
-            prev.filter((s) => s.id !== selectedSong.id)
-          );
-
-          setSelectedSong(null);
-
-          showToast("Offline copy removed");
-        }}
-      >
-        🗑 Remove Offline Copy
-      </button>
+      )}
     </div>
-  </div>
-)}
-    </div>
-    
   );
-  
 }

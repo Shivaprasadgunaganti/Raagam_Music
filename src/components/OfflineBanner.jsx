@@ -8,7 +8,26 @@ export default function OfflineBanner() {
   if (isOnline) return null;
 
   return (
-    // <div
+    
+<div 
+   style={{
+        background: "#ff9800",
+        color: "#000",
+        textAlign: "center",
+        padding: "8px",
+        fontSize: "14px",
+        fontWeight: "600",
+        position: "sticky",
+        top: 0,
+        zIndex: 9999,
+      }}>
+         ✨ Offline Mode — Your music stays with you{" "}
+      </div>
+  );
+}
+
+
+// <div
     //   style={{
     //     background: "#ff9800",
     //     color: "#000",
@@ -58,7 +77,7 @@ export default function OfflineBanner() {
 //     {/* 📶 Offline Mode - Cached songs are available */}
 //   </div>
 // </nav>
-<nav
+{/* <nav
   style={{
     position: "sticky",
     top: 0,
@@ -91,6 +110,4 @@ export default function OfflineBanner() {
       Click
     </button>
   </div>
-</nav>
-  );
-}
+</nav> */}

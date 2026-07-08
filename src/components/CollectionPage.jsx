@@ -29,9 +29,11 @@ import {
   clearPlaylists,
   getAllCachedTracks,
 } from "../utils/offlineCache";
-
+import OfflineHomeContent from "./OfflineHomeContent";
+import { FaHeart, FaPlay, FaRegHeart } from "react-icons/fa";
 
 export default function CollectionPage() {
+  // const isOnline = useOnlineStatus();
   const { tracks, loading } = useTracks();
   const { recent } = useRecent();
   const nav = useNavigate();
@@ -70,13 +72,13 @@ export default function CollectionPage() {
 
   // test
   useEffect(() => {
-  async function test() {
-    const tracks = await getAllCachedTracks();
-    console.log("Cached Tracks:", tracks);
-  }
+    async function test() {
+      const tracks = await getAllCachedTracks();
+      // console.log("Cached Tracks:", tracks);
+    }
 
-  test();
-}, []);
+    test();
+  }, []);
 
   useEffect(() => {
     if (!tracks?.length) return;
@@ -86,20 +88,6 @@ export default function CollectionPage() {
       });
     });
   }, [tracks]);
-
-  // useEffect(() => {
-  //   async function loadMovies() {
-  //     const { data } = await supabase
-  //       .from("movies")
-  //       .select("id, title, cover_url")
-  //       .order("id", { ascending: false })
-  //       .limit(8);
-
-  //     setMovies(data || []);
-  //   }
-
-  //   loadMovies();
-  // }, []);
 
   useEffect(() => {
     if (!isOnline) return;
@@ -116,88 +104,36 @@ export default function CollectionPage() {
 
     loadMovies();
   }, [isOnline]);
-  // useEffect(() => {
-  //   async function loadMovies() {
-  //     const { data, error } = await supabase
-  //       .from("movies")
-  //       .select("id, title, cover_url")
-  //       .order("id", { ascending: false })
-  //       .limit(8);
-
-  //     // console.log("MOVIES DATA:", data);
-  //     // console.log("MOVIES ERROR:", error);
-
-  //     setMovies(data || []);
-  //   }
-
-  //   loadMovies();
-  // }, []);
-
-  // const loadPlaylists = async () => {
-  //   if (!user) return;
-
-  //   const { data, error } = await supabase
-  //     .from("playlists")
-  //     .select(
-  //       `
-  //       id,
-  //       name,
-  //       playlist_tracks (
-  //         track_id,
-  //         tracks (cover_url)
-  //       )
-  //     `,
-  //     )
-  //     .eq("user_id", user.id)
-  //     .order("created_at", { ascending: false });
-
-  //   if (error) {
-  //     console.log("Fetch playlist error:", error);
-  //     return;
-  //   }
-
-  //   setPlaylists(data || []);
-  // };
 
   const loadPlaylists = async () => {
-  if (!user) return;
+    if (!user) return;
 
-  const { data, error } = await supabase
-    .from("playlists")
-    .select(
-      `
+    const { data, error } = await supabase
+      .from("playlists")
+      .select(
+        `
       id,
       name,
       playlist_tracks (
         track_id,
         tracks (cover_url)
       )
-    `
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    `,
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.log("Fetch playlist error:", error);
-    return;
-  }
+    if (error) {
+      console.log("Fetch playlist error:", error);
+      return;
+    }
 
-  setPlaylists(data || []);
+    setPlaylists(data || []);
 
-  // ✅ Offline Snapshot Sync
-  await clearPlaylists();
-  await savePlaylists(data || []);
-};
-
-  // useEffect(() => {
-  //   loadPlaylists();
-  // }, [user]);
-
-  // useEffect(() => {
-  //   if (!isOnline) return;
-
-  //   loadPlaylists();
-  // }, [user, isOnline]);
+    // ✅ Offline Snapshot Sync
+    await clearPlaylists();
+    await savePlaylists(data || []);
+  };
 
   useEffect(() => {
     if (!isOnline) return;
@@ -224,16 +160,6 @@ export default function CollectionPage() {
 
     setContinueTracks(data || []);
   };
-
-  // useEffect(() => {
-  //   fetchContinueListening();
-  // }, [user]);
-
-  // useEffect(() => {
-  //   if (!isOnline) return;
-
-  //   fetchContinueListening();
-  // }, [user, isOnline]);
 
   useEffect(() => {
     if (!isOnline) return;
@@ -281,17 +207,6 @@ export default function CollectionPage() {
     showToast("Playlist created");
   };
 
-  // const playFromContinue = (track, startTime) => {
-  //    console.log("CONTINUE TRACK", track);
-  // console.log("START TIME", startTime);
-  //   if (!track) return;
-  //   setResumeTime(startTime || 0);
-  //   setNewQueue(
-  //     recent,
-  //     recent.findIndex((t) => t.id === track.id),
-  //   );
-  // };
-
   const playFromContinue = (track, startTime) => {
     if (!track) return;
 
@@ -300,33 +215,20 @@ export default function CollectionPage() {
     setNewQueue([track], 0);
   };
 
-  // const addToLiked = (e, trackId) => {
-  //   e.stopPropagation();
-  //   if (likedMap[trackId]) {
-  //     unlikeSong(trackId);
-  //   } else {
-  //     likeSong(trackId);
-  //   }
-  //   setLikedMap((prev) => ({
-  //     ...prev,
-  //     [trackId]: !prev[trackId],
-  //   }));
-  // };
+  const addToLiked = async (e, track) => {
+    e.stopPropagation();
 
-const addToLiked = async (e, track) => {
-  e.stopPropagation();
+    if (likedMap[track.id]) {
+      await unlikeSong(track.id);
+    } else {
+      await likeSong(track);
+    }
 
-  if (likedMap[track.id]) {
-    await unlikeSong(track.id);
-  } else {
-    await likeSong(track);
-  }
-
-  setLikedMap((prev) => ({
-    ...prev,
-    [track.id]: !prev[track.id],
-  }));
-};
+    setLikedMap((prev) => ({
+      ...prev,
+      [track.id]: !prev[track.id],
+    }));
+  };
 
   const getPlaylistCovers = (playlist) => {
     if (!playlist.playlist_tracks) return [];
@@ -474,13 +376,6 @@ const addToLiked = async (e, track) => {
     // { key: "albums", label: "Albums for You" },
   ];
 
-  // const renderSectionHeader = (title, onClick) => (
-  //   <div className="section-row-header">
-  //     <h3>{title}</h3>
-  //     <button onClick={onClick}>See all</button>
-  //   </div>
-  // );
-
   const renderSectionHeader = (title, onClick, showButton = false) => (
     <div className="section-row-header">
       <h3>{title}</h3>
@@ -518,19 +413,8 @@ const addToLiked = async (e, track) => {
                   src={track.cover_url || "/covers/default.jpg"}
                   alt={track.title}
                 />
-                {/* {isContinue && percent > 0 && (
-                  <div className="card-progress overlay-progress">
-                    <div
-                      className="card-progress-fill"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                )} */}
               </div>
               <div className="album-title">{track.title}</div>
-              {/* <div className="album-subtitle">
-                {track.artist || "Unknown Artist"}
-              </div> */}
             </div>
           );
         })}
@@ -646,34 +530,6 @@ const addToLiked = async (e, track) => {
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
-      {/* <header className="home-header">
-        <div>
-          <h1 className="home-title">Hi, {username}</h1>
-        </div>
-
-        <div className="home-actions">
-          
-          <button onClick={() => nav("/search")} aria-label="Search">
-            <FiSearch />
-          </button>
-         
-          <button
-            className="profile-btn"
-            onClick={() => nav("/account")}
-            aria-label="Profile"
-            style={{
-              background: profileColor,
-            }}
-          >
-            {userName
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
-          </button>
-        </div>
-      </header> */}
       <header className="home-header">
         <div className="home-left">
           <p className="home-greeting">Hi,</p>
@@ -708,362 +564,253 @@ const addToLiked = async (e, track) => {
         </div>
       </header>
 
-      {/* {heroSlides.length > 0 && (
-        <section className="home-section featured-carousel-section">
-          <div className="featured-carousel-shell">
-            <div
-              className="featured-carousel-track"
-              style={{ transform: `translateX(-${heroIndex * 100}%)` }}
+      {isOnline ? (
+        <>
+          <section className="home-section featured-carousel-section">
+            <Swiper
+              modules={[Autoplay, Pagination]}
+              pagination={{ clickable: true }}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+              }}
+              loop={true}
+              spaceBetween={16}
             >
-              {heroSlides.map((slide) => (
-                <div
-                  key={slide.id}
-                  className="featured-slide"
-                  onClick={slide.onClick}
-                >
-                  <div className="featured-overlay" />
-                  <div className="featured-content">
-                    <span className="featured-badge">{slide.badge}</span>
-                    <h2>{slide.title}</h2>
-                    <h4>{slide.artist}</h4>
-                    <p>{slide.description}</p>
-                    <div className="featured-buttons">
-                      <button
-                        className="play-pill"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          slide.onClick();
-                        }}
-                      >
-                        {slide.type === "playlist" ? "+ Create" : "▶ Play"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+              {heroSlides.length > 0 && (
+                <section className="home-section featured-carousel-section">
+                  <Swiper
+                    modules={[Autoplay, Pagination, EffectCoverflow]}
+                    effect="coverflow"
+                    centeredSlides
+                    slidesPerView={1.1}
+                    spaceBetween={16}
+                    loop
+                    autoplay={{
+                      delay: 5000,
+                      disableOnInteraction: false,
+                    }}
+                    pagination={{
+                      clickable: true,
+                    }}
+                    coverflowEffect={{
+                      rotate: 0,
+                      stretch: 0,
+                      depth: 120,
+                      modifier: 2,
+                      slideShadows: false,
+                    }}
+                  >
+                    {heroSlides.map((slide) => (
+                      <SwiperSlide key={slide.id}>
+                        <div className="featured-slide" onClick={slide.onClick}>
+                          <div className="featured-overlay" />
 
-            <div className="hero-dots">
-              {heroSlides.map((_, index) => (
-                <button
-                  key={index}
-                  className={heroIndex === index ? "active" : ""}
-                  onClick={() => setHeroIndex(index)}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )} */}
+                          <div className="featured-content">
+                            <span className="featured-badge">
+                              {slide.badge}
+                            </span>
 
-      <section className="home-section featured-carousel-section">
-        <Swiper
-          modules={[Autoplay, Pagination]}
-          pagination={{ clickable: true }}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-          }}
-          loop={true}
-          spaceBetween={16}
-        >
-          {/* {heroSlides.map((slide) => (
-      <SwiperSlide key={slide.id}>
-        <div
-          className="featured-slide"
-          onClick={slide.onClick}
-        >
-          <div className="featured-overlay" />
+                            <h2>{slide.title}</h2>
 
-          <div className="featured-content">
-            <span className="featured-badge">
-              {slide.badge}
-            </span>
+                            <h4>{slide.artist}</h4>
 
-            <h2>{slide.title}</h2>
+                            <p>{slide.description}</p>
 
-            <h4>{slide.artist}</h4>
-
-            <p>{slide.description}</p>
-
-            <div className="featured-buttons">
-              <button
-                className="play-pill"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  slide.onClick();
-                }}
-              >
-                {slide.type === "playlist"
-                  ? "+ Create"
-                  : "▶ Play"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </SwiperSlide>
-    ))} */}
-          {heroSlides.length > 0 && (
-            <section className="home-section featured-carousel-section">
-              <Swiper
-                modules={[Autoplay, Pagination, EffectCoverflow]}
-                effect="coverflow"
-                centeredSlides
-                slidesPerView={1.1}
-                spaceBetween={16}
-                loop
-                autoplay={{
-                  delay: 5000,
-                  disableOnInteraction: false,
-                }}
-                pagination={{
-                  clickable: true,
-                }}
-                coverflowEffect={{
-                  rotate: 0,
-                  stretch: 0,
-                  depth: 120,
-                  modifier: 2,
-                  slideShadows: false,
-                }}
-              >
-                {heroSlides.map((slide) => (
-                  <SwiperSlide key={slide.id}>
-                    <div className="featured-slide" onClick={slide.onClick}>
-                      <div className="featured-overlay" />
-
-                      <div className="featured-content">
-                        <span className="featured-badge">{slide.badge}</span>
-
-                        <h2>{slide.title}</h2>
-
-                        <h4>{slide.artist}</h4>
-
-                        <p>{slide.description}</p>
-
-                        <div className="featured-buttons">
-                          <button
-                            className="play-pill"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              slide.onClick();
-                            }}
-                          >
-                            {slide.type === "playlist" ? "+ Create" : "▶ Play"}
-                          </button>
+                            <div className="featured-buttons">
+                              <button
+                                className="play-pill"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  slide.onClick();
+                                }}
+                              >
+                                {/* {slide.type === "playlist"
+                                  ? "+ Create"
+                                  : "▶ Play"} */}
+                                {slide.type === "playlist" ? (
+                                  "+ Create"
+                                ) : (
+                                  <>
+                                    <FaPlay />
+                                    Play
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </section>
+              )}
+            </Swiper>
+          </section>
+
+          <section className="home-section">
+            <div className="switch-tabs">
+              {switchTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  className={`switch-tab ${activeTab === tab.key ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="home-section">
+            {renderSectionHeader(
+              switchTabs.find((t) => t.key === activeTab)?.label || "Browse",
+              activeTab === "continue"
+                ? () => nav("/continue-listening")
+                : activeTab === "trending"
+                  ? () => nav("/trending")
+                  : activeTab === "recent"
+                    ? () => nav("/recent")
+                    : activeTab === "playlists"
+                      ? () => nav("/playlists")
+                      : () => nav("/movies"),
+            )}
+            {renderActiveTabContent()}
+          </section>
+
+          {movies.length > 0 && (
+            <section className="home-section">
+              {renderSectionHeader(
+                "Albums For You",
+                () => nav("/movies"),
+                true,
+              )}
+
+              {renderMoviesRail()}
             </section>
           )}
-        </Swiper>
-      </section>
 
-      <section className="home-section">
-        <div className="switch-tabs">
-          {switchTabs.map((tab) => (
-            <button
-              key={tab.key}
-              className={`switch-tab ${activeTab === tab.key ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </section>
+          {recentList.length > 0 && (
+            <section className="home-section recently-played-section">
+              {renderSectionHeader("Recently Played", () => nav("/recent"))}
 
-      <section className="home-section">
-        {renderSectionHeader(
-          switchTabs.find((t) => t.key === activeTab)?.label || "Browse",
-          activeTab === "continue"
-            ? () => nav("/continue-listening")
-            : activeTab === "trending"
-              ? () => nav("/trending")
-              : activeTab === "recent"
-                ? () => nav("/recent")
-                : activeTab === "playlists"
-                  ? () => nav("/playlists")
-                  : () => nav("/movies"),
-        )}
-        {renderActiveTabContent()}
-      </section>
+              <div className="recently-played-wrapper">
+                {renderTrackRail(recentList.slice(0, 8), recent)}
+              </div>
+            </section>
+          )}
 
-      {/* {madeForYou.length > 0 && (
-        <section className="home-section made-for-you">
-          {renderSectionHeader("Made for You", () => nav("/recommended"))}
-          {renderTrackRail(madeForYou.slice(0, 8), madeForYou)}
-        </section>
-      )} */}
+          <section className="home-section">
+            {/* {renderSectionHeader("Songs", () => nav("/all-songs"))} */}
 
-      {movies.length > 0 && (
-        <section className="home-section">
-          {renderSectionHeader("Albums For You", () => nav("/movies"), true)}
+            {/* {renderSectionHeader("Songs", () => nav("/all-songs"), true)} */}
+            {renderSectionHeader("Songs", () => nav("/overall"), true)}
 
-          {renderMoviesRail()}
-        </section>
-      )}
-
-      {/* {recentList.length > 0 && (
-        <section className="home-section">
-          {renderSectionHeader("Recently Played", () => nav("/recent"))}
-          {renderTrackRail(recentList.slice(0, 8), recent)}
-        </section>
-      )} */}
-
-      {recentList.length > 0 && (
-        <section className="home-section recently-played-section">
-          {renderSectionHeader("Recently Played", () => nav("/recent"))}
-
-          <div className="recently-played-wrapper">
-            {renderTrackRail(recentList.slice(0, 8), recent)}
-          </div>
-        </section>
-      )}
-
-      {/* {playlists.length > 0 && (
-        <section className="home-section">
-          {renderSectionHeader("Your Playlists", () => nav("/playlists"))}
-          {renderPlaylistsRail()}
-        </section>
-      )} */}
-
-      {/* {movies.length > 0 && (
-        <section className="home-section">
-          {renderSectionHeader("Albums for You", () => nav("/movies"))}
-          {renderMoviesRail()}
-        </section>
-      )} */}
-
-      <section className="home-section">
-        {/* {renderSectionHeader("Songs", () => nav("/all-songs"))} */}
-
-        {/* {renderSectionHeader("Songs", () => nav("/all-songs"), true)} */}
-        {renderSectionHeader("Songs", () => nav("/overall"), true)}
-
-        <div className="songs-list">
-          {filtered.length === 0
-            ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
-            : filtered.slice(0, 3).map((t, index) => (
-                <Card
-                  key={t.id}
-                  className="song-list-card"
-                  onClick={() => setNewQueue(filtered, index)}
-                >
-                  <div className="song-list-left">
-                    <LazyImage
-                      src={t.cover_url || "/covers/default.jpg"}
-                      alt={t.title}
-                      className="song-list-img"
-                    />
-                    <div className="song-list-meta">
-                      <h4>{t.title}</h4>
-                      <p>{t.artist || "Unknown Artist"}</p>
-                    </div>
-                  </div>
-
-                  <div className="song-list-actions">
-                    <button
-                      className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
-                      // onClick={(e) => addToLiked(e, t.id)}
-                      onClick={(e) => addToLiked(e, t)}
-                      aria-label="Like song"
+            <div className="songs-list">
+              {filtered.length === 0
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <SkeletonCard key={i} />
+                  ))
+                : filtered.slice(0, 3).map((t, index) => (
+                    <Card
+                      key={t.id}
+                      className="song-list-card"
+                      onClick={() => setNewQueue(filtered, index)}
                     >
-                      ♥
-                    </button>
-                    <button
-                      className="play-inline-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setNewQueue(filtered, index);
-                      }}
-                      aria-label="Play song"
-                    >
-                      ▶
-                    </button>
-                  </div>
-                </Card>
-              ))}
-        </div>
-      </section>
+                      <div className="song-list-left">
+                        <LazyImage
+                          src={t.cover_url || "/covers/default.jpg"}
+                          alt={t.title}
+                          className="song-list-img"
+                        />
+                        <div className="song-list-meta">
+                          <h4>{t.title}</h4>
+                          <p>{t.artist || "Unknown Artist"}</p>
+                        </div>
+                      </div>
 
-      <section className="home-section utility-bar">
-        {/* <div className="utility-search">
-          <input
-            type="text"
-            placeholder="Search songs or artists"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div> */}
-
-        <div className="utility-buttons">
-          <button onClick={() => playAll(filtered)}>▶ Play All</button>
-          <button onClick={() => shufflePlay(filtered)}>Shuffle</button>
-
-          {/* <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button> */}
-          {/* <button onClick={() => shufflePlay(filtered)}><IoIosShuffle /> Shuffle</button> */}
-        </div>
-      </section>
-
-      {/* <section className="home-section create-playlist-card">
-        <div className="create-playlist-head">
-          <h3>Create Playlist</h3>
-          <p>Save your mood, mixes, and favorite tracks.</p>
-        </div>
-
-        <div className="create-playlist-form">
-          <input
-            type="text"
-            placeholder="New Playlist Name"
-            value={newPlaylistName}
-            onChange={(e) => setNewPlaylistName(e.target.value)}
-          />
-          <button onClick={createPlaylist}>Create</button>
-        </div>
-      </section> */}
-
-      {showPlaylistModal && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowPlaylistModal(false)}
-        >
-          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <h3>Create Playlist</h3>
-            <p>Save your mood, mixes, and favourite tracks.</p>
-            <input
-              type="text"
-              placeholder="Playlist name..."
-              value={newPlaylistName}
-              onChange={(e) => setNewPlaylistName(e.target.value)}
-            />
-            <div className="modal-actions">
-              <button onClick={() => setShowPlaylistModal(false)}>
-                Cancel
-              </button>
-              <button
-                className="modal-confirm"
-                onClick={async () => {
-                  await createPlaylist();
-                  setShowPlaylistModal(false);
-                }}
-              >
-                Create
-              </button>
+                      <div className="song-list-actions">
+                        <button
+                          className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
+                          // onClick={(e) => addToLiked(e, t.id)}
+                          onClick={(e) => addToLiked(e, t)}
+                          aria-label="Like song"
+                        >
+                          {/* ♥ */}
+                          {likedMap[t.id] ? <FaHeart /> : <FaRegHeart />}
+                        </button>
+                        <button
+                          className="play-inline-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setNewQueue(filtered, index);
+                          }}
+                          aria-label="Play song"
+                        >
+                          {/* ▶ */}
+                          <FaPlay />
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
             </div>
-          </div>
-        </div>
+          </section>
+
+          <section className="home-section utility-bar">
+            <div className="utility-buttons">
+              {/* <button onClick={() => playAll(filtered)}>▶ Play All</button> */}
+              <button onClick={() => playAll(filtered)}>
+                <FaPlay /> Play All
+              </button>
+
+              <button onClick={() => shufflePlay(filtered)}>Shuffle</button>
+
+              {/* <button onClick={() => shufflePlay(filtered)}>🔀 Shuffle</button> */}
+              {/* <button onClick={() => shufflePlay(filtered)}><IoIosShuffle /> Shuffle</button> */}
+            </div>
+          </section>
+
+          {showPlaylistModal && (
+            <div
+              className="modal-overlay"
+              onClick={() => setShowPlaylistModal(false)}
+            >
+              <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+                <h3>Create Playlist</h3>
+                <p>Save your mood, mixes, and favourite tracks.</p>
+                <input
+                  type="text"
+                  placeholder="Playlist name..."
+                  value={newPlaylistName}
+                  onChange={(e) => setNewPlaylistName(e.target.value)}
+                />
+                <div className="modal-actions">
+                  <button onClick={() => setShowPlaylistModal(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className="modal-confirm"
+                    onClick={async () => {
+                      await createPlaylist();
+                      setShowPlaylistModal(false);
+                    }}
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          <AuthRequiredModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            title="Sign in to access your library"
+            description="Create playlists, save favorites and manage your profile."
+          />
+        </>
+      ) : (
+        <OfflineHomeContent />
       )}
-      <AuthRequiredModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        title="Sign in to access your library"
-        description="Create playlists, save favorites and manage your profile."
-      />
     </main>
   );
 }

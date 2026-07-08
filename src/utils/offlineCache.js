@@ -350,23 +350,13 @@ export async function clearPlaylistTracks() {
   });
 }
 
-// export async function getPlaylistById(playlistId) {
-//   const playlists = await getPlaylists();
 
-//   return playlists.find((p) => p.id === Number(playlistId)) || null;
-// }
 export async function getPlaylistById(playlistId) {
   const playlists = await getPlaylists();
 
   return playlists.find((p) => p.id === playlistId) || null;
 }
-// export async function getPlaylistTracksByPlaylistId(playlistId) {
-//   const rows = await getPlaylistTracks();
 
-//   return rows.filter(
-//     (row) => row.playlist_id === Number(playlistId)
-//   );
-// }
 export async function getPlaylistTracksByPlaylistId(playlistId) {
   const rows = await getPlaylistTracks();
 

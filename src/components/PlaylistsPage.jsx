@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import "./playlists.css";
 import useOfflineMode from "../hooks/useOfflineMode";
+import { FiMoreVertical, FiEdit2, FiTrash2 } from "react-icons/fi";
 
 import {
   savePlaylists,
@@ -14,6 +15,7 @@ import {
   getPlaylistById,
   getPlaylistTracksByPlaylistId,
 } from "../utils/offlineCache";
+import { useToast } from "../context/ToastContext";
 
 export default function PlaylistsPage() {
   const nav = useNavigate();
@@ -22,6 +24,11 @@ export default function PlaylistsPage() {
 
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [renamePlaylist, setRenamePlaylist] = useState(null);
+  const [deletePlaylist, setDeletePlaylist] = useState(null);
+  const [renameText, setRenameText] = useState("");
+  const { showToast } = useToast();
 
   // ✅ Helper to get covers
   // const getPlaylistCovers = (playlist) => {
@@ -105,13 +112,6 @@ export default function PlaylistsPage() {
   };
 
   const loadOfflinePlaylists = async () => {
-    // console.log("Playlist ID from URL:", playlistId);
-
-    // const playlist = await getPlaylistById(playlistId);
-    // console.log("Offline Playlist:", playlist);
-
-    // const rows = await getPlaylistTracksByPlaylistId(playlistId);
-    // console.log("Offline Rows:", rows);
     setLoading(true);
 
     try {
@@ -172,6 +172,119 @@ export default function PlaylistsPage() {
 
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 
+  const renameCurrentPlaylist = async () => {
+    const newName = renameText.trim();
+
+    if (!newName) {
+      alert("Playlist name cannot be empty.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("playlists")
+        .update({
+          name: newName,
+        })
+        .eq("id", renamePlaylist.id);
+
+      if (error) {
+        console.error(error);
+        alert("Unable to rename playlist.");
+        return;
+      }
+
+      // Update UI immediately
+      setPlaylists((prev) =>
+        prev.map((playlist) =>
+          playlist.id === renamePlaylist.id
+            ? {
+                ...playlist,
+                name: newName,
+              }
+            : playlist,
+        ),
+      );
+
+      // Refresh offline snapshot
+      const updatedPlaylists = playlists.map((playlist) =>
+        playlist.id === renamePlaylist.id
+          ? {
+              ...playlist,
+              name: newName,
+            }
+          : playlist,
+      );
+
+      await clearPlaylists();
+      await savePlaylists(updatedPlaylists);
+
+      setRenamePlaylist(null);
+      setRenameText("");
+
+      // We'll replace this with Toast later
+      // alert("Playlist renamed successfully.");
+      showToast("Playlist renamed");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteCurrentPlaylist = async () => {
+    if (!deletePlaylist) return;
+
+    try {
+      // Delete child rows first
+      const { error: tracksError } = await supabase
+        .from("playlist_tracks")
+        .delete()
+        .eq("playlist_id", deletePlaylist.id);
+
+      if (tracksError) {
+        console.error(tracksError);
+        showToast("Unable to delete playlist");
+        return;
+      }
+
+      // Delete playlist
+      const { error: playlistError } = await supabase
+        .from("playlists")
+        .delete()
+        .eq("id", deletePlaylist.id);
+
+      if (playlistError) {
+        console.error(playlistError);
+        showToast("Unable to delete playlist");
+        return;
+      }
+
+      // Update UI immediately
+      const updatedPlaylists = playlists.filter(
+        (p) => p.id !== deletePlaylist.id,
+      );
+
+      setPlaylists(updatedPlaylists);
+
+      // Refresh offline cache
+      await clearPlaylists();
+      await savePlaylists(updatedPlaylists);
+
+      const updatedPlaylistTracks = updatedPlaylists.flatMap(
+        (playlist) => playlist.playlist_tracks || [],
+      );
+
+      await clearPlaylistTracks();
+      await savePlaylistTracks(updatedPlaylistTracks);
+
+      showToast("Playlist deleted");
+
+      setDeletePlaylist(null);
+    } catch (err) {
+      console.error(err);
+      showToast("Something went wrong");
+    }
+  };
+
   return (
     <main className="playlists-page">
       <h1>Your Playlists</h1>
@@ -200,14 +313,136 @@ export default function PlaylistsPage() {
                 )}
               </div>
 
-              <div className="playlist-info">
+              {/* <div className="playlist-info">
                 <h3>{pl.name}</h3>
+                <p>{pl.description || "Playlist"}</p>
+              </div> */}
+
+              <div className="playlist-info">
+                <div className="playlist-actions">
+                  <button
+                    className="playlist-menu-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      setActiveMenu(activeMenu === pl.id ? null : pl.id);
+                    }}
+                  >
+                    <FiMoreVertical />
+                  </button>
+
+                  {activeMenu === pl.id && (
+                    <div
+                      className="playlist-menu"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        // onClick={() => {
+                        //   setRenamePlaylist(pl);
+                        //   setActiveMenu(null);
+                        // }}
+                        onClick={() => {
+                          setRenamePlaylist(pl);
+                          setRenameText(pl.name);
+                          setActiveMenu(null);
+                        }}
+                      >
+                        <FiEdit2 />
+                        Rename
+                      </button>
+
+                      <button
+                        className="danger"
+                        onClick={() => {
+                          setDeletePlaylist(pl);
+                          setActiveMenu(null);
+                        }}
+                      >
+                        <FiTrash2 />
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <h3>{pl.name}</h3>
+
                 <p>{pl.description || "Playlist"}</p>
               </div>
             </div>
           );
         })}
       </div>
+
+      {renamePlaylist && (
+        <div className="modal-overlay" onClick={() => setRenamePlaylist(null)}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <h3>Rename Playlist</h3>
+
+            {/* <input
+        defaultValue={renamePlaylist.name}
+      /> */}
+
+            <input
+              type="text"
+              value={renameText}
+              onChange={(e) => setRenameText(e.target.value)}
+              placeholder="Playlist name"
+            />
+
+            <div className="modal-actions">
+              <button
+                // onClick={() => setRenamePlaylist(null)}
+                onClick={() => {
+                  setRenamePlaylist(null);
+                  setRenameText("");
+                }}
+              >
+                Cancel
+              </button>
+
+              {/* <button>
+          Save
+        </button> */}
+              <button onClick={renameCurrentPlaylist}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {deletePlaylist && (
+        <div className="modal-overlay" onClick={() => setDeletePlaylist(null)}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            {/* <h3>Delete Playlist?</h3>
+             */}
+            <h3>Delete "{deletePlaylist?.name}"?</h3>
+
+            {/* <p>This action cannot be undone.</p>
+             */}
+            <p>
+              This playlist and all of its songs will be removed. This action
+              cannot be undone.
+            </p>
+
+            <div className="modal-actions">
+              <button
+                // onClick={() => setDeletePlaylist(null)}
+                onClick={() => {
+                  setDeletePlaylist(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              {/* <button className="danger">Delete</button>
+               */}
+              <button className="danger" onClick={deleteCurrentPlaylist}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
+
   );
 }

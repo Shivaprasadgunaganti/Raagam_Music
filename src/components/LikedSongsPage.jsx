@@ -102,8 +102,8 @@ async function loadOnlineLikedSongs() {
 
       setLoading(false);
 
-      console.log("likedRows:", likedRows);
-console.log("trackIds:", trackIds);
+      // console.log("likedRows:", likedRows);
+// console.log("trackIds:", trackIds);
     }
 
     async function loadOfflineLikedSongs() {

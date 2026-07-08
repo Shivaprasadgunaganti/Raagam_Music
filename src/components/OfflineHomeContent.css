@@ -1,0 +1,77 @@
+/* ===== Offline Home ===== */
+
+.offline-home {
+  position: relative;
+  padding: 20px 16px 120px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.offline-home .offline-hero h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.offline-home .offline-hero p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 14px;
+}
+
+.offline-home hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 24px 0;
+}
+
+.offline-empty {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  padding: 12px 0;
+}
+
+/* Liked songs block */
+.liked-songs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  background: linear-gradient(
+    135deg,
+    rgba(141, 252, 84, 0.16),
+    rgba(91, 77, 255, 0.14)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.liked-songs-card:hover {
+  transform: translateY(-2px);
+}
+
+.liked-songs-card p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.liked-songs-card small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+/* Footer */
+.offline-footer p {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
