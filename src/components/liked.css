@@ -83,7 +83,8 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: #1db954;
+  /* background: #1db954; */
+  background: #9929ea;
   color: #000;
   border: none;
   font-size: 20px;
@@ -209,7 +210,8 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #1db954;
+  /* background: #1db954; */
+  background: #9929ea;
   color: #000;
   font-size: 13px;
   font-weight: 600;
@@ -344,7 +346,8 @@
 }
 
 .liked-play-btn {
-  background: #1db954;
+  /* background: #1db954; */
+  background: #9929ea;
   color: black;
 }
 
@@ -363,7 +366,8 @@
   border-radius: 14px;
 }
 .liked-row.active .liked-song-title {
-  color: #1db954;
+  /* color: #1db954; */
+  color: #9929ea;
 }
 .liked-song-title-row {
   display: flex;
@@ -381,7 +385,8 @@
 .playing-bars span {
   width: 3px;
   border-radius: 999px;
-  background: #1db954;
+  /* background: #1db954; */
+  background: #9929ea;
 
   animation: barsBounce 0.9s infinite ease-in-out;
 }

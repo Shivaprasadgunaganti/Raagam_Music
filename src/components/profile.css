@@ -837,6 +837,7 @@
 .library-username {
   font-size: 20px;
   font-weight: 700;
+  letter-spacing: 0.05em;;
 }
 
 .library-subtitle {
@@ -1009,7 +1010,8 @@
 }
 
 .shuffle-btn {
-  background: #1db954;
+  /* background: #1db954; */
+  background: #9929ea;
   color: black;
 }
 
@@ -1149,7 +1151,7 @@
 .popup-box {
   width: 80%;
   max-width: 380px;
-  /* background: #1e1e1e; */
+ 
   background: #1db954;;
   padding: 20px;
   border-radius: 12px;

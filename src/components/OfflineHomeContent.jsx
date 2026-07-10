@@ -4,7 +4,6 @@
 // import { useAudio } from "../context/AudioContext";
 // import LazyImage from "./LazyImage";
 
-
 // export default function OfflineHomeContent() {
 //     const nav = useNavigate();
 // const { setNewQueue } = useAudio();
@@ -70,8 +69,6 @@
 //   );
 // }
 
-
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAudio } from "../context/AudioContext";
@@ -82,6 +79,7 @@ import {
   getPlaylists,
   getLikedTrackIds,
 } from "../utils/offlineCache";
+import { RiWifiOffLine } from "react-icons/ri";
 
 export default function OfflineHomeContent() {
   const nav = useNavigate();
@@ -98,12 +96,11 @@ export default function OfflineHomeContent() {
       try {
         setLoading(true);
 
-        const [cachedSongs, cachedPlaylists, cachedLiked] =
-          await Promise.all([
-            getAllCachedTracks(),
-            getPlaylists(),
-            getLikedTrackIds(),
-          ]);
+        const [cachedSongs, cachedPlaylists, cachedLiked] = await Promise.all([
+          getAllCachedTracks(),
+          getPlaylists(),
+          getLikedTrackIds(),
+        ]);
 
         cachedSongs.sort((a, b) => b.cachedAt - a.cachedAt);
 
@@ -130,7 +127,7 @@ export default function OfflineHomeContent() {
     }
 
     const firstCover = playlist.playlist_tracks.find(
-      (track) => track?.tracks?.cover_url
+      (track) => track?.tracks?.cover_url,
     );
 
     return firstCover?.tracks?.cover_url || "/covers/default.jpg";
@@ -305,94 +302,103 @@ export default function OfflineHomeContent() {
     //   </section>
     // </main>
     <main className="offline-home">
-  <section className="offline-hero">
-    <h2>📶 You're Offline</h2>
-    <p>Showing your downloaded music and cached library.</p>
-  </section>
+      <section className="offline-hero">
+        {/* <h2>📶 You're Offline</h2> */}
+        <h2><RiWifiOffLine /> You're Offline</h2>
 
-  <hr />
+        {/* <p>Showing your downloaded music and cached library.</p> */}
+      </section>
 
-  <section>
-    <div className="section-row-header">
-      <h3>Offline Songs</h3>
-      <button onClick={() => nav("/offline")}>See all</button>
-    </div>
+      <hr />
 
-    {songs.length === 0 ? (
-      <p className="offline-empty">No offline songs available.</p>
-    ) : (
-      <div className="horizontal-row">
-        {songs.map((track, index) => (
-          <div
-            key={track.id}
-            className="album-card"
-            onClick={() => playSong(index)}
-          >
-            <div className="album-img-shell">
-              <LazyImage
-                src={track.cover_url || "/covers/default.jpg"}
-                alt={track.title}
-              />
-            </div>
-            <p className="album-title">{track.title}</p>
-            <small className="album-subtitle">
-              {track.artist || "Unknown Artist"}
-            </small>
+      <section>
+        <div className="section-row-header">
+          {/* <h3>Offline Songs</h3> */}
+          <h3>Songs</h3>
+          <button onClick={() => nav("/offline")}>See all</button>
+        </div>
+
+        {songs.length === 0 ? (
+          <p className="offline-empty">No offline songs available.</p>
+        ) : (
+          <div className="horizontal-row">
+            {songs.map((track, index) => (
+              <div
+                key={track.id}
+                className="album-card"
+                onClick={() => playSong(index)}
+              >
+                <div className="album-img-shell">
+                  <LazyImage
+                    src={track.cover_url || "/covers/default.jpg"}
+                    alt={track.title}
+                  />
+                </div>
+                <p className="album-title">{track.title}</p>
+                <small className="album-subtitle">
+                  {track.artist || "Unknown Artist"}
+                </small>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    )}
-  </section>
+        )}
+      </section>
 
-  <hr />
+      <hr />
 
-  <section>
-    <h3>Liked Songs</h3>
-    <div className="liked-songs-card" onClick={() => nav("/liked")}>
-      <p>❤️ {likedIds.length} liked songs</p>
-      <small>View your cached favourites</small>
-    </div>
-  </section>
+      <section>
+        <h3>Liked Songs</h3>
+        <div className="liked-songs-card" onClick={() => nav("/liked")}>
+          <p>❤️ {likedIds.length} liked songs</p>
+          {/* <small>View your cached favourites</small> */}
+          <small>View your favourites</small>
+        </div>
+      </section>
 
-  <hr />
+      <hr />
 
-  <section>
-    <div className="section-row-header">
-      <h3>Cached Playlists</h3>
-      <button onClick={() => nav("/playlists")}>See all</button>
-    </div>
+      <section>
+        <div className="section-row-header">
+          {/* <h3>Cached Playlists</h3> */}
+          <h3>Playlists</h3>
 
-    {playlists.length === 0 ? (
-      <p className="offline-empty">No cached playlists.</p>
-    ) : (
-      <div className="horizontal-row">
-        {playlists.map((playlist) => (
-          <div
-            key={playlist.id}
-            className="playlist-card"
-            onClick={() => nav(`/playlist/${playlist.id}`)}
-          >
-            <div className="playlist-cover">
-              <LazyImage src={getPlaylistCover(playlist)} alt={playlist.name} />
-            </div>
-            <p className="playlist-title">{playlist.name}</p>
-            <small className="album-subtitle">
-              {playlist.playlist_tracks?.length || 0} songs
-            </small>
+          <button onClick={() => nav("/playlists")}>See all</button>
+        </div>
+
+        {playlists.length === 0 ? (
+          <p className="offline-empty">No cached playlists.</p>
+        ) : (
+          <div className="horizontal-row">
+            {playlists.map((playlist) => (
+              <div
+                key={playlist.id}
+                className="playlist-card"
+                onClick={() => nav(`/playlist/${playlist.id}`)}
+              >
+                <div className="playlist-cover">
+                  <LazyImage
+                    src={getPlaylistCover(playlist)}
+                    alt={playlist.name}
+                  />
+                </div>
+                <p className="playlist-title">{playlist.name}</p>
+                <small className="album-subtitle">
+                  {playlist.playlist_tracks?.length || 0} songs
+                </small>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    )}
-  </section>
+        )}
+      </section>
 
-  <hr />
+      <hr />
 
-  <section className="offline-footer">
-    <p>
-      Connect to the internet to discover recommendations, search for songs
-      and sync your latest playlists.
-    </p>
-  </section>
-</main>
+      <section className="offline-footer">
+        <p>
+          Connect to the internet to discover recommendations, search for songs
+          and sync your latest playlists.
+        </p>
+      </section>
+    </main>
   );
 }

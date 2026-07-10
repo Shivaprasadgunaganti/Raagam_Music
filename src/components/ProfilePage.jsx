@@ -23,7 +23,6 @@ import { BiSearch } from "react-icons/bi";
 import { getCacheStats, clearCache } from "../utils/offlineCache";
 import { MdOfflinePin } from "react-icons/md";
 import { useToast } from "../context/ToastContext";
-  
 
 export default function ProfilePage() {
   const nav = useNavigate();
@@ -43,9 +42,8 @@ export default function ProfilePage() {
   const username = displayName || user?.email?.split("@")[0] || "Listener";
 
   const [likedCount, setLikedCount] = useState(0);
-    const [playlists, setPlaylists] = useState([]);
-    const { showToast } = useToast();
-  
+  const [playlists, setPlaylists] = useState([]);
+  const { showToast } = useToast();
 
   const [playlistCount, setPlaylistCount] = useState(0);
   const [moviesCount, setMoviesCount] = useState(0);
@@ -117,8 +115,7 @@ export default function ProfilePage() {
       setPlaylistCount(count || 0);
     }
 
-    
-  // setPlaylists(data || []);
+    // setPlaylists(data || []);
 
     loadPlaylistCount();
   }, []);
@@ -261,8 +258,6 @@ export default function ProfilePage() {
 
   const storageMB = (cacheStats.bytes / (1024 * 1024)).toFixed(1);
 
-
-  
   return (
     <main className="library-page page-safe">
       {/* HEADER */}
@@ -286,7 +281,13 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <div className="library-username">{username}</div>
+            {/* <div className="library-username">{username}</div> */}
+            <div className="library-username">
+              {username
+                ? username.charAt(0).toUpperCase() +
+                  username.slice(1).toLowerCase()
+                : ""}
+            </div>
 
             <div className="library-subtitle">Music Lover</div>
           </div>

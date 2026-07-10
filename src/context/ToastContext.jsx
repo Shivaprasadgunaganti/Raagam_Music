@@ -11,15 +11,27 @@ export function ToastProvider({ children }) {
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
+    // <ToastContext.Provider value={{ showToast }}>
+    //   {children}
 
-      {message && (
-        <div className="global-toast">
-          {message}
-        </div>
-      )}
-    </ToastContext.Provider>
+    //   {message && (
+    //     <div className="global-toast" >
+    //       {message}
+    //     </div>
+    //   )}
+    // </ToastContext.Provider>
+    <ToastContext.Provider value={{ showToast }}>
+  {children}
+
+  {message && (
+    <div
+      className="global-toast"
+      style={{ backgroundColor: "#ae54ee", color: "#fff" }}
+    >
+      {message}
+    </div>
+  )}
+</ToastContext.Provider>
   );
 }
 

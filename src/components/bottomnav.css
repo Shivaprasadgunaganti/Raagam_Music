@@ -31,7 +31,8 @@
 }
 
 .nav-item.active {
-  color: #1db954;
+  /* color: #1db954; */
+  color: #9929ea;
 }
 
 .nav-item:disabled {

@@ -20,7 +20,8 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #1db954;
+  /* border-color: #1db954; */
+  border-color: #9929ea;
 }
 
 /* TABS */
@@ -281,7 +282,8 @@
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #1db954;
+  /* border-top-color: #1db954; */
+  border-top-color: #9929ea;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }

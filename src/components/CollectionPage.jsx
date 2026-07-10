@@ -358,7 +358,7 @@ export default function CollectionPage() {
         id: "slide-personal",
         type: "personal",
         title: slide3Title,
-        artist: `Just for ${emailInitial.toUpperCase()}`,
+        // artist: `Just for ${emailInitial.toUpperCase()}`,
         description: "Personally picked based on your initial.",
         image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
         badge: "PERSONAL",
@@ -473,6 +473,7 @@ export default function CollectionPage() {
               />
             </div>
             <div className="album-title">{m.title}</div>
+            {/* <h4 className="album-title">{m.title}</h4> */}
             <div className="album-subtitle">{m.artist}</div>
           </div>
         ))}
@@ -533,7 +534,13 @@ export default function CollectionPage() {
       <header className="home-header">
         <div className="home-left">
           <p className="home-greeting">Hi,</p>
-          <h1 className="home-title">{username}</h1>
+          {/* <h1 className="home-title">{username}</h1> */}
+          <h1 className="home-title">
+            {username
+              ? username.charAt(0).toUpperCase() +
+                username.slice(1).toLowerCase()
+              : ""}
+          </h1>
         </div>
 
         <div className="home-actions">
