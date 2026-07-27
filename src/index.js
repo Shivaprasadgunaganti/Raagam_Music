@@ -6,17 +6,22 @@ import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { SyncProvider } from "./context/SyncContext";
 import { register } from "./serviceWorkerRegistration";
+import { ThemeProvider } from "./context/ThemeContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+ 
     {/* <ToastProvider>
-    <AuthProvider>
-      <AudioProvider>
-        <App />
-      </AudioProvider>
-    </AuthProvider>
+      <SyncProvider>
+        <AuthProvider>
+          <AudioProvider>
+            <App />
+          </AudioProvider>
+        </AuthProvider>
+      </SyncProvider>
     </ToastProvider> */}
-    <ToastProvider>
+    <ThemeProvider>
+        <ToastProvider>
       <SyncProvider>
         <AuthProvider>
           <AudioProvider>
@@ -25,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </AuthProvider>
       </SyncProvider>
     </ToastProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 );
 register();

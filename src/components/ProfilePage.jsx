@@ -268,7 +268,14 @@ export default function ProfilePage() {
           {/* <h1>Your Library</h1> */}
         </div>
 
-        <button className="library-settings-btn">
+        {/* <button className="library-settings-btn">
+          <IoSettingsOutline />
+        </button> */}
+
+        <button
+          className="library-settings-btn"
+          onClick={() => nav("/settings")}
+        >
           <IoSettingsOutline />
         </button>
       </section>

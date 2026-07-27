@@ -33,6 +33,8 @@ import OfflineTest from "./components/OfflineTest";
 import OfflineBanner from "./components/OfflineBanner";
 import OfflineSongsPage from "./components/OfflineSongsPage";
 import useNetworkSync from "./hooks/useNetworkSync";
+import SettingsPage from "./pages/SettingsPage";
+// import { ThemeProvider } from "./context/ThemeContext";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
 
@@ -48,21 +50,14 @@ function AppContent() {
   const isPlaylistPage = location.pathname.startsWith("/playlist/");
   const isMovietPage = location.pathname.startsWith("/movie/");
 
-  // useEffect(() => {
-  //   if (!loading && !user) {
-  //     clearQueue();
-  //     localStorage.removeItem("audio_state_v1");
-  //   }
-  // }, [user, loading]);
-
-useNetworkSync();
+  useNetworkSync();
 
   useEffect(() => {
-  if (!loading && !user && !isGuest) {
-    clearQueue();
-    localStorage.removeItem("audio_state_v1");
-  }
-}, [user, loading, isGuest]);
+    if (!loading && !user && !isGuest) {
+      clearQueue();
+      localStorage.removeItem("audio_state_v1");
+    }
+  }, [user, loading, isGuest]);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -84,7 +79,7 @@ useNetworkSync();
   return (
     <>
       {/* <div className={`app-content ${hideGlobalUI ? "no-footer" : ""}`}> */}
-      <OfflineBanner/>
+      <OfflineBanner />
       <div
         className={`app-content ${
           // hideGlobalUI || isLoginPage || isPlaylistPage || isMovietPage ? "no-footer" : ""
@@ -132,14 +127,7 @@ useNetworkSync();
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/playlist/:playlistId"
-            element={
-              <ProtectedRoute>
-                <PlaylistDetailPage />
-              </ProtectedRoute>
-            }
-          /> */}
+
           <Route
             path="/playlist/:playlistId"
             element={
@@ -149,15 +137,6 @@ useNetworkSync();
             }
           />
 
-          {/* <Route
-            path="/playlists"
-            element={
-              <ProtectedRoute>
-                <PlaylistsPage />
-              </ProtectedRoute>
-            }
-          /> */}
-
           <Route
             path="/playlists"
             element={
@@ -166,14 +145,7 @@ useNetworkSync();
               </GuestRestrictedRoute>
             }
           />
-          {/* <Route
-            path="/liked"
-            element={
-              <ProtectedRoute>
-                <LikedSongsPage />
-              </ProtectedRoute>
-            }
-          /> */}
+
           <Route
             path="/liked"
             element={
@@ -198,22 +170,6 @@ useNetworkSync();
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/Logout"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          /> */}
-          {/* <Route
-            path="/account"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          /> */}
 
           <Route
             path="/account"
@@ -224,14 +180,14 @@ useNetworkSync();
             }
           />
 
-          {/* <Route
-            path="/edit-info"
-            element={
-              <ProtectedRoute>
-               <EditProfilePage/>
-              </ProtectedRoute>
-            }
-          /> */}
+          <Route
+  path="/settings"
+  element={
+    <GuestRestrictedRoute>
+      <SettingsPage />
+    </GuestRestrictedRoute>
+  }
+/>
 
           <Route
             path="/edit"
@@ -243,13 +199,13 @@ useNetworkSync();
           />
 
           <Route
-  path="/offline"
-  element={
-    <ProtectedRoute>
-      <OfflineSongsPage />
-    </ProtectedRoute>
-  }
-/>
+            path="/offline"
+            element={
+              <ProtectedRoute>
+                <OfflineSongsPage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/search"
@@ -283,7 +239,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
 
 import { saveTrack } from "./utils/offlineCache";
 

@@ -1,0 +1,192 @@
+.settings-page {
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  padding: 24px 18px 120px;
+  box-sizing: border-box;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.settings-back-btn {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.settings-back-btn:hover {
+  background: var(--surface-hover);
+}
+
+.settings-back-btn svg {
+  font-size: 22px;
+}
+
+/* ---------- Sections ---------- */
+
+.settings-section {
+  margin-bottom: 34px;
+}
+
+.settings-section h3 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-pink);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ---------- Card ---------- */
+
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.settings-section h3 {
+  padding: 18px 18px 8px;
+}
+
+/* ---------- Row ---------- */
+
+.settings-row {
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  transition: .25s;
+  cursor: pointer;
+}
+
+.settings-row:hover {
+  background: var(--surface-hover);
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid var(--border-soft);
+}
+
+.settings-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.settings-left svg {
+  font-size: 22px;
+  color: var(--accent-purple);
+}
+
+.settings-left span {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.settings-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-right span {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.settings-right svg {
+  color: var(--text-faint);
+  font-size: 18px;
+}
+
+/* ---------- Disabled ---------- */
+
+.settings-row.disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.settings-row.disabled:hover {
+  background: transparent;
+}
+
+/* ---------- Switch ---------- */
+
+.switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--accent-purple-rgb), .25);
+  border-radius: 50px;
+  transition: .3s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: white;
+  transition: .3s;
+}
+
+.switch input:checked + .slider {
+  background: var(--accent-purple);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 600px) {
+
+  .settings-page {
+    padding: 18px 14px 120px;
+  }
+
+  .settings-header h1 {
+    font-size: 26px;
+  }
+
+  .settings-row {
+    padding: 0 15px;
+  }
+
+}
