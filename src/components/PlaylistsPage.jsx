@@ -17,6 +17,7 @@ import {
 } from "../utils/offlineCache";
 import { useToast } from "../context/ToastContext";
 
+
 export default function PlaylistsPage() {
   const nav = useNavigate();
   const { user } = useAuth();
@@ -46,6 +47,8 @@ export default function PlaylistsPage() {
       .slice(0, 4)
       .map((pt) => pt.track?.cover_url)
       .filter(Boolean);
+
+      
   };
 
   const loadOnlinePlaylists = async () => {

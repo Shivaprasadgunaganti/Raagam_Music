@@ -121,17 +121,31 @@ export default function OfflineHomeContent() {
     setNewQueue(songs, index);
   };
 
+  // const getPlaylistCover = (playlist) => {
+  //   if (!playlist.playlist_tracks) {
+  //     return "/covers/default.jpg";
+  //   }
+
+  //   const firstCover = playlist.playlist_tracks.find(
+  //     // (track) => track?.tracks?.cover_url,
+  //     (track) => track?.tracks?.cover_url,
+  //   );
+
+    
+  //   return firstCover?.tracks?.cover_url || "/covers/default.jpg";
+  // };
+
   const getPlaylistCover = (playlist) => {
-    if (!playlist.playlist_tracks) {
-      return "/covers/default.jpg";
-    }
+  if (!playlist.playlist_tracks?.length) {
+    return "/covers/default.jpg";
+  }
 
-    const firstCover = playlist.playlist_tracks.find(
-      (track) => track?.tracks?.cover_url,
-    );
+  const firstCover = playlist.playlist_tracks.find(
+    (pt) => pt?.track?.cover_url
+  );
 
-    return firstCover?.tracks?.cover_url || "/covers/default.jpg";
-  };
+  return firstCover?.track?.cover_url || "/covers/default.jpg";
+};
 
   if (loading) {
     return (
@@ -142,165 +156,7 @@ export default function OfflineHomeContent() {
   }
 
   return (
-    // <main className="offline-home">
-    //   {/* Header */}
-
-    //   <section>
-    //     <h2>📶 You're Offline</h2>
-
-    //     <p>
-    //       Showing your downloaded music and cached library.
-    //     </p>
-    //   </section>
-
-    //   <hr />
-
-    //   {/* Offline Songs */}
-
-    //   <section>
-    //     <div
-    //       style={{
-    //         display: "flex",
-    //         justifyContent: "space-between",
-    //         alignItems: "center",
-    //       }}
-    //     >
-    //       <h3>Offline Songs</h3>
-
-    //       <button onClick={() => nav("/offline")}>
-    //         See all
-    //       </button>
-    //     </div>
-
-    //     {songs.length === 0 ? (
-    //       <p>No offline songs available.</p>
-    //     ) : (
-    //       <div
-    //         style={{
-    //           display: "flex",
-    //           gap: "16px",
-    //           overflowX: "auto",
-    //         }}
-    //       >
-    //         {songs.map((track, index) => (
-    //           <div
-    //             key={track.id}
-    //             style={{
-    //               cursor: "pointer",
-    //               minWidth: "120px",
-    //             }}
-    //             onClick={() => playSong(index)}
-    //           >
-    //             <LazyImage
-    //               src={
-    //                 track.cover_url ||
-    //                 "/covers/default.jpg"
-    //               }
-    //               alt={track.title}
-    //             />
-
-    //             <p>{track.title}</p>
-
-    //             <small>
-    //               {track.artist || "Unknown Artist"}
-    //             </small>
-    //           </div>
-    //         ))}
-    //       </div>
-    //     )}
-    //   </section>
-
-    //   <hr />
-
-    //   {/* Liked Songs */}
-
-    //   <section>
-    //     <h3>Liked Songs</h3>
-
-    //     <div
-    //       style={{
-    //         cursor: "pointer",
-    //       }}
-    //       onClick={() => nav("/liked")}
-    //     >
-    //       <p>❤️ {likedIds.length} liked songs</p>
-
-    //       <small>
-    //         View your cached favourites
-    //       </small>
-    //     </div>
-    //   </section>
-
-    //   <hr />
-
-    //   {/* Cached Playlists */}
-
-    //   <section>
-    //     <div
-    //       style={{
-    //         display: "flex",
-    //         justifyContent: "space-between",
-    //         alignItems: "center",
-    //       }}
-    //     >
-    //       <h3>Cached Playlists</h3>
-
-    //       <button
-    //         onClick={() => nav("/playlists")}
-    //       >
-    //         See all
-    //       </button>
-    //     </div>
-
-    //     {playlists.length === 0 ? (
-    //       <p>No cached playlists.</p>
-    //     ) : (
-    //       <div
-    //         style={{
-    //           display: "flex",
-    //           gap: "16px",
-    //           overflowX: "auto",
-    //         }}
-    //       >
-    //         {playlists.map((playlist) => (
-    //           <div
-    //             key={playlist.id}
-    //             style={{
-    //               cursor: "pointer",
-    //               minWidth: "140px",
-    //             }}
-    //             onClick={() =>
-    //               nav(`/playlist/${playlist.id}`)
-    //             }
-    //           >
-    //             <LazyImage
-    //               src={getPlaylistCover(playlist)}
-    //               alt={playlist.name}
-    //             />
-
-    //             <p>{playlist.name}</p>
-
-    //             <small>
-    //               {playlist.playlist_tracks?.length || 0} songs
-    //             </small>
-    //           </div>
-    //         ))}
-    //       </div>
-    //     )}
-    //   </section>
-
-    //   <hr />
-
-    //   {/* Footer */}
-
-    //   <section>
-    //     <p>
-    //       Connect to the internet to discover
-    //       recommendations, search for songs and sync
-    //       your latest playlists.
-    //     </p>
-    //   </section>
-    // </main>
+  
     <main className="offline-home">
       <section className="offline-hero">
         {/* <h2>📶 You're Offline</h2> */}
