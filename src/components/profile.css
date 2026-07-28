@@ -21,8 +21,11 @@
 .library-greeting {
   margin: 0 0 6px;
 
-  font-size: 13px;
-  opacity: 0.65;
+  /* font-size: 13px; */
+  font-size: 18px;
+  /* opacity: 0.65;
+  color: rgb(235, 231, 231); */
+  color: var(--text-secondary);
 }
 
 .library-header h1 {
@@ -32,6 +35,11 @@
   font-weight: 800;
 
   letter-spacing: -1px;
+}
+
+.library-settings-div{
+background: #9929ea;
+border-radius: 20%;
 }
 
 .library-settings-btn {

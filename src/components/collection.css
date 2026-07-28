@@ -101,6 +101,13 @@
     linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.58));
 }
 
+/* .featured-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--featured-overlay);
+} */
+
+
 .featured-content {
   position: absolute;
   left: 20px;
@@ -287,7 +294,8 @@
 .playlist-title {
   margin-top: 10px;
   font-size: 13px;
-  color: var(--text-primary);
+  /* color: var(--text-primary); */
+    color: var(--text-primary) !important;
   text-align: left;
 }
 
@@ -786,9 +794,9 @@
   border-radius: 24px;
   overflow: hidden;
   cursor: pointer;
-  background: linear-gradient(135deg, var(--card-bg), var(--modal-bg));
+  /* background: linear-gradient(135deg, var(--card-bg), var(--modal-bg)); */
   border: 1px solid var(--border-soft);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  /* box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); */
 }
 
 .home-left {

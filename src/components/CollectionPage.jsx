@@ -527,7 +527,8 @@ export default function CollectionPage() {
   }
 
   return (
-    <main className="homepage page-safe">
+    // <main className="homepage page-safe">
+     <main className="homepage page page-safe">
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 

@@ -110,6 +110,18 @@ body,
   --page-bg: #000000;
   --hero-gradient: linear-gradient(180deg, #1d0f2b 0%, #0d0714 70%, #000000 100%);
 
+  --featured-overlay:
+  linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.18) 65%
+  ),
+  linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.58)
+  );
+
   color-scheme: dark;
 }
 
@@ -149,6 +161,18 @@ body,
   --page-bg: #ffffff;
   --hero-gradient: linear-gradient(180deg, #ffffff 0%, #f5f2f8 70%, #ffffff 100%);
 
+  --featured-overlay:
+  linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.10) 65%
+  ),
+  linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.35)
+  );
+
   color-scheme: light;
 }
 
@@ -164,4 +188,52 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+}
+
+
+/* ===========================
+   Global Theme Utilities
+=========================== */
+
+.page {
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+}
+
+.card-hover:hover {
+  background: var(--surface-hover);
+}
+
+.primary-text {
+  color: var(--text-primary); 
+}
+
+.secondary-text {
+  color: var(--text-secondary);
+}
+
+.muted-text {
+  color: var(--text-muted);
+}
+
+.faint-text {
+  color: var(--text-faint);
+}
+
+.primary-btn {
+  background: var(--accent-purple);
+  color: var(--text-on-accent);
+}
+
+.surface-btn {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
 }
