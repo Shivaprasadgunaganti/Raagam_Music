@@ -32,6 +32,7 @@ import {
 import OfflineHomeContent from "./OfflineHomeContent";
 import { FaHeart, FaPlay, FaRegHeart } from "react-icons/fa";
 
+
 export default function CollectionPage() {
   // const isOnline = useOnlineStatus();
   const { tracks, loading } = useTracks();
@@ -414,7 +415,10 @@ export default function CollectionPage() {
                   alt={track.title}
                 />
               </div>
-              <div className="album-title">{track.title}</div>
+              {/* <div className="album-title">{track.title}</div> */}
+              <div>
+                <p className="album-title">{track.title}</p>
+              </div>
             </div>
           );
         })}
@@ -447,7 +451,10 @@ export default function CollectionPage() {
                   <LazyImage src="/covers/default.jpg" alt={p.name} />
                 )}
               </div>
-              <div className="playlist-title">{p.name}</div>
+              {/* <div className="playlist-title">{p.name}</div> */}
+              <div>
+                <p className="playlist-title">{p.name}</p>
+              </div>
             </div>
           );
         })}
@@ -472,9 +479,12 @@ export default function CollectionPage() {
                 alt={m.title}
               />
             </div>
-            <div className="album-title">{m.title}</div>
-            {/* <h4 className="album-title">{m.title}</h4> */}
-            <div className="album-subtitle">{m.artist}</div>
+            {/* <div className="album-title">{m.title}</div>
+            <div className="album-subtitle">{m.artist}</div> */}
+            <div>
+              <p className="album-title">{m.title}</p>
+              <p className="album-subtitle">{m.artist}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -819,6 +829,8 @@ export default function CollectionPage() {
       ) : (
         <OfflineHomeContent />
       )}
+
+      {/* <img src={image} alt="" srcset="" /> */}
     </main>
   );
 }

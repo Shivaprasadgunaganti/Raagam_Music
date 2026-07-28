@@ -32,7 +32,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #0a0a0a;
+  /* background: #0a0a0a; */
 }
 
 .auth-loading {
@@ -109,6 +109,7 @@ body,
   --modal-bg: #1d0f2b;
   --page-bg: #000000;
   --hero-gradient: linear-gradient(180deg, #1d0f2b 0%, #0d0714 70%, #000000 100%);
+ --mini-player-overlay: rgba(0,0,0,.55);
 
   --featured-overlay:
   linear-gradient(
@@ -160,7 +161,7 @@ body,
   --modal-bg: #ffffff;
   --page-bg: #ffffff;
   --hero-gradient: linear-gradient(180deg, #ffffff 0%, #f5f2f8 70%, #ffffff 100%);
-
+ --mini-player-overlay: rgba(255,255,255,.35);
   --featured-overlay:
   linear-gradient(
     90deg,

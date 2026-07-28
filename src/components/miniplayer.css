@@ -5,11 +5,36 @@
   bottom: calc(var(--bottom-nav-height) + var(--footer-gap));
   height: 56px;
 
-  background: linear-gradient(
+  /* dynamic color */
+  /* background: linear-gradient(
     135deg,
     var(--background-color, #2a2a2a),
     rgba(0, 0, 0, 0.6)
-  );
+  ); */
+/* for theme */
+  /* background: linear-gradient(
+  135deg,
+  var(--modal-bg),
+  var(--bg-secondary)
+); */
+
+/* updated */
+background: linear-gradient(
+  135deg,
+  var(--background-color, var(--surface)),
+  var(--mini-player-overlay)
+);
+
+border: 1px solid var(--border);
+
+ 
+
+  box-shadow:
+    0 -2px 10px rgba(0, 0, 0, 0.06),
+    0 10px 30px rgba(0, 0, 0, 0.12);
+
+/* border: 1px solid var(--border); */
+border: 1px solid var(--border-strong);
 
   backdrop-filter: blur(8px);
   border-radius: 8px;
@@ -26,6 +51,10 @@
   z-index: 1000;
 
   transition: background 0.6s ease, transform 0.25s ease, box-shadow 0.3s ease;
+
+  
+
+
 }
 
 /* IMAGE */
@@ -55,10 +84,10 @@
   text-overflow: ellipsis;
 }
 
-.mini-title {
+/* .mini-title {
   font-weight: 600;
   font-size: 14px;
-}
+} */
 
 .mini-artist {
   font-size: 12px;
@@ -77,7 +106,8 @@
 .mini-actions button {
   background: transparent;
   border: none;
-  color: white;
+  /* color: white; */
+  color: var(--text-primary);
   font-size: 18px;
   cursor: pointer;
 }
@@ -87,8 +117,10 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: white;
-  color: black;
+  /* background: white;
+  color: black; */
+  background: var(--accent-purple);
+color: var(--text-on-accent);
   font-size: 16px;
 }
 
@@ -96,7 +128,8 @@
 .mini-progress {
   grid-area: progress;
   height: 2px;
-  background: rgba(255, 255, 255, 0.25);
+  /* background: rgba(255, 255, 255, 0.25); */
+  background: var(--border);
   border-radius: 1px;
   overflow: hidden;
   align-self: end;
@@ -104,13 +137,15 @@
 
 .mini-progress-fill {
   height: 100%;
-  background: #ffffff;
+  /* background: #ffffff; */
+  background: var(--accent-purple);
   transition: width 0.1s linear;
 }
 
 .mini-like {
   font-size: 18px;
-  color: white;
+  /* color: white; */
+  color: var(--text-primary);
   opacity: 0.8;
 }
 
@@ -141,11 +176,13 @@
 .mini-title {
   font-size: 14px;
   font-weight: 700;
+    color: var(--text-primary);
 }
 
 .mini-artist {
   font-size: 12px;
-  opacity: 0.7;
+  /* opacity: 0.7; */
+  color: var(--text-secondary);
 }
 
 /* SCROLL ANIMATION */

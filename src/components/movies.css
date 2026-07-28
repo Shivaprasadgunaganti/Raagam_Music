@@ -10,10 +10,12 @@
 .movies-header h1 {
   font-size: 28px;
   margin: 0;
+    color: var(--text-primary);
 }
 
 .movies-header p {
-  color: #9aa4b2;
+  /* color: #9aa4b2; */
+    color: var(--text-primary);
   margin-top: 4px;
 }
 
@@ -83,11 +85,13 @@
 .movie-info h3 {
   margin: 0;
   font-size: 16px;
+    color: var(--text-primary);
 }
 
 .movie-info p {
   margin-top: 4px;
   font-size: 13px;
-  color: #9aa4b2;
+  /* color: #9aa4b2; */
+    color: var(--text-primary);
 }
 

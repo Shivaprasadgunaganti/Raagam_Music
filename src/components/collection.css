@@ -546,7 +546,7 @@
   .playlist-cover {
     width: 126px;
     min-width: 126px;
-    height: 70%;
+    /* height: 70%; */
   }
 
   .song-list-card {
@@ -602,7 +602,7 @@
   .playlist-cover {
     width: 100px;
     min-width: 100px;
-    height: 70%;
+    /* height: 70%; */
   }
 
   .song-list-card {
