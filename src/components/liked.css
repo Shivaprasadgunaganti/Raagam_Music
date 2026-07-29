@@ -88,7 +88,8 @@ color: var(--text-primary);
   bottom: 24px;
   right: 24px;
   width: 54px;
-  height: 54px;
+  /* height: 54px; */
+  height: 52px;
   border-radius: 50%;
   /* background: #1db954; */
   /* background: var(--accent-purple);
@@ -144,6 +145,8 @@ color: var(--text-on-accent);
   /* cursor: pointer; */
   /* transition: background 0.15s; */
   border-radius: 4px;
+  border-bottom: 0.5px solid var(--border);
+  border-radius: 8px; /* only visible when a row has a bg, e.g. "now playing" */
 }
 
 /* Left side — cover + meta */
@@ -200,6 +203,7 @@ color: var(--text-on-accent);
   background: none;
   border: none;
   /* color: rgba(255, 255, 255, 0.45); */
+  color: var(--text-primary);
   font-size: 20px;
   cursor: pointer;
   /* padding: 0 4px; */
@@ -442,6 +446,7 @@ color: var(--text-on-accent);
   transition:
     transform 0.18s ease,
     background 0.18s ease;
+    
 }
 
 .liked-row:active {

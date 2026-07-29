@@ -17,13 +17,13 @@
 .offline-screen {
   min-height: 100vh;
   padding: 96px 24px 24px; /* extra top padding for fixed header */
-  color: #fff;
-  background: linear-gradient(
+  /* color: #fff; */
+  /* background: linear-gradient(
     180deg,
     #181818 0%,
     #121212 55%,
     #0f0f0f 100%
-  );
+  ); */
 }
 
 /* ===========================

@@ -199,7 +199,7 @@ export default function SearchPage() {
   <div className="search-spinner"></div>
 </div>
               )
-            ) : null}
+            ) : null  }
           </div>
         )}
       </div>

@@ -866,6 +866,8 @@
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
+   border-bottom: 0.5px solid var(--border);
+  border-radius: 8px; /* only visible when a row has a bg, e.g. "now playing" */
 }
 
 .song-row:hover {

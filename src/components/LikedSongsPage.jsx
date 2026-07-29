@@ -6,7 +6,7 @@ import { useAudio } from "../context/AudioContext";
 import { FcLike } from "react-icons/fc";
 import { IoArrowBack } from "react-icons/io5";
 import PlaylistPicker from "./PlaylistPicker";
-import { FaShuffle } from "react-icons/fa6";
+import { FaPlay, FaShuffle } from "react-icons/fa6";
 import "./liked.css";
 import {
   likeSong,
@@ -204,7 +204,8 @@ async function loadOnlineLikedSongs() {
               className="liked-play-btn"
               onClick={() => setNewQueue(songs, 0)}
             >
-              ▶
+              {/* ▶ */}
+              <FaPlay/>
             </button>
 
             <button
