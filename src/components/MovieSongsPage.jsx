@@ -14,6 +14,7 @@ import { FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { getLikedSongsMap } from "../utils/likeHelpers";
 import { useToast } from "../context/ToastContext";
+import ColorThief from "color-thief-browser";
 
 export default function MovieSongsPage() {
   const { movieId } = useParams();
@@ -38,6 +39,7 @@ export default function MovieSongsPage() {
   // const [pickerTrackId, setPickerTrackId] = useState(null);
   const [pickerTrack, setPickerTrack] = useState(null);
   const { showToast } = useToast();
+  const [bgColor, setBgColor] = useState("#2a2a2a");
   
 
   useEffect(() => {
@@ -63,6 +65,21 @@ export default function MovieSongsPage() {
   }, [movieId]);
 
   useEffect(() => {
+  if (!movie?.cover_url) return;
+
+  const img = new Image();
+  img.crossOrigin = "Anonymous";
+  img.src = movie.cover_url;
+
+  img.onload = () => {
+    const colorThief = new ColorThief();
+    const rgb = colorThief.getColor(img);
+
+    setBgColor(`rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+  };
+}, [movie]);
+
+  useEffect(() => {
     async function loadLikes() {
       const map = await getLikedSongsMap();
       setLikedMap(map);
@@ -81,7 +98,11 @@ export default function MovieSongsPage() {
 
   return (
     <main className="songspage-main">
-      <div className="sp-album">
+      {/* <div className="sp-album"> */}
+      <div
+  className="sp-album"
+  style={{ "--background-color": bgColor }}
+>
         <button className="sp-back-btn" onClick={() => nav("/")}>
           {" "}
           <IoArrowBack />
@@ -128,10 +149,12 @@ export default function MovieSongsPage() {
                 onClick={() => setNewQueue(songs, index)}
               >
                 <div className="sp-song-meta">
-                  <div className="sp-song-title">{song.title}</div>
+                  {/* <div className="sp-song-title">{song.title}</div>
                   <div className="sp-song-artist">
                     {song.artist || "Unknown Artist"}
-                  </div>
+                  </div> */}
+                  <p className="sp-song-title">{song.title}</p>
+                  <p className="sp-song-artist">{song.artist || "Unknown Artist"}</p>
                 </div>
               </div>
               {/* Like/Unlike button */}
