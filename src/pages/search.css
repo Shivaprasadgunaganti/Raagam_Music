@@ -191,6 +191,8 @@ border: 1px solid var(--border);
   padding: 10px;
   border-radius: 6px;
   cursor: pointer;
+    border-bottom: 0.5px solid var(--border);
+  border-radius: 8px; /* only visible when a row has a bg, e.g. "now playing" */
 }
 
 .dropdown-item:hover {

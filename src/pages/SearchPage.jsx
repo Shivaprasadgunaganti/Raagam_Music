@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./search.css";
+// import "../components/playlistpicker.css";
 import { useAudio } from "../context/AudioContext";
 
 export default function SearchPage() {
@@ -18,6 +19,7 @@ export default function SearchPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [history, setHistory] = useState([]);
   const { setNewQueue } = useAudio();
+  const [loading, setLoading] = useState(false);
 
   /* ---------------- DEBOUNCE ---------------- */
   useEffect(() => {
@@ -56,6 +58,24 @@ export default function SearchPage() {
     setHistory(saved);
   }, []);
 
+  // function getPlaylistCovers(playlist) {
+  //   if (!playlist.playlist_tracks) return [];
+
+  //   return playlist.playlist_tracks
+  //     .slice(0, 4)
+  //     .map((pt) => pt.tracks?.cover_url)
+  //     .filter(Boolean);
+  // }
+
+  function getPlaylistCovers(playlist) {
+    if (!playlist.playlist_tracks) return [];
+
+    return playlist.playlist_tracks
+      .slice(0, 4)
+      .map((pt) => pt.tracks?.cover_url)
+      .filter(Boolean);
+  }
+
   /* ---------------- FETCH ---------------- */
   useEffect(() => {
     if (!debounced) {
@@ -65,33 +85,81 @@ export default function SearchPage() {
       return;
     }
 
+    // async function searchAll() {
+    //   const searchTerm = `%${debounced}%`;
+
+    //   const { data: songData } = await supabase
+    //     .from("tracks")
+    //     .select("*")
+    //     .or(`title.ilike.${searchTerm},artist.ilike.${searchTerm}`);
+
+    //   const { data: movieData } = await supabase
+    //     .from("movies")
+    //     .select("*")
+    //     .ilike("title", searchTerm);
+
+    //   const { data: playlistData } = await supabase
+    //     .from("playlists")
+    //     .select("*")
+    //     .ilike("name", searchTerm);
+
+    //   setTracks(songData || []);
+    //   setMovies(movieData || []);
+    //   setPlaylists(playlistData || []);
+    // }
+
     async function searchAll() {
-      const searchTerm = `%${debounced}%`;
+      setLoading(true);
 
-      const { data: songData } = await supabase
-        .from("tracks")
-        .select("*")
-        .or(`title.ilike.${searchTerm},artist.ilike.${searchTerm}`);
+      try {
+        const searchTerm = `%${debounced}%`;
 
-      const { data: movieData } = await supabase
-        .from("movies")
-        .select("*")
-        .ilike("title", searchTerm);
+        const { data: songData } = await supabase
+          .from("tracks")
+          .select("*")
+          .or(`title.ilike.${searchTerm},artist.ilike.${searchTerm}`);
 
-      const { data: playlistData } = await supabase
-        .from("playlists")
-        .select("*")
-        .ilike("name", searchTerm);
+        const { data: movieData } = await supabase
+          .from("movies")
+          .select("*")
+          .ilike("title", searchTerm);
 
-      setTracks(songData || []);
-      setMovies(movieData || []);
-      setPlaylists(playlistData || []);
+        // const { data: playlistData } = await supabase
+        //   .from("playlists")
+        //   .select("*")
+        //   .ilike("name", searchTerm);
+
+        const { data: playlistData } = await supabase
+          .from("playlists")
+          .select(
+            `
+    id,
+    name,
+    playlist_tracks (
+      track_id,
+      tracks (
+        cover_url
+      )
+    )
+  `,
+          )
+          .ilike("name", searchTerm);
+
+        console.log(playlistData, "playlistdata");
+
+        setTracks(songData || []);
+        setMovies(movieData || []);
+        setPlaylists(playlistData || []);
+      } finally {
+        setLoading(false);
+      }
     }
 
     searchAll();
   }, [debounced]);
 
   const saveSearch = (item) => {
+    console.log("Saving search:", item);
     if (!item) return;
 
     let updated = [
@@ -143,14 +211,14 @@ export default function SearchPage() {
           onFocus={() => setShowDropdown(true)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              saveSearch(query); // ✅ correct
+              // saveSearch(query); 
               setShowDropdown(false);
             }
           }}
         />
 
         {/* {showDropdown && ( */}
-        {showDropdown && query.trim().length > 0 && (
+        {/* {showDropdown && query.trim().length > 0 && (
           <div className="search-dropdown">
             {query.trim().length > 0 ? (
               suggestionList.length > 0 ? (
@@ -200,6 +268,63 @@ export default function SearchPage() {
 </div>
               )
             ) : null  }
+          </div>
+        )} */}
+
+        {showDropdown && query.trim().length > 0 && (
+          <div className="search-dropdown">
+            {loading ? (
+              <div className="dropdown-loading">
+                <div className="search-spinner"></div>
+              </div>
+            ) : suggestionList.length > 0 ? (
+              suggestionList.map((item) => (
+                <div
+                  key={item.id}
+                  className="dropdown-item"
+                  onMouseDown={() => {
+                    if (item.type === "song") {
+                      setNewQueue(
+                        filteredSongs,
+                        filteredSongs.findIndex((x) => x.id === item.id),
+                      );
+                    }
+
+                    saveSearch({
+                      id: item.id,
+                      title: item.title || item.name,
+                      cover_url: item.cover_url,
+                      type: item.type,
+                    });
+
+                    setShowDropdown(false);
+
+                    if (item.type === "song") nav(`/track/${item.id}`);
+                    if (item.type === "album") nav(`/movie/${item.id}`);
+                    if (item.type === "playlist") nav(`/playlist/${item.id}`);
+                  }}
+                >
+                  <img
+                    // src={item.cover_url || "/covers/default.jpg"}
+                    src={
+                      item.cover_url ||
+                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10"
+                    }
+                    className="dropdown-img"
+                    alt=""
+                  />
+
+                  <div className="dropdown-info">
+                    <div className="dropdown-title">
+                      {item.title || item.name}
+                    </div>
+                    <div className="dropdown-meta">{item.type}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="dropdown-empty">No results found</div>
+            )}
           </div>
         )}
       </div>
@@ -255,7 +380,11 @@ export default function SearchPage() {
                   }}
                 >
                   <img
-                    src={h.cover_url || "/covers/default.jpg"}
+                    // src={h.cover_url || "/covers/default.jpg"}
+                    src={
+                      h.cover_url ||
+                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10"
+                    }
                     className="dropdown-img"
                   />
 
@@ -297,7 +426,32 @@ export default function SearchPage() {
                   <div
                     key={t.id}
                     className="search-item"
-                    onClick={() => nav(`/track/${t.id}`)}
+                    // onClick={() => nav(`/track/${t.id}`)}
+                    onClick={() => {
+                      saveSearch({
+                        id: t.id,
+                        title: t.title,
+                        cover_url: t.cover_url,
+                        type: "song",
+                      });
+
+                      setNewQueue(
+                        filteredSongs,
+                        filteredSongs.findIndex((x) => x.id === t.id),
+                      );
+
+                      nav(`/track/${t.id}`);
+                    }}
+                    // onClick={() => {
+                    //   saveSearch({
+                    //     id: t.id,
+                    //     title: t.title,
+                    //     cover_url: t.cover_url,
+                    //     type: "song",
+                    //   });
+
+                    //   nav(`/track/${t.id}`);
+                    // }}
                   >
                     <img src={t.cover_url} alt="" />
                     <div>
@@ -311,27 +465,79 @@ export default function SearchPage() {
             )}
 
           {/* ALBUMS */}
+          {(activeTab === "all" || activeTab === "albums") && (
+            <section className="albums-section">
+              {/* <h3 className="section-title">Albums</h3> */}
 
-          <section className="albums-section">
-            {/* <h3 className="section-title">Albums</h3> */}
+              <div className="search-albums-list">
+                {filteredAlbums.map((m) => (
+                  <div
+                    key={m.id}
+                    className="search-album-row"
+                    // onClick={() => nav(`/movie/${m.id}`)}
+                    onClick={() => {
+                      saveSearch({
+                        id: m.id,
+                        title: m.title,
+                        cover_url: m.cover_url,
+                        type: "album",
+                      });
 
-            <div className="search-albums-list">
-              {filteredAlbums.map((m) => (
-                <div
-                  key={m.id}
-                  className="search-album-row"
-                  onClick={() => nav(`/movie/${m.id}`)}
-                >
-                  <img src={m.cover_url} alt={m.title} />
+                      nav(`/movie/${m.id}`);
+                    }}
+                  >
+                    <img src={m.cover_url} alt={m.title} />
 
-                  <div className="album-info">
-                    <div className="album-title">{m.title}</div>
-                    <div className="album-meta">Album</div>
+                    <div className="album-info">
+                      <div className="album-title">{m.title}</div>
+                      <div className="album-meta">Album</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {(activeTab === "all" || activeTab === "playlists") &&
+            filteredPlaylists.length > 0 && (
+              <section>
+                <h3>Playlists</h3>
+
+                {filteredPlaylists.map((playlist) => (
+                  <div
+                    key={playlist.id}
+                    className="search-item"
+                    // onClick={() => nav(`/playlist/${playlist.id}`)}
+                    onClick={() => {
+                      saveSearch({
+                        id: playlist.id,
+                        title: playlist.name,
+                        // cover_url: getPlaylistCovers(playlist)[0],
+                        // cover_url:
+                        //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10",
+                        type: "playlist",
+                      });
+
+                      nav(`/playlist/${playlist.id}`);
+                    }}
+                  >
+                    <img
+                      src={
+                        playlist.cover_url ||
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10"
+                      }
+                      alt=""
+                    />
+
+                    <div>
+                      <div className="title">{playlist.name}</div>
+
+                      <div className="album-meta">Playlist</div>
+                    </div>
+                  </div>
+                ))}
+              </section>
+            )}
         </>
       )}
     </main>

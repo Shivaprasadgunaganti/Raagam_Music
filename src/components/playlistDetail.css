@@ -167,7 +167,9 @@
   min-height: 56px;
   /* cursor: pointer; */
   /* transition: background 0.15s; */
-  border-radius: 4px;
+  /* border-radius: 4px; */
+    border-bottom: 0.5px solid var(--border);
+  border-radius: 8px;
 }
 /* .pd-row:hover  { background: rgba(255, 255, 255, 0.07); }
 .pd-row.active .pd-song-title { color: #1db954; } */
@@ -202,7 +204,8 @@
 .pd-song-title {
   font-size: 15px;
   font-weight: 400;
-  color: #fff;
+  /* color: #fff; */
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -213,7 +216,9 @@
 .pd-song-artist {
   font-size: 13px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.5);
+  /* color: rgba(255, 255, 255, 0.5); */
+  /* color: var(--text-primary); */
+      color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -226,7 +231,8 @@
 .pd-row-menu {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.45);
+  /* color: rgba(255, 255, 255, 0.45); */
+  color: var(--text-primary);
   font-size: 20px;
   cursor: pointer;
   padding: 0 4px;

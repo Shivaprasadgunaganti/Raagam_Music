@@ -190,6 +190,7 @@ color: var(--text-on-accent);
   font-size: 13px;
   font-weight: 400;
   /* color: rgba(255, 255, 255, 0.5); */
+      color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
