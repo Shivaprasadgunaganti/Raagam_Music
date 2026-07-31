@@ -1,4 +1,5 @@
 import React from "react";
+import { HiMiniPlay } from "react-icons/hi2";
 
 function QueueItem({
   song,
@@ -15,7 +16,8 @@ function QueueItem({
       className={`queue-item ${isCurrent ? "active" : ""}`}
       onClick={onClick}
     >
-      <div className="queue-index">{isCurrent ? "▶" : index + 1}</div>
+      <div className="queue-index">{isCurrent ? <HiMiniPlay/> : index + 1}</div>
+      {/* <div className="queue-index">{isCurrent ? "▶" : index + 1}</div> */}
 
       <img src={song.cover_url || "/covers/default.jpg"} alt={song.title} />
 

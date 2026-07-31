@@ -27,6 +27,9 @@ import {
   getLikedTrackIds,
   getAllCachedTracks,
 } from "../utils/offlineCache";
+import { HiMiniPlay } from "react-icons/hi2";
+import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+import { PiPlaylistFill } from "react-icons/pi";
 
 export default function LikedSongsPage() {
   const nav = useNavigate();
@@ -48,32 +51,30 @@ export default function LikedSongsPage() {
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const { isOnline } = useOfflineMode();
 
-  
+  async function loadOnlineLikedSongs() {
+    setLoading(true);
 
-async function loadOnlineLikedSongs() {
-      setLoading(true);
+    const { data: likedRows, error: likedError } = await supabase
+      .from("liked_songs")
+      .select("track_id")
+      .order("created_at", { ascending: false });
 
-      const { data: likedRows, error: likedError } = await supabase
-        .from("liked_songs")
-        .select("track_id")
-        .order("created_at", { ascending: false });
+    // console.log("LIKED ROWS:", likedRows);
+    // console.log("LIKED ERROR:", likedError);
 
-      // console.log("LIKED ROWS:", likedRows);
-      // console.log("LIKED ERROR:", likedError);
+    if (likedError || !likedRows || likedRows.length === 0) {
+      setSongs([]);
+      setLoading(false);
+      return;
+    }
 
-      if (likedError || !likedRows || likedRows.length === 0) {
-        setSongs([]);
-        setLoading(false);
-        return;
-      }
+    const trackIds = likedRows.map((r) => r.track_id);
+    // console.log("TRACK IDS:", trackIds);
 
-      const trackIds = likedRows.map((r) => r.track_id);
-      // console.log("TRACK IDS:", trackIds);
-
-      const { data: tracks, error: tracksError } = await supabase
-        .from("tracks")
-        .select(
-          `
+    const { data: tracks, error: tracksError } = await supabase
+      .from("tracks")
+      .select(
+        `
           id,
           title,
           artist,
@@ -81,63 +82,62 @@ async function loadOnlineLikedSongs() {
           external_url,
           storage_path
         `,
-        )
-        .in("id", trackIds);
+      )
+      .in("id", trackIds);
 
-      // console.log("TRACKS:", tracks);
-      // console.log("TRACKS ERROR:", tracksError);
+    // console.log("TRACKS:", tracks);
+    // console.log("TRACKS ERROR:", tracksError);
 
-      if (!tracksError && tracks) {
-        const ordered = trackIds
-          .map((id) => tracks.find((t) => t.id === id))
-          .filter(Boolean);
+    if (!tracksError && tracks) {
+      const ordered = trackIds
+        .map((id) => tracks.find((t) => t.id === id))
+        .filter(Boolean);
 
-        // console.log("ORDERED TRACKS:", ordered);
-        setSongs(ordered);
-        await clearLikedTracks();
-        await saveLikedTracks(trackIds);
-      } else {
-        setSongs([]);
-      }
-
-      setLoading(false);
-
-      // console.log("likedRows:", likedRows);
-// console.log("trackIds:", trackIds);
+      // console.log("ORDERED TRACKS:", ordered);
+      setSongs(ordered);
+      await clearLikedTracks();
+      await saveLikedTracks(trackIds);
+    } else {
+      setSongs([]);
     }
 
-    async function loadOfflineLikedSongs() {
-  setLoading(true);
-
-  try {
-    const likedIds = await getLikedTrackIds();
-
-    const cachedTracks = await getAllCachedTracks();
-
-    const likedSongs = cachedTracks.filter((track) =>
-      likedIds.includes(track.id)
-    );
-
-    setSongs(likedSongs);
-  } catch (err) {
-    console.error("Offline liked songs:", err);
-    setSongs([]);
-  } finally {
     setLoading(false);
-  }
-}
 
-    useEffect(() => {
-  if (isOnline) {
-    loadOnlineLikedSongs();
-  } else {
-    loadOfflineLikedSongs();
+    // console.log("likedRows:", likedRows);
+    // console.log("trackIds:", trackIds);
   }
-}, [isOnline]);
+
+  async function loadOfflineLikedSongs() {
+    setLoading(true);
+
+    try {
+      const likedIds = await getLikedTrackIds();
+
+      const cachedTracks = await getAllCachedTracks();
+
+      const likedSongs = cachedTracks.filter((track) =>
+        likedIds.includes(track.id),
+      );
+
+      setSongs(likedSongs);
+    } catch (err) {
+      console.error("Offline liked songs:", err);
+      setSongs([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (isOnline) {
+      loadOnlineLikedSongs();
+    } else {
+      loadOfflineLikedSongs();
+    }
+  }, [isOnline]);
 
   // useEffect(() => {
   //   // async function loadLikedSongs() {
-    
 
   //   // loadLikedSongs();
   //   // loadOnlineLikedSongs();
@@ -172,8 +172,6 @@ async function loadOnlineLikedSongs() {
 
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 
-
-  
   return (
     <main className="liked-page page-safe">
       {/* HERO */}
@@ -205,7 +203,7 @@ async function loadOnlineLikedSongs() {
               onClick={() => setNewQueue(songs, 0)}
             >
               {/* ▶ */}
-              <FaPlay/>
+              <FaPlay />
             </button>
 
             <button
@@ -335,7 +333,7 @@ async function loadOnlineLikedSongs() {
 
             <div className="sheet-divider" />
 
-            <button
+            {/* <button
               onClick={() => {
                 addToQueue(selectedSong);
                 setSelectedSong(null);
@@ -367,12 +365,8 @@ async function loadOnlineLikedSongs() {
             </button>
 
             <button
-              // onClick={() => {
-              //   setSelectedSong(null);
-              //   setShowPicker(true);
-              // }}
               onClick={() => {
-                // setPickerTrackId(selectedSong.id); 
+                // setPickerTrackId(selectedSong.id);
                 setPickerTrack(selectedSong);
 
                 setSelectedSong(null);
@@ -380,7 +374,47 @@ async function loadOnlineLikedSongs() {
               }}
             >
               📂 Add to Playlist
-            </button>
+            </button> */}
+              <button
+                            onClick={() => {
+                              playNextInsert(selectedSong);
+                              setSelectedSong(null);
+                              showToast("Added to Play Next");
+                            }}
+                          >
+                            <span className="sheet-icon"><HiMiniPlay /></span> Play Next
+                            {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedSong(null);
+                              nav("/queue");
+                            }}
+                          >
+                            <span className="sheet-icon"><MdOutlineQueueMusic /></span> View Queue
+                            {/* <span className="sheet-icon">🎵</span> View Queue */}
+                          </button>
+                          <button
+                            onClick={() => {
+                              addToQueue(selectedSong);
+                              setSelectedSong(null);
+                              showToast("Added to Queue");
+                            }}
+                          >
+                            {/* <span className="sheet-icon">➕</span> Add to Queue */}
+                            <span className="sheet-icon"><MdQueue /></span> Add to Queue
+                          </button>
+            
+                          <button
+                            onClick={() => {
+                              setPickerTrack(selectedSong);
+                              setSelectedSong(null);
+                              setShowPicker(true);
+                            }}
+                          >
+                            <span className="sheet-icon"><PiPlaylistFill /></span> Add to Playlist
+                            {/* <span className="sheet-icon">📂</span> Add to Playlist */}
+                          </button>
           </div>
         </div>
       )}
@@ -390,8 +424,8 @@ async function loadOnlineLikedSongs() {
         // <PlaylistPicker
         //   trackId={pickerTrackId}
         <PlaylistPicker
-  // track={selectedSong}
-    track={pickerTrack}
+          // track={selectedSong}
+          track={pickerTrack}
           onClose={(status) => {
             setShowPicker(false);
             // setPickerTrackId(null);

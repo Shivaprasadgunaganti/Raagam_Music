@@ -4,7 +4,7 @@
   /* background: #121212;
   color: var(--text-primary);f; */
   background: var(--bg-gradient);
-color: var(--text-primary);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   padding-bottom: 80px;
@@ -95,7 +95,7 @@ color: var(--text-primary);
   /* background: var(--accent-purple);
   color: #000; */
   background: var(--accent-purple);
-color: var(--text-on-accent);
+  color: var(--text-on-accent);
   border: none;
   font-size: 20px;
   cursor: pointer;
@@ -190,7 +190,7 @@ color: var(--text-on-accent);
   font-size: 13px;
   font-weight: 400;
   /* color: rgba(255, 255, 255, 0.5); */
-      color: var(--text-muted);
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -230,7 +230,7 @@ color: var(--text-on-accent);
   /* background: var(--accent-purple);
   color: #000; */
   background: var(--accent-purple);
-color: var(--text-on-accent);
+  color: var(--text-on-accent);
   font-size: 13px;
   font-weight: 600;
   padding: 10px 20px;
@@ -263,14 +263,13 @@ color: var(--text-on-accent);
   padding-bottom: 140px;
 }
 
-.song-menu-sheet {
+/* .song-menu-sheet {
   width: 100%;
   background: #1e1e2e;
-  /* border-radius: 18px 18px 0 0; */
   display: flex;
   flex-direction: column;
   height: fit-content;
-}
+} */
 
 .song-menu-sheet button {
   background: none;
@@ -370,7 +369,7 @@ color: var(--text-on-accent);
   /* background: var(--accent-purple);
   color: black; */
   background: var(--accent-purple);
-color: var(--text-on-accent);
+  color: var(--text-on-accent);
 }
 
 .liked-shuffle-btn {
@@ -447,14 +446,11 @@ color: var(--text-on-accent);
   transition:
     transform 0.18s ease,
     background 0.18s ease;
-    
 }
 
 .liked-row:active {
   transform: scale(0.985);
 }
-
-
 
 .liked-sticky-header {
   position: fixed;
@@ -472,7 +468,7 @@ color: var(--text-on-accent);
 
   /* background: rgba(2, 8, 24, 0.92); */
   background: var(--modal-bg);
-border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 
   backdrop-filter: blur(14px);
 
@@ -508,12 +504,11 @@ border-bottom: 1px solid var(--border);
   font-weight: 700;
 }
 
-
 .song-menu-overlay {
   position: fixed;
   inset: 0;
 
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
 
   backdrop-filter: blur(10px);
 
@@ -528,16 +523,15 @@ border-bottom: 1px solid var(--border);
 
   /* background: #0c1426; */
   background: var(--modal-bg);
-border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border);
 
   border-top-left-radius: 26px;
   border-top-right-radius: 26px;
 
-  padding:
-    18px 18px 30px;
+  /* padding: 18px 18px 30px; */
+  padding: 4px 4px 4px;
 
-  box-shadow:
-    0 -10px 30px rgba(0,0,0,0.45);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .slide-up-sheet {
@@ -581,7 +575,7 @@ border-top: 1px solid var(--border);
 
 .song-menu-sheet button:active {
   transform: scale(0.985);
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .sheet-song-info {

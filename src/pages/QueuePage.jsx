@@ -89,7 +89,7 @@ export default function QueuePage() {
           {" "}
           <IoArrowBack />
         </button>
-        <h2>Playing Queue</h2>
+        <h2 id="playing-queue">Playing Queue</h2>
         <button className="clear-btn" onClick={clearQueue}>
           Clear
         </button>

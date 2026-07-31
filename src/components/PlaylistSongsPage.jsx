@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAudio } from "../context/AudioContext";
 import "./playlistDetail.css";
-import { IoArrowBack } from "react-icons/io5";
+import { IoArrowBack, IoTrashBin } from "react-icons/io5";
 import PlaylistPicker from "./PlaylistPicker";
 import {
   likeSong,
@@ -13,7 +13,7 @@ import {
   getLikedSongsMap,
 } from "../utils/likeHelpers";
 import { FaHeart, FaShuffle } from "react-icons/fa6";
-import { FaRegHeart } from "react-icons/fa";
+import { FaPlay, FaRegHeart } from "react-icons/fa";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
 // import useOfflineMode from "../hooks/useOfflineMode"; // test
@@ -26,6 +26,9 @@ import {
   getPlaylistById,
   getPlaylistTracksByPlaylistId,
 } from "../utils/offlineCache";
+import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+import { PiPlaylistFill } from "react-icons/pi";
+import { HiMiniPlay } from "react-icons/hi2";
 
 export default function PlaylistDetailPage() {
   const { playlistId } = useParams();
@@ -430,18 +433,91 @@ export default function PlaylistDetailPage() {
 
       {/* ✅ Bottom sheet */}
       {selectedSong && (
+        // <div
+        //   className="song-menu-overlay"
+        //   onClick={() => setSelectedSong(null)}
+        // >
+        //   <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>
+        //     <div className="sheet-song-info">
+        //       <img
+        //         src={selectedSong.cover_url || "/covers/default.jpg"}
+        //         alt={selectedSong.title}
+        //         className="sheet-cover"
+        //       />
+        //       <div>
+        //         <div className="sheet-title">{selectedSong.title}</div>
+        //         <div className="sheet-artist">
+        //           {selectedSong.artist || "Unknown Artist"}
+        //         </div>
+        //       </div>
+        //     </div>
+
+        //     <div className="sheet-divider" />
+
+        //     <button
+        //       onClick={() => {
+        //         addToQueue(selectedSong);
+        //         setSelectedSong(null);
+        //         // showSnack("Added to queue");
+        //         showToast("Added to Queue");
+        //       }}
+        //     >
+        //       ➕ Add to Queue
+        //     </button>
+        //     <button
+        //       onClick={() => {
+        //         playNextInsert(selectedSong);
+        //         setSelectedSong(null);
+        //         showToast("Added to Play Next");
+        //       }}
+        //     >
+        //       ▶ Play Next
+        //     </button>
+        //     <button
+        //       onClick={() => {
+        //         setSelectedSong(null);
+        //         nav("/queue");
+        //       }}
+        //     >
+        //       🎵 View Queue
+        //     </button>
+
+        //     <button
+        //       onClick={() => {
+
+        //         setPickerTrack(selectedSong);
+        //         setSelectedSong(null);
+        //         setShowPicker(true);
+        //       }}
+        //     >
+        //       📂 Add to Playlist
+        //     </button>
+        //     <button
+        //       onClick={() => {
+        //         removeSong(selectedSong.id);
+        //         setSelectedSong(null);
+        //         // showSnack("Removed from playlist");
+        //         showToast("Removed from Playlist");
+        //       }}
+        //     >
+        //       🗑️ Remove from Playlist
+        //     </button>
+        //   </div>
+        // </div>
         <div
           className="song-menu-overlay"
           onClick={() => setSelectedSong(null)}
         >
           <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="sheet-handle" />
+
             <div className="sheet-song-info">
               <img
                 src={selectedSong.cover_url || "/covers/default.jpg"}
                 alt={selectedSong.title}
                 className="sheet-cover"
               />
-              <div>
+              <div className="sheet-song-text">
                 <div className="sheet-title">{selectedSong.title}</div>
                 <div className="sheet-artist">
                   {selectedSong.artist || "Unknown Artist"}
@@ -451,57 +527,61 @@ export default function PlaylistDetailPage() {
 
             <div className="sheet-divider" />
 
-            <button
-              onClick={() => {
-                addToQueue(selectedSong);
-                setSelectedSong(null);
-                // showSnack("Added to queue");
-                showToast("Added to Queue");
-              }}
-            >
-              ➕ Add to Queue
-            </button>
-            <button
-              onClick={() => {
-                playNextInsert(selectedSong);
-                setSelectedSong(null);
-                // showSnack("Added to Play Next");
-                showToast("Added to Play Next");
-              }}
-            >
-              ▶ Play Next
-            </button>
-            <button
-              onClick={() => {
-                setSelectedSong(null);
-                nav("/queue");
-              }}
-            >
-              🎵 View Queue
-            </button>
+            <div className="sheet-actions">
+              <button
+                onClick={() => {
+                  playNextInsert(selectedSong);
+                  setSelectedSong(null);
+                  showToast("Added to Play Next");
+                }}
+              >
+                <span className="sheet-icon"><HiMiniPlay /></span> Play Next
+                {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedSong(null);
+                  nav("/queue");
+                }}
+              >
+                <span className="sheet-icon"><MdOutlineQueueMusic /></span> View Queue
+                {/* <span className="sheet-icon">🎵</span> View Queue */}
+              </button>
+              <button
+                onClick={() => {
+                  addToQueue(selectedSong);
+                  setSelectedSong(null);
+                  showToast("Added to Queue");
+                }}
+              >
+                {/* <span className="sheet-icon">➕</span> Add to Queue */}
+                <span className="sheet-icon"><MdQueue /></span> Add to Queue
+              </button>
 
-            <button
-              onClick={() => {
-                // setPickerTrackId(selectedSong.id);
-                // setSelectedSong(null);
-                // setShowPicker(true);
-                setPickerTrack(selectedSong);
-                setSelectedSong(null);
-                setShowPicker(true);
-              }}
-            >
-              📂 Add to Playlist
-            </button>
-            <button
-              onClick={() => {
-                removeSong(selectedSong.id);
-                setSelectedSong(null);
-                // showSnack("Removed from playlist");
-                showToast("Removed from Playlist");
-              }}
-            >
-              🗑️ Remove from Playlist
-            </button>
+              <button
+                onClick={() => {
+                  setPickerTrack(selectedSong);
+                  setSelectedSong(null);
+                  setShowPicker(true);
+                }}
+              >
+                <span className="sheet-icon"><PiPlaylistFill /></span> Add to Playlist
+                {/* <span className="sheet-icon">📂</span> Add to Playlist */}
+              </button>
+
+              <div className="sheet-divider" />
+
+              <button
+                className="sheet-danger"
+                onClick={() => {
+                  removeSong(selectedSong.id);
+                  setSelectedSong(null);
+                  showToast("Removed from Playlist");
+                }}
+              >
+                <span className="sheet-icon"><IoTrashBin /></span> Remove from Playlist
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -511,7 +591,7 @@ export default function PlaylistDetailPage() {
         //   trackId={pickerTrackId}
         <PlaylistPicker
           // track={selectedSong}
-            track={pickerTrack}
+          track={pickerTrack}
           onClose={(status) => {
             setShowPicker(false);
             // setPickerTrackId(null);

@@ -4,7 +4,7 @@ import useTracks from "../hooks/useTracks";
 import { useAudio } from "../context/AudioContext";
 import "./details.css";
 import { BiShuffle } from "react-icons/bi";
-import { PiRepeatOnce } from "react-icons/pi";
+import { PiPlaylistFill, PiRepeatOnce } from "react-icons/pi";
 import PlaylistPicker from "./PlaylistPicker";
 import { likeSong, unlikeSong, isSongLiked } from "../utils/likeHelpers";
 import { FaRegHeart, FaStepBackward, FaStepForward } from "react-icons/fa";
@@ -18,6 +18,8 @@ import { IoArrowBack } from "react-icons/io5";
 import ColorThief from "color-thief-browser";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
+import { HiMiniPlay } from "react-icons/hi2";
+import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 
 function formatTime(sec = 0) {
   if (!Number.isFinite(sec) || sec <= 0) return "00:00";
@@ -39,6 +41,7 @@ export default function SongDetailPage() {
   const titleRef = useRef(null);
   const artistRef = useRef(null);
   const albumRef = useRef(null);
+  const isSeeking = useRef(false);
   const [showPicker, setShowPicker] = useState(false);
   const [liked, setLiked] = useState(false);
   const [time, setTime] = useState(0);
@@ -160,14 +163,31 @@ export default function SongDetailPage() {
   const progressPct = duration ? (time / duration) * 100 : 0;
 
   /* ---------------- SEEK ---------------- */
-  function handleSeek(e) {
+  // function handleSeek(e) {
+  //   const audio = audioRef.current;
+  //   const bar = progressRef.current;
+  //   if (!audio || !bar || !audio.duration) return;
+
+  //   const rect = bar.getBoundingClientRect();
+  //   const clickX = e.clientX ?? e.touches?.[0]?.clientX;
+  //   const percent = Math.min(Math.max((clickX - rect.left) / rect.width, 0), 1);
+
+  //   audio.currentTime = percent * audio.duration;
+  //   setTime(audio.currentTime);
+  // }
+
+  function seekTo(clientX) {
     const audio = audioRef.current;
     const bar = progressRef.current;
+
     if (!audio || !bar || !audio.duration) return;
 
     const rect = bar.getBoundingClientRect();
-    const clickX = e.clientX ?? e.touches?.[0]?.clientX;
-    const percent = Math.min(Math.max((clickX - rect.left) / rect.width, 0), 1);
+
+    const percent = Math.min(
+      Math.max((clientX - rect.left) / rect.width, 0),
+      1,
+    );
 
     audio.currentTime = percent * audio.duration;
     setTime(audio.currentTime);
@@ -254,8 +274,7 @@ export default function SongDetailPage() {
     >
       <div className="song-detail-header">
         {/* <button className="back-btn" onClick={() => nav("/")}> */}
-<button className="back-btn" onClick={() => nav(-1)}>
-          
+        <button className="back-btn" onClick={() => nav(-1)}>
           <IoArrowBack />
         </button>
 
@@ -302,11 +321,42 @@ export default function SongDetailPage() {
           <span>{formatTime(duration)}</span>
         </div>
 
-        <div
+        {/* <div
           className="song-progress"
           ref={progressRef}
           onMouseDown={handleSeek}
           onTouchStart={handleSeek}
+        > */}
+        <div
+          className="song-progress"
+          ref={progressRef}
+          onMouseDown={(e) => {
+            isSeeking.current = true;
+            seekTo(e.clientX);
+          }}
+          onMouseMove={(e) => {
+            if (isSeeking.current) {
+              seekTo(e.clientX);
+            }
+          }}
+          onMouseUp={() => {
+            isSeeking.current = false;
+          }}
+          onMouseLeave={() => {
+            isSeeking.current = false;
+          }}
+          onTouchStart={(e) => {
+            isSeeking.current = true;
+            seekTo(e.touches[0].clientX);
+          }}
+          onTouchMove={(e) => {
+            if (isSeeking.current) {
+              seekTo(e.touches[0].clientX);
+            }
+          }}
+          onTouchEnd={() => {
+            isSeeking.current = false;
+          }}
         >
           <div
             className="song-progress-fill"
@@ -362,8 +412,7 @@ export default function SongDetailPage() {
       {showPicker && (
         <PlaylistPicker
           // trackId={track.id}
-            track={track}
-
+          track={track}
           onClose={(status) => {
             setShowPicker(false);
 
@@ -386,21 +435,21 @@ export default function SongDetailPage() {
                 setShowMenu(false);
               }}
             >
-              ▶ Play Next
-            </button>
-            <button
-              onClick={() => {
-                addToQueue(track); // 🔥 THIS IS MISSING
-                setShowMenu(false);
-                nav("/queue"); // optional (you can remove if you want)
-              }}
-            >
-              ➕ Add to Queue
+              <HiMiniPlay /> Play Next
             </button>
 
             <button onClick={() => nav("/queue")}>
               {" "}
-              <RxHamburgerMenu /> View Queue
+              <MdOutlineQueueMusic /> View Queue
+            </button>
+            <button
+              onClick={() => {
+                addToQueue(track);
+                setShowMenu(false);
+                nav("/queue");
+              }}
+            >
+              <MdQueue /> Add to Queue
             </button>
 
             <button
@@ -409,7 +458,7 @@ export default function SongDetailPage() {
                 setShowPicker(true);
               }}
             >
-              📂 Add to Playlist
+              <PiPlaylistFill /> Add to Playlist
             </button>
           </div>
         </div>

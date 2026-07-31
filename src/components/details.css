@@ -315,6 +315,6 @@
   will-change: transform;
 }
 
-.detials-page-main:active {
+/* .detials-page-main:active {
   transform: scale(0.98);
-}
+} */

@@ -15,6 +15,9 @@ import { useLikes } from "../context/LikeContext";
 import { getLikedSongsMap } from "../utils/likeHelpers";
 import { useToast } from "../context/ToastContext";
 import ColorThief from "color-thief-browser";
+import { HiMiniPlay } from "react-icons/hi2";
+import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+import { PiPlaylistFill } from "react-icons/pi";
 
 export default function MovieSongsPage() {
   const { movieId } = useParams();
@@ -221,7 +224,7 @@ export default function MovieSongsPage() {
 
             <div className="sheet-divider" />
 
-            <button
+            {/* <button
               onClick={() => {
                 addToQueue(selectedSong);
                 setSelectedSong(null);
@@ -262,7 +265,47 @@ export default function MovieSongsPage() {
               }}
             >
               📂 Add to Playlist
-            </button>
+            </button> */}
+              <button
+                            onClick={() => {
+                              playNextInsert(selectedSong);
+                              setSelectedSong(null);
+                              showToast("Added to Play Next");
+                            }}
+                          >
+                            <span className="sheet-icon"><HiMiniPlay /></span> Play Next
+                            {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedSong(null);
+                              nav("/queue");
+                            }}
+                          >
+                            <span className="sheet-icon"><MdOutlineQueueMusic /></span> View Queue
+                            {/* <span className="sheet-icon">🎵</span> View Queue */}
+                          </button>
+                          <button
+                            onClick={() => {
+                              addToQueue(selectedSong);
+                              setSelectedSong(null);
+                              showToast("Added to Queue");
+                            }}
+                          >
+                            {/* <span className="sheet-icon">➕</span> Add to Queue */}
+                            <span className="sheet-icon"><MdQueue /></span> Add to Queue
+                          </button>
+            
+                          <button
+                            onClick={() => {
+                              setPickerTrack(selectedSong);
+                              setSelectedSong(null);
+                              setShowPicker(true);
+                            }}
+                          >
+                            <span className="sheet-icon"><PiPlaylistFill /></span> Add to Playlist
+                            {/* <span className="sheet-icon">📂</span> Add to Playlist */}
+                          </button>
           </div>
         </div>
       )}

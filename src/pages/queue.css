@@ -10,8 +10,15 @@
   position: sticky;
   top: 0;
   background: #121212;
-  z-index: 10;
+  width: 100%;
+   /* color: var(--text-primary); */
 }
+
+#playing-queue{
+  /* color: var(--text-primary) !important; */
+  color: #fff;
+}
+
 
 .queue-header button:first-child {
   background: none;
@@ -72,6 +79,7 @@
 
 .queue-item .title {
   font-weight: 600;
+  font-size: 13px;
 }
 
 .queue-item .artist {
@@ -93,7 +101,8 @@
 
 @media (max-width: 768px) {
   .queue-item {
-    padding: 14px 10px;
+    padding: 8px 8px;
+    /* padding: 14px 10px; */
   }
 }
 
@@ -147,6 +156,7 @@
 
 .now-title {
   font-weight: 600;
+  font-size: 13px;
 }
 
 .now-artist {
