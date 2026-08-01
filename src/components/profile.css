@@ -6,6 +6,7 @@
   background: var(--bg-primary);
   /* color: white; */
   color: var(--text-primary);
+  padding-bottom: 150px;
 }
 
 /* HEADER */
@@ -370,6 +371,7 @@ border-radius: 20%;
 
 .library-footer {
   margin-top: 40px;
+  margin-bottom: 30px;
 }
 
 .library-footer button {

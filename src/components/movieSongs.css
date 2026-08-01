@@ -100,7 +100,8 @@ border-top: 1px solid var(--border);
 color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  padding-bottom: 80px;
+  /* padding-bottom: 80px; */
+  padding-bottom: 150px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -50,6 +50,14 @@ function AppContent() {
   const isPlaylistPage = location.pathname.startsWith("/playlist/");
   const isMovietPage = location.pathname.startsWith("/movie/");
 
+  const fullScreenPage =
+  hideGlobalUI ||
+  isLoginPage ||
+  isPlaylistPage ||
+  isMovietPage ||
+  location.pathname === "/liked" ||
+  location.pathname === "/account";
+
   useNetworkSync();
 
   useEffect(() => {
@@ -80,12 +88,12 @@ function AppContent() {
     <>
       {/* <div className={`app-content ${hideGlobalUI ? "no-footer" : ""}`}> */}
       <OfflineBanner />
-      <div
+      {/* <div
         className={`app-content ${
-          // hideGlobalUI || isLoginPage || isPlaylistPage || isMovietPage ? "no-footer" : ""
           hideGlobalUI || isLoginPage ? "no-footer" : ""
         }`}
-      >
+      > */}
+<div className={`app-content ${fullScreenPage ? "no-footer" : ""}`}>
         {/* <OfflineTest/> */}
         <Routes>
           {/* Public Route */}
