@@ -264,7 +264,7 @@ export default function SongDetailPage() {
   return (
     <main
       ref={pageRef}
-      className="page-safe detials-page-main slide-up"
+      className="page-safe details-page-main slide-up"
       style={{
         "--background-color": bgColor,
       }}

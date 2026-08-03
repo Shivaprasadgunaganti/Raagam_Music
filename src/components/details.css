@@ -1,4 +1,5 @@
-.detials-page-main {
+.details-page-main {
+/* .details-page-main{ */
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -84,7 +85,8 @@
 }
 
 .song-meta {
-  margin-bottom: 50px;
+  /* margin-bottom: 50px; */
+  margin-bottom: 0px;
 }
 
 .song-title-row {
@@ -310,11 +312,11 @@
   }
 }
 
-.detials-page-main {
+.details-page-main {
   transition: transform 0.2s ease;
   will-change: transform;
 }
 
-/* .detials-page-main:active {
+/* .details-page-main:active {
   transform: scale(0.98);
 } */

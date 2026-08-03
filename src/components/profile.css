@@ -1,12 +1,20 @@
 /* profile.css */
 
-.library-page {
+/* .library-page {
   padding: 22px 18px 120px;
-  /* background: #050816; */
   background: var(--bg-primary);
-  /* color: white; */
   color: var(--text-primary);
-  padding-bottom: 150px;
+  padding-bottom: 0px;
+} */
+
+.library-page {
+  padding-top: 22px;
+  padding-right: 18px;
+  padding-left: 18px;
+  /* padding-bottom: 90px !important; */
+
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* HEADER */
@@ -396,7 +404,8 @@ border-radius: 20%;
 
 @media (max-width: 480px) {
   .library-page {
-    padding: 18px 14px 120px;
+    padding: 18px 14px 0px;
+    /* padding: 18px 14px 120px; */
   }
 
   .library-header h1 {

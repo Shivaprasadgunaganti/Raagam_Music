@@ -50,12 +50,22 @@ function AppContent() {
   const isPlaylistPage = location.pathname.startsWith("/playlist/");
   const isMovietPage = location.pathname.startsWith("/movie/");
 
+  // const fullScreenPage =
+  // hideGlobalUI ||
+  // isLoginPage ||
+  // isPlaylistPage ||
+  // isMovietPage ||
+  // location.pathname === "/liked" ||
+  // location.pathname === "/account";
+
   const fullScreenPage =
   hideGlobalUI ||
-  isLoginPage ||
-  isPlaylistPage ||
-  isMovietPage ||
-  location.pathname === "/liked" ||
+  isLoginPage;
+
+  const noFooterSpacing =
+  fullScreenPage ||
+  location.pathname === "/settings" ||
+  location.pathname === "/edit"
   location.pathname === "/account";
 
   useNetworkSync();
@@ -86,14 +96,11 @@ function AppContent() {
 
   return (
     <>
-      {/* <div className={`app-content ${hideGlobalUI ? "no-footer" : ""}`}> */}
+    
       <OfflineBanner />
-      {/* <div
-        className={`app-content ${
-          hideGlobalUI || isLoginPage ? "no-footer" : ""
-        }`}
-      > */}
-<div className={`app-content ${fullScreenPage ? "no-footer" : ""}`}>
+    
+{/* <div className={`app-content ${fullScreenPage ? "no-footer" : ""}`}> */}
+<div className={`app-content ${noFooterSpacing ? "no-footer" : ""}`}>
         {/* <OfflineTest/> */}
         <Routes>
           {/* Public Route */}
