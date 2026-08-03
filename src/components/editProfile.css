@@ -8,8 +8,7 @@
   /* color: var(--text-primary); */
   color: var(--text-primary);
 
-  padding:
-    18px 16px 140px;
+  padding: 18px 16px 140px;
 }
 
 /* LOADING */
@@ -55,8 +54,7 @@
 
   border-radius: 50%;
 
-  background:
-    rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
 
   color: var(--text-primary);
 
@@ -104,12 +102,7 @@
 
   border-radius: 50%;
 
-  background:
-    linear-gradient(
-      135deg,
-      #1db954,
-      #0f8a43
-    );
+  background: linear-gradient(135deg, #1db954, #0f8a43);
 
   display: flex;
   align-items: center;
@@ -118,8 +111,7 @@
   font-size: 42px;
   font-weight: 800;
 
-  box-shadow:
-    0 0 40px rgba(29,185,84,0.3);
+  box-shadow: 0 0 40px rgba(29, 185, 84, 0.3);
 }
 
 .avatar-edit-btn {
@@ -182,11 +174,9 @@
 
 .settings-card,
 .danger-card {
-  background:
-    rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
 
-  border:
-    1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   border-radius: 26px;
 
@@ -205,8 +195,7 @@
 
   padding: 18px;
 
-  border-bottom:
-    1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .settings-row:last-child {
@@ -229,36 +218,31 @@
 }
 
 .green {
-  background:
-    rgba(29,185,84,0.18);
+  background: rgba(29, 185, 84, 0.18);
 
   color: #1db954;
 }
 
 .blue {
-  background:
-    rgba(59,130,246,0.18);
+  background: rgba(59, 130, 246, 0.18);
 
   color: #60a5fa;
 }
 
 .cyan {
-  background:
-    rgba(6,182,212,0.18);
+  background: rgba(6, 182, 212, 0.18);
 
   color: #22d3ee;
 }
 
 .purple {
-  background:
-    rgba(139,92,246,0.18);
+  background: rgba(139, 92, 246, 0.18);
 
   color: #a78bfa;
 }
 
 .orange {
-  background:
-    rgba(249,115,22,0.18);
+  background: rgba(249, 115, 22, 0.18);
 
   color: #fb923c;
 }
@@ -308,8 +292,7 @@
   align-items: center;
   gap: 4px;
 
-  background:
-    rgba(29,185,84,0.16);
+  background: rgba(29, 185, 84, 0.16);
 
   color: #1db954;
 
@@ -339,8 +322,8 @@
   font-size: 15px;
   font-weight: 600;
 
-  border-bottom:
-    1px solid rgba(255,255,255,0.05);
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.05); */
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .action-row:last-child {
@@ -368,8 +351,8 @@
   font-size: 15px;
   font-weight: 700;
 
-  border-bottom:
-    1px solid rgba(255,255,255,0.05);
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.05); */
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .danger-row:last-child {
@@ -384,8 +367,7 @@
 
 @media (max-width: 480px) {
   .edit-profile-page {
-    padding:
-      16px 14px 130px;
+    padding: 16px 14px 130px;
   }
 
   .edit-topbar h1 {
@@ -397,11 +379,6 @@
     height: 96px;
 
     font-size: 36px; */
-    background:
-  linear-gradient(
-    135deg,
-    #1db954,
-    #0f8a43
-  );
+    background: linear-gradient(135deg, #1db954, #0f8a43);
   }
 }

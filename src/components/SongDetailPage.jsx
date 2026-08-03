@@ -285,7 +285,7 @@ export default function SongDetailPage() {
         </span>
       </div>
 
-      <div className="song-detail-card">
+      {/* <div className="song-detail-card">
         <div className="song-art-wrapper">
           <div
             className="song-art"
@@ -321,12 +321,7 @@ export default function SongDetailPage() {
           <span>{formatTime(duration)}</span>
         </div>
 
-        {/* <div
-          className="song-progress"
-          ref={progressRef}
-          onMouseDown={handleSeek}
-          onTouchStart={handleSeek}
-        > */}
+       
         <div
           className="song-progress"
           ref={progressRef}
@@ -406,6 +401,127 @@ export default function SongDetailPage() {
           >
             <PiRepeatOnce />
           </button>
+        </div>
+      </div> */}
+
+       <div className="song-detail-card">
+        <div className="song-art-wrapper">
+          <div
+            className="song-art"
+            role="presentation"
+            style={{
+              backgroundImage: `url(${
+                track.cover_url || "/covers/default.jpg"
+              })`,
+            }}
+          ></div>
+        </div>
+
+        <div className="song-bottom">
+          <div className="song-meta">
+          <div className="song-title-row">
+            <div className="song-title-marquee" ref={titleRef}>
+              <div className="marquee-inner">{track.title}</div>
+            </div>
+
+            <button className="song-like-btn" onClick={toggleLike}>
+              {liked ? <FaHeart /> : <FaRegHeart />}
+            </button>
+          </div>
+
+          <div className="song-artist-marquee" ref={artistRef}>
+            <div className="marquee-inner small">
+              {track.artist || "Unknown Artist"}
+            </div>
+          </div>
+        </div>
+
+        <div className="song-time-row">
+          <span>{formatTime(time)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+
+       
+        <div
+          className="song-progress"
+          ref={progressRef}
+          onMouseDown={(e) => {
+            isSeeking.current = true;
+            seekTo(e.clientX);
+          }}
+          onMouseMove={(e) => {
+            if (isSeeking.current) {
+              seekTo(e.clientX);
+            }
+          }}
+          onMouseUp={() => {
+            isSeeking.current = false;
+          }}
+          onMouseLeave={() => {
+            isSeeking.current = false;
+          }}
+          onTouchStart={(e) => {
+            isSeeking.current = true;
+            seekTo(e.touches[0].clientX);
+          }}
+          onTouchMove={(e) => {
+            if (isSeeking.current) {
+              seekTo(e.touches[0].clientX);
+            }
+          }}
+          onTouchEnd={() => {
+            isSeeking.current = false;
+          }}
+        >
+          <div
+            className="song-progress-fill"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+
+        <div className="song-main-controls">
+          <button
+            onClick={() => setShuffle((v) => !v)}
+            // style={{ color: shuffle ? "#4de08a" : "#9aa4b2" }}
+            style={{ color: shuffle ? "#4de08a" : "#f7fcf7" }}
+          >
+            <IoIosShuffle />
+          </button>
+
+          <button onClick={playPrev}>
+            <FaStepBackward />
+          </button>
+
+          <button
+            className="song-play-btn"
+            onClick={() => {
+              if (currentTrack?.id === track.id) {
+                togglePlay();
+              } else {
+                setNewQueue(tracks, index);
+              }
+            }}
+          >
+            {playing && currentTrack?.id === track.id ? (
+              // <CiPause1 />
+              <IoIosPause />
+            ) : (
+              <FaPlay />
+            )}
+          </button>
+
+          <button onClick={playNext}>
+            <FaStepForward />
+          </button>
+
+          <button
+            onClick={() => setLoopOne((v) => !v)}
+            // style={{ color: loopOne ? "#4de08a" : "#9aa4b2" }}
+            style={{ color: loopOne ? "#4de08a" : "#f7fcf7" }}
+          >
+            <PiRepeatOnce />
+          </button>
+        </div>
         </div>
       </div>
 
