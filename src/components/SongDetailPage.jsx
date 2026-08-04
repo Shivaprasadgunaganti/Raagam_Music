@@ -79,6 +79,23 @@ export default function SongDetailPage() {
     (t) => String(t.id) === String(currentTrack?.id),
   );
 
+  // for screen height 
+  useEffect(() => {
+  const setAppHeight = () => {
+    document.documentElement.style.setProperty(
+      "--app-height",
+      `${window.innerHeight}px`
+    );
+  };
+  setAppHeight();
+  window.addEventListener("resize", setAppHeight);
+  window.visualViewport?.addEventListener("resize", setAppHeight);
+  return () => {
+    window.removeEventListener("resize", setAppHeight);
+    window.visualViewport?.removeEventListener("resize", setAppHeight);
+  };
+}, []);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
