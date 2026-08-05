@@ -1015,3 +1015,9 @@ button {
   justify-content: center;
   gap: 6px;
 }
+
+
+.playing-bars span {
+    /* background: #1db954 !important;  */
+        background: var(--accent-purple) !important;
+}
