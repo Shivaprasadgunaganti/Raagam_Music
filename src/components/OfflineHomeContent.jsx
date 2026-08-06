@@ -80,6 +80,7 @@ import {
   getLikedTrackIds,
 } from "../utils/offlineCache";
 import { RiWifiOffLine } from "react-icons/ri";
+import  playlist  from "../Assets/playlist_image.png";
 
 export default function OfflineHomeContent() {
   const nav = useNavigate();
@@ -131,21 +132,20 @@ export default function OfflineHomeContent() {
   //     (track) => track?.tracks?.cover_url,
   //   );
 
-    
   //   return firstCover?.tracks?.cover_url || "/covers/default.jpg";
   // };
 
   const getPlaylistCover = (playlist) => {
-  if (!playlist.playlist_tracks?.length) {
-    return "/covers/default.jpg";
-  }
+    if (!playlist.playlist_tracks?.length) {
+      return "/covers/default.jpg";
+    }
 
-  const firstCover = playlist.playlist_tracks.find(
-    (pt) => pt?.track?.cover_url
-  );
+    const firstCover = playlist.playlist_tracks.find(
+      (pt) => pt?.track?.cover_url,
+    );
 
-  return firstCover?.track?.cover_url || "/covers/default.jpg";
-};
+    return firstCover?.track?.cover_url || "/covers/default.jpg";
+  };
 
   if (loading) {
     return (
@@ -156,11 +156,12 @@ export default function OfflineHomeContent() {
   }
 
   return (
-  
     <main className="offline-home">
       <section className="offline-hero">
         {/* <h2>📶 You're Offline</h2> */}
-        <h2><RiWifiOffLine /> You're Offline</h2>
+        <h2>
+          <RiWifiOffLine /> You're Offline
+        </h2>
 
         {/* <p>Showing your downloaded music and cached library.</p> */}
       </section>
@@ -205,8 +206,8 @@ export default function OfflineHomeContent() {
       <section>
         <h3>Liked Songs</h3>
         <div className="liked-songs-card" onClick={() => nav("/liked")}>
-          <p>❤️ {likedIds.length} liked songs</p>
-          {/* <small>View your cached favourites</small> */}
+          <p>❤️ liked songs</p>
+          {/* <p>❤️ {likedIds.length} liked songs</p> */}
           <small>View your favourites</small>
         </div>
       </section>
@@ -231,12 +232,17 @@ export default function OfflineHomeContent() {
                 className="playlist-card"
                 onClick={() => nav(`/playlist/${playlist.id}`)}
               >
-                <div className="playlist-cover">
+                {/* <div className="playlist-cover">
                   <LazyImage
                     src={getPlaylistCover(playlist)}
                     alt={playlist.name}
                   />
+                </div> */}
+
+                <div className="playlist-cover">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10" alt={playlist.name} />
                 </div>
+
                 <p className="playlist-title">{playlist.name}</p>
                 <small className="album-subtitle">
                   {playlist.playlist_tracks?.length || 0} songs

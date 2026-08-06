@@ -24,7 +24,9 @@
 
 .offline-home hr {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  /* border-top: 1px solid rgba(255, 255, 255, 0.08); */
+  /* border-bottom: 1px solid var(--text-primary); */
+  border-bottom: 1px solid var(--border);
   margin: 24px 0;
 }
 
@@ -59,11 +61,13 @@
   margin: 0;
   font-size: 15px;
   font-weight: 700;
-  color: #ffffff;
+  /* color: #ffffff; */
+ color: var( --text-primary);
 }
 
 .liked-songs-card small {
-  color: rgba(255, 255, 255, 0.6);
+  /* color: rgba(255, 255, 255, 0.6); */
+  color: var(--text-primary);
   font-size: 12px;
 }
 
