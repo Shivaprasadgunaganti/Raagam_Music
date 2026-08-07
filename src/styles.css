@@ -5,8 +5,10 @@
 
 :root {
   --mini-player-height: 64px;
-  --bottom-nav-height: 56px;
-  --footer-gap: 12px;
+  --bottom-nav-height: 62px;
+  --footer-gap: 1px;
+  /* --bottom-nav-height: 56px;
+  --footer-gap: 12px; */
 
   --footer-offset: calc(
     var(--mini-player-height) + var(--bottom-nav-height) + var(--footer-gap)

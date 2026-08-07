@@ -1,6 +1,7 @@
 /* ---------- Page ---------- */
 .liked-page {
-  min-height: 100dvh;
+  /* min-height: 100dvh; */
+      height: var(--app-height);
   /* background: #121212;
   color: var(--text-primary);f; */
   background: var(--bg-gradient);

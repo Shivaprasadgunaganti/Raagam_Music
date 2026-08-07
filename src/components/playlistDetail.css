@@ -1,18 +1,15 @@
 /* ---------- Page ---------- */
 .pd-page {
-  /* min-height: 100dvh; */
   min-height: 100%;
-  /* background: #121212; */
-  /* background-color: blue; */
   color: #fff;
   display: flex;
   flex-direction: column;
   padding-bottom: 0px;
-  /* padding-bottom: 80px; */
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .pd-page::-webkit-scrollbar {
   display: none;
 }
@@ -118,7 +115,7 @@
  
   bottom: 12px;
   right: 24px; */
-    position: static;   /* or just remove position */
+  position: static; /* or just remove position */
   width: 54px;
   height: 54px;
   border-radius: 50%;
@@ -169,7 +166,7 @@
   /* cursor: pointer; */
   /* transition: background 0.15s; */
   /* border-radius: 4px; */
-    border-bottom: 0.5px solid var(--border);
+  border-bottom: 0.5px solid var(--border);
   border-radius: 8px;
 }
 /* .pd-row:hover  { background: rgba(255, 255, 255, 0.07); }
@@ -219,7 +216,7 @@
   font-weight: 400;
   /* color: rgba(255, 255, 255, 0.5); */
   /* color: var(--text-primary); */
-      color: var(--text-muted);
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -435,7 +432,7 @@
   font-size: 14px;
   font-weight: 600;
   /* color: #fff; */
- color: var(--text-primary);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -454,7 +451,6 @@
   margin: 0 24px 8px;
 }
 
-
 /* .pd-action-buttons {
   display: flex;
   flex-direction: row;
@@ -472,7 +468,6 @@
   /* background-color: black; */
   width: 100%;
 }
-
 
 .pd-shuffle-btn {
   width: 52px;
