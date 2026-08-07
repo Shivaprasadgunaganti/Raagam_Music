@@ -500,7 +500,7 @@ export default function SongDetailPage() {
           <button
             onClick={() => setShuffle((v) => !v)}
             // style={{ color: shuffle ? "#4de08a" : "#9aa4b2" }}
-            style={{ color: shuffle ? "#4de08a" : "#f7fcf7" }}
+            style={{ color: shuffle  ? "#4de08a" : "#f7fcf7" }}
           >
             <IoIosShuffle />
           </button>

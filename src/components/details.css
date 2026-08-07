@@ -323,7 +323,8 @@
   border: none;
   cursor: pointer;
   color: #f7fcf7;
-  font-size: 21px;
+  font-size: 24px;
+  /* font-size: 21px; */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -21,12 +21,12 @@ export default function BottomNav() {
     <>
       <nav className="bottom-nav">
         <NavLink to="/" end className="nav-item">
-          <GrHomeRounded />
+          <GrHomeRounded  size={15}/>
           <span>Home</span>
         </NavLink>
 
         <NavLink to="/search" className="nav-item">
-          <FiSearch />
+          <FiSearch size={15}/>
           <span>Search</span>
         </NavLink>
 
@@ -37,12 +37,12 @@ export default function BottomNav() {
 
         {isGuest ? (
           <button className="nav-item" onClick={() => setShowAuthModal(true)}>
-            <FaRegHeart />
+            <FaRegHeart size={15}/>
             <span>Liked</span>
           </button>
         ) : (
           <NavLink to="/liked" className="nav-item">
-            <FaRegHeart />
+            <FaRegHeart size={15}/>
             <span>Liked</span>
           </NavLink>
         )}
@@ -54,12 +54,12 @@ export default function BottomNav() {
 
         {isGuest ? (
           <button className="nav-item" onClick={() => setShowAuthModal(true)}>
-            <MdOutlineAccountCircle />
+            <MdOutlineAccountCircle size={15}/>
             <span>Library</span>
           </button>
         ) : (
           <NavLink to="/account" className="nav-item">
-            <MdOutlineAccountCircle />
+            <MdOutlineAccountCircle size={17}/>
             <span>Library</span>
           </NavLink>
         )}
