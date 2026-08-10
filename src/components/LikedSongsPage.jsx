@@ -30,6 +30,7 @@ import {
 import { HiMiniPlay } from "react-icons/hi2";
 import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 import { PiPlaylistFill } from "react-icons/pi";
+import SEO from "./SEO";
 
 export default function LikedSongsPage() {
   const nav = useNavigate();
@@ -174,6 +175,13 @@ export default function LikedSongsPage() {
 
   return (
     <main className="liked-page page-safe">
+{/* seo */}
+<SEO
+  title="Liked Songs | MyRaagam"
+  description="Your liked songs on MyRaagam."
+  robots="noindex, nofollow"
+/>
+
       {/* HERO */}
       <div className={`liked-sticky-header ${showStickyHeader ? "show" : ""}`}>
         <button onClick={() => nav(-1)}>

@@ -1,6 +1,7 @@
 // src/components/CollectionPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card } from "react-bootstrap";
 import useTracks from "../hooks/useTracks";
 import useRecent from "../hooks/useRecent";
@@ -15,6 +16,7 @@ import SkeletonCard from "../components/SkeletonCard";
 import { FiSearch } from "react-icons/fi";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { IoIosShuffle } from "react-icons/io";
+import SEO from "./SEO";
 
 import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 
@@ -462,34 +464,62 @@ export default function CollectionPage() {
     );
   };
 
-  const renderMoviesRail = () => {
-    if (!movies.length) return null;
+  // const renderMoviesRail = () => {
+  //   if (!movies.length) return null;
 
-    return (
-      <div className="horizontal-row">
-        {movies.map((m) => (
-          <div
-            key={m.id}
-            className="album-card"
-            onClick={() => nav(`/movie/${m.id}`)}
-          >
-            <div className="album-img-shell">
-              <LazyImage
-                src={m.cover_url || "/covers/default.jpg"}
-                alt={m.title}
-              />
-            </div>
-            {/* <div className="album-title">{m.title}</div>
-            <div className="album-subtitle">{m.artist}</div> */}
-            <div>
-              <p className="album-title">{m.title}</p>
-              <p className="album-subtitle">{m.artist}</p>
-            </div>
+  //   return (
+  //     <div className="horizontal-row">
+  //       {movies.map((m) => (
+  //         <div
+  //           key={m.id}
+  //           className="album-card"
+  //           onClick={() => nav(`/movie/${m.id}`)}
+  //         >
+  //           <div className="album-img-shell">
+  //             <LazyImage
+  //               src={m.cover_url || "/covers/default.jpg"}
+  //               alt={m.title}
+  //             />
+  //           </div>
+           
+  //           <div>
+  //             <p className="album-title">{m.title}</p>
+  //             <p className="album-subtitle">{m.artist}</p>
+  //           </div>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   );
+  // };
+
+// seo
+const renderMoviesRail = () => {
+  if (!movies.length) return null;
+
+  return (
+    <div className="horizontal-row">
+      {movies.map((m) => (
+        <Link
+          key={m.id}
+          to={`/movie/${m.id}`}
+          className="album-card"
+        >
+          <div className="album-img-shell">
+            <LazyImage
+              src={m.cover_url || "/covers/default.jpg"}
+              alt={m.title}
+            />
           </div>
-        ))}
-      </div>
-    );
-  };
+
+          <div>
+            <p className="album-title">{m.title}</p>
+            <p className="album-subtitle">{m.artist}</p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+};
 
   // profile icon
   const userName = user?.name || "User";
@@ -539,6 +569,20 @@ export default function CollectionPage() {
   return (
     // <main className="homepage page-safe">
      <main className="homepage page page-safe">
+        <SEO
+      title="MyRaagam - Telugu Music & Songs"
+      description="Explore Telugu songs, movies and music on MyRaagam."
+      url="https://www.myraagam.com/"
+      type="website"
+      jsonLd={{
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "MyRaagam",
+        url: "https://www.myraagam.com/",
+        description:
+          "Explore Telugu songs, movies and music on MyRaagam.",
+      }}
+    />
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 

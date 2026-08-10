@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./search.css";
 // import "../components/playlistpicker.css";
 import { useAudio } from "../context/AudioContext";
+import SEO from "../components/SEO";
 
 export default function SearchPage() {
   const nav = useNavigate();
@@ -201,6 +202,12 @@ export default function SearchPage() {
   // console.log("PLAYLIST RAW:", playlists);
   return (
     <main className="search-page page-safe">
+{/* seo */}
+<SEO
+  title="Offline Songs | MyRaagam"
+  description="Access your offline songs on MyRaagam."
+  robots="noindex, nofollow"
+/>
       <div className="search-header">
         <input
           type="search"

@@ -29,6 +29,7 @@ import {
 import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 import { PiPlaylistFill } from "react-icons/pi";
 import { HiMiniPlay } from "react-icons/hi2";
+import SEO from "./SEO";
 
 export default function PlaylistDetailPage() {
   const { playlistId } = useParams();
@@ -262,6 +263,9 @@ export default function PlaylistDetailPage() {
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
   if (!playlist) return <div>Playlist not found</div>;
 
+  // seo
+  const playlistTitle = playlist.name || "Playlist";
+
   // ✅ Fixed: filter(Boolean) prevents null crash
   const coverUrls = songs
     .filter((s) => s && s.cover_url)
@@ -295,6 +299,13 @@ export default function PlaylistDetailPage() {
 
   return (
     <main className="pd-page page-safe">
+      {/* seo */}
+       <SEO
+      title={`${playlistTitle} | MyRaagam`}
+      description={`Personal playlist "${playlistTitle}" on MyRaagam.`}
+      robots="noindex, nofollow"
+    />
+
       {/* HERO */}
       <div className="pd-hero">
         <button className="pd-back-btn" onClick={() => nav(-1)}>

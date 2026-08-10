@@ -20,6 +20,7 @@ import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
 import { HiMiniPlay } from "react-icons/hi2";
 import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+import SEO from "./SEO";
 
 function formatTime(sec = 0) {
   if (!Number.isFinite(sec) || sec <= 0) return "00:00";
@@ -73,11 +74,20 @@ export default function SongDetailPage() {
   } = useAudio();
 
   // ✅ THEN use it
-  const track = currentTrack;
+  // const track = currentTrack;
 
-  const index = tracks.findIndex(
-    (t) => String(t.id) === String(currentTrack?.id),
-  );
+  // const index = tracks.findIndex(
+  //   (t) => String(t.id) === String(currentTrack?.id),
+  // );
+
+  // URL is the source of truth for the song page
+const track = tracks.find(
+  (t) => String(t.id) === String(id)
+);
+
+const index = tracks.findIndex(
+  (t) => String(t.id) === String(id)
+);
 
   // for screen height 
   useEffect(() => {
@@ -159,11 +169,11 @@ export default function SongDetailPage() {
     setTime(currentTime || 0);
   }, [currentTime]);
 
-  useEffect(() => {
-    if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
-      nav(`/track/${currentTrack.id}`, { replace: true });
-    }
-  }, [currentTrack]);
+  // useEffect(() => {
+  //   if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
+  //     nav(`/track/${currentTrack.id}`, { replace: true });
+  //   }
+  // }, [currentTrack]);
 
   /* ---------------- GUARDS ---------------- */
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
@@ -175,6 +185,30 @@ export default function SongDetailPage() {
       </div>
     );
   }
+
+  // seo
+  const songTitle = track.title || "Song";
+
+const songArtist = track.artist || "Unknown Artist";
+
+const songUrl = `https://www.myraagam.com/track/${track.id}`;
+
+const songDescription =
+  songArtist !== "Unknown Artist"
+    ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
+    : `Listen to ${songTitle} on MyRaagam.`;
+
+const songJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "MusicRecording",
+  name: songTitle,
+  url: songUrl,
+  image: track.cover_url || undefined,
+  byArtist: {
+    "@type": "MusicGroup",
+    name: songArtist,
+  },
+};
 
   const duration = audioRef.current?.duration || 0;
   const progressPct = duration ? (time / duration) * 100 : 0;
@@ -289,6 +323,17 @@ export default function SongDetailPage() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+{/* seo */}
+
+<SEO
+  title={`${songTitle} | MyRaagam`}
+  description={songDescription}
+  image={track.cover_url}
+  url={songUrl}
+  type="music.song"
+  jsonLd={songJsonLd}
+/>
+
       <div className="song-detail-header">
         {/* <button className="back-btn" onClick={() => nav("/")}> */}
         <button className="back-btn" onClick={() => nav(-1)}>

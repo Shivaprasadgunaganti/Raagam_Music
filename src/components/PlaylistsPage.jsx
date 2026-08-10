@@ -16,6 +16,7 @@ import {
   getPlaylistTracksByPlaylistId,
 } from "../utils/offlineCache";
 import { useToast } from "../context/ToastContext";
+import SEO from "./SEO";
 
 
 export default function PlaylistsPage() {
@@ -290,6 +291,13 @@ export default function PlaylistsPage() {
 
   return (
     <main className="playlists-page">
+{/* seo */}
+ <SEO
+      title="Your Playlists | MyRaagam"
+      description="Manage your personal playlists on MyRaagam."
+      robots="noindex, nofollow"
+    />
+
       <h1>Your Playlists</h1>
 
       {playlists.length === 0 && <p>No playlists created</p>}

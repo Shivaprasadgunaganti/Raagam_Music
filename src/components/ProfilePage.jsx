@@ -23,6 +23,7 @@ import { BiSearch } from "react-icons/bi";
 import { getCacheStats, clearCache } from "../utils/offlineCache";
 import { MdOfflinePin } from "react-icons/md";
 import { useToast } from "../context/ToastContext";
+import SEO from "./SEO";
 
 export default function ProfilePage() {
   const nav = useNavigate();
@@ -260,6 +261,13 @@ export default function ProfilePage() {
 
   return (
     <main className="library-page page-safe">
+{/* seo */}
+<SEO
+  title="Account | MyRaagam"
+  description="Manage your MyRaagam account and music library."
+  robots="noindex, nofollow"
+/>
+
       {/* HEADER */}
       <section className="library-header">
         <div>

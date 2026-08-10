@@ -18,6 +18,7 @@ import ColorThief from "color-thief-browser";
 import { HiMiniPlay } from "react-icons/hi2";
 import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 import { PiPlaylistFill } from "react-icons/pi";
+import SEO from "./SEO";
 
 export default function MovieSongsPage() {
   const { movieId } = useParams();
@@ -99,8 +100,66 @@ export default function MovieSongsPage() {
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
   if (!movie) return <div>Movie not found</div>;
 
+  // seo
+
+//   const movieTitle = movie.title || "Movie";
+
+// const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
+
+// const movieDescription =
+//   songs.length > 0
+//     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
+//     : `Explore ${movieTitle} on MyRaagam.`;
+
+// const movieJsonLd = {
+//   "@context": "https://schema.org",
+//   "@type": "Movie",
+//   name: movieTitle,
+//   url: movieUrl,
+//   image: movie.cover_url || undefined,
+//   dateCreated: movie.year
+//     ? `${movie.year}-01-01`
+//     : undefined,
+// };
+
+const movieTitle = movie.title || "Movie";
+
+const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
+
+const movieDescription =
+  songs.length > 0
+    ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
+    : `Explore ${movieTitle} on MyRaagam.`;
+
+const movieJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Movie",
+  name: movieTitle,
+  url: movieUrl,
+  image: movie.cover_url || undefined,
+};
+
   return (
     <main className="songspage-main">
+
+      {/* seo */}
+      {/* <SEO
+  title={`${movieTitle} Songs | MyRaagam`}
+  description={movieDescription}
+  image={movie.cover_url}
+  url={movieUrl}
+  type="video.movie"
+  jsonLd={movieJsonLd}
+/> */}
+
+<SEO
+  title={`${movieTitle} Songs | MyRaagam`}
+  description={movieDescription}
+  image={movie.cover_url}
+  url={movieUrl}
+  type="video.movie"
+  jsonLd={movieJsonLd}
+/>
       {/* <div className="sp-album"> */}
       <div
   className="sp-album"

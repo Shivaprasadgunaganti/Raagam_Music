@@ -9,6 +9,7 @@ import { supabase } from "../supabaseClient";
 
 import { useAuth } from "../context/AuthContext";
 import { useAudio } from "../context/AudioContext";
+import SEO from "./SEO";
 
 import {
   IoArrowBack,
@@ -229,6 +230,13 @@ export default function EditProfilePage() {
 
   return (
     <main className="edit-profile-page">
+{/* seo */}
+  <SEO
+      title="Edit Profile | MyRaagam"
+      description="Edit your MyRaagam profile."
+      robots="noindex, nofollow"
+    />
+
       {/* TOPBAR */}
       <header className="edit-topbar">
         <button

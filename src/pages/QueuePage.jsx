@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAudio } from "../context/AudioContext";
 import "./queue.css";
 import QueueItem from "./QueueItem";
+import SEO from "../components/SEO";
 
 export default function QueuePage() {
   const nav = useNavigate();
@@ -82,6 +83,14 @@ export default function QueuePage() {
 
   return (
     <main className="queue-page page-safe">
+
+      {/* seo */}
+        <SEO
+      title="Playing Queue | MyRaagam"
+      description="Manage your current music queue on MyRaagam."
+      robots="noindex, nofollow"
+    />
+      
       {/* HEADER */}
       <div className="queue-header">
         {/* <button onClick={() => nav(-1)}>← Back</button> */}

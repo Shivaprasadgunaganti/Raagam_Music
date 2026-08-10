@@ -6,6 +6,7 @@ import { getAllCachedTracks } from "../utils/offlineCache";
 import { deleteTrack } from "../utils/offlineCache";
 import { useToast } from "../context/ToastContext";
 import "./OfflineSongsPage.css";
+import SEO from "./SEO";
 
 export default function OfflineSongsPage() {
   const nav = useNavigate();
@@ -90,6 +91,11 @@ export default function OfflineSongsPage() {
     //       <IoArrowBack />
     //     </button>
     <div className="offline-screen">
+      <SEO
+        title="Offline Songs | MyRaagam"
+        description="Access your offline songs on MyRaagam."
+        robots="noindex, nofollow"
+      />
       <div className="offline-topbar">
         <button className="offline-back-btn" onClick={() => nav(-1)}>
           <IoArrowBack />
