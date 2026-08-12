@@ -118,15 +118,20 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/track/:id"
             element={
               <ProtectedRoute>
                 <SongDetailPage />
               </ProtectedRoute>
             }
-          />
-          <Route
+          /> */}
+<Route
+  path="/track/:id"
+  element={<SongDetailPage />}
+/>
+
+          {/* <Route
             path="/movies"
             element={
               <ProtectedRoute>
@@ -141,7 +146,17 @@ function AppContent() {
                 <MovieSongsPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
+
+          <Route
+  path="/movies"
+  element={<MoviesPage />}
+/>
+
+<Route
+  path="/movie/:movieId"
+  element={<MovieSongsPage />}
+/>
 
           <Route
             path="/playlist/:playlistId"

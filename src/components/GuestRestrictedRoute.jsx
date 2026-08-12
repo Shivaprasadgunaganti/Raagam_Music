@@ -11,4 +11,4 @@ export default function GuestRestrictedRoute({ children }) {
   }
 
   return children;
-}
+} 
