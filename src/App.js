@@ -1,6 +1,7 @@
 // src/App.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { initAnalytics } from "./utils/analytics";
 
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
@@ -42,6 +43,10 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading, isGuest } = useAuth();
+
+  useEffect(() => {
+    initAnalytics();
+  }, []);
   const { clearQueue } = useAudio();
 
   const hideGlobalUI = location.pathname.startsWith("/track/");
@@ -58,14 +63,12 @@ function AppContent() {
   // location.pathname === "/liked" ||
   // location.pathname === "/account";
 
-  const fullScreenPage =
-  hideGlobalUI ||
-  isLoginPage;
+  const fullScreenPage = hideGlobalUI || isLoginPage;
 
   const noFooterSpacing =
-  fullScreenPage ||
-  location.pathname === "/settings" ||
-  location.pathname === "/edit"
+    fullScreenPage ||
+    location.pathname === "/settings" ||
+    location.pathname === "/edit" ||
   location.pathname === "/account";
 
   useNetworkSync();
@@ -96,11 +99,10 @@ function AppContent() {
 
   return (
     <>
-    
       <OfflineBanner />
-    
-{/* <div className={`app-content ${fullScreenPage ? "no-footer" : ""}`}> */}
-<div className={`app-content ${noFooterSpacing ? "no-footer" : ""}`}>
+
+      {/* <div className={`app-content ${fullScreenPage ? "no-footer" : ""}`}> */}
+      <div className={`app-content ${noFooterSpacing ? "no-footer" : ""}`}>
         {/* <OfflineTest/> */}
         <Routes>
           {/* Public Route */}
@@ -126,10 +128,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           /> */}
-<Route
-  path="/track/:id"
-  element={<SongDetailPage />}
-/>
+          <Route path="/track/:id" element={<SongDetailPage />} />
 
           {/* <Route
             path="/movies"
@@ -148,15 +147,9 @@ function AppContent() {
             }
           /> */}
 
-          <Route
-  path="/movies"
-  element={<MoviesPage />}
-/>
+          <Route path="/movies" element={<MoviesPage />} />
 
-<Route
-  path="/movie/:movieId"
-  element={<MovieSongsPage />}
-/>
+          <Route path="/movie/:movieId" element={<MovieSongsPage />} />
 
           <Route
             path="/playlist/:playlistId"
@@ -211,13 +204,13 @@ function AppContent() {
           />
 
           <Route
-  path="/settings"
-  element={
-    <GuestRestrictedRoute>
-      <SettingsPage />
-    </GuestRestrictedRoute>
-  }
-/>
+            path="/settings"
+            element={
+              <GuestRestrictedRoute>
+                <SettingsPage />
+              </GuestRestrictedRoute>
+            }
+          />
 
           <Route
             path="/edit"

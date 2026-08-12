@@ -66,7 +66,8 @@ export default function AuthRequiredModal({
   isOpen,
   onClose,
   title = "Unlock your music experience",
-  description = "Save your favorite songs and playlists.",
+  description = "Save your favorites and listen offline.",
+  // description = "Save your favorite songs and playlists.",
 }) {
   const { signInWithGoogle } = useAuth();
 
