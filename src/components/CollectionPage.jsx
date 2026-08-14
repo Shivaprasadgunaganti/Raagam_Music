@@ -938,7 +938,7 @@ export default function CollectionPage() {
         <OfflineHomeContent />
       )}
 
-      {showOfflineIntro && (
+      {/* {showOfflineIntro && (
   <OfflineIntroCard
     onOpen={() => {
       localStorage.setItem("raagam_offline_intro_seen", "true");
@@ -946,7 +946,7 @@ export default function CollectionPage() {
       nav("/offline");
     }}
   />
-)}
+)} */}
 
 {/*  */}
 {showOfflineGuide && (
