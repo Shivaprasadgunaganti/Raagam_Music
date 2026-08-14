@@ -175,12 +175,12 @@ export default function LikedSongsPage() {
 
   return (
     <main className="liked-page page-safe">
-{/* seo */}
-<SEO
-  title="Liked Songs | MyRaagam"
-  description="Your liked songs on MyRaagam."
-  robots="noindex, nofollow"
-/>
+      {/* seo */}
+      <SEO
+        title="Liked Songs | MyRaagam"
+        description="Your liked songs on MyRaagam."
+        robots="noindex, nofollow"
+      />
 
       {/* HERO */}
       <div className={`liked-sticky-header ${showStickyHeader ? "show" : ""}`}>
@@ -266,17 +266,11 @@ export default function LikedSongsPage() {
                 </div>
               </div>
               {/* Like/Unlike button */}
-              <button
+              {/* <button
                 className="liked-heart-btn"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  // if (likedMap[song.id]) {
-                  //   await unlikeSong(song.id);
-                  //   setLikedMap((prev) => ({ ...prev, [song.id]: false }));
-                  // } else {
-                  //   await likeSong(song.id);
-                  //   setLikedMap((prev) => ({ ...prev, [song.id]: true }));
-                  // }
+
                   if (likedMap[song.id]) {
                     await unlikeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
@@ -294,9 +288,38 @@ export default function LikedSongsPage() {
                 ) : (
                   <FaRegHeart />
                 )}
-              </button>
+              </button> */}
+<button
+  className="liked-heart-btn"
+  onClick={async (e) => {
+    e.stopPropagation();
 
-              {/* ✅ Dots OUTSIDE liked-row-main */}
+    if (likedMap[song.id]) {
+      await unlikeSong(song.id);
+      setLikedMap((prev) => ({ ...prev, [song.id]: false }));
+      showToast("Removed from Liked Songs");
+    } else {
+      const result = await likeSong(song);
+
+      if (result?.guest) {
+        showToast("Sign in to add songs to your Liked Songs");
+        return;
+      }
+
+      if (!result?.error) {
+        setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+        showToast("Added to Liked Songs");
+      }
+    }
+  }}
+>
+  {likedMap[song.id] ? (
+    <FaHeart color="#1db954" />
+  ) : (
+    <FaRegHeart />
+  )}
+</button>
+
               <button
                 className="liked-row-menu"
                 onClick={(e) => {
@@ -383,46 +406,58 @@ export default function LikedSongsPage() {
             >
               📂 Add to Playlist
             </button> */}
-              <button
-                            onClick={() => {
-                              playNextInsert(selectedSong);
-                              setSelectedSong(null);
-                              showToast("Added to Play Next");
-                            }}
-                          >
-                            <span className="sheet-icon"><HiMiniPlay /></span> Play Next
-                            {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedSong(null);
-                              nav("/queue");
-                            }}
-                          >
-                            <span className="sheet-icon"><MdOutlineQueueMusic /></span> View Queue
-                            {/* <span className="sheet-icon">🎵</span> View Queue */}
-                          </button>
-                          <button
-                            onClick={() => {
-                              addToQueue(selectedSong);
-                              setSelectedSong(null);
-                              showToast("Added to Queue");
-                            }}
-                          >
-                            {/* <span className="sheet-icon">➕</span> Add to Queue */}
-                            <span className="sheet-icon"><MdQueue /></span> Add to Queue
-                          </button>
-            
-                          <button
-                            onClick={() => {
-                              setPickerTrack(selectedSong);
-                              setSelectedSong(null);
-                              setShowPicker(true);
-                            }}
-                          >
-                            <span className="sheet-icon"><PiPlaylistFill /></span> Add to Playlist
-                            {/* <span className="sheet-icon">📂</span> Add to Playlist */}
-                          </button>
+            <button
+              onClick={() => {
+                playNextInsert(selectedSong);
+                setSelectedSong(null);
+                showToast("Added to Play Next");
+              }}
+            >
+              <span className="sheet-icon">
+                <HiMiniPlay />
+              </span>{" "}
+              Play Next
+              {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+            </button>
+            <button
+              onClick={() => {
+                setSelectedSong(null);
+                nav("/queue");
+              }}
+            >
+              <span className="sheet-icon">
+                <MdOutlineQueueMusic />
+              </span>{" "}
+              View Queue
+              {/* <span className="sheet-icon">🎵</span> View Queue */}
+            </button>
+            <button
+              onClick={() => {
+                addToQueue(selectedSong);
+                setSelectedSong(null);
+                showToast("Added to Queue");
+              }}
+            >
+              {/* <span className="sheet-icon">➕</span> Add to Queue */}
+              <span className="sheet-icon">
+                <MdQueue />
+              </span>{" "}
+              Add to Queue
+            </button>
+
+            <button
+              onClick={() => {
+                setPickerTrack(selectedSong);
+                setSelectedSong(null);
+                setShowPicker(true);
+              }}
+            >
+              <span className="sheet-icon">
+                <PiPlaylistFill />
+              </span>{" "}
+              Add to Playlist
+              {/* <span className="sheet-icon">📂</span> Add to Playlist */}
+            </button>
           </div>
         </div>
       )}

@@ -202,9 +202,24 @@ function MiniPlayer() {
               await unlikeSong(currentTrack.id);
               setLiked(false);
               showToast("Removed from Liked Songs");
+              // } else {
+              //   await likeSong(currentTrack);
+              //   setLiked(true);
+              //   showToast("Added to Liked Songs");
+              // }
             } else {
-              // await likeSong(currentTrack.id);
-              await likeSong(currentTrack);
+              const result = await likeSong(currentTrack);
+
+              if (result?.guest) {
+                showToast("Sign in to add songs to your Liked Songs");
+                return;
+              }
+
+              if (result?.error) {
+                showToast("Unable to add song to Liked Songs");
+                return;
+              }
+
               setLiked(true);
               showToast("Added to Liked Songs");
             }

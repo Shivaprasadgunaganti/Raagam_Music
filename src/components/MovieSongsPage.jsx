@@ -19,6 +19,7 @@ import { HiMiniPlay } from "react-icons/hi2";
 import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 import { PiPlaylistFill } from "react-icons/pi";
 import SEO from "./SEO";
+import { useAuth } from "../context/AuthContext";
 
 export default function MovieSongsPage() {
   const { movieId } = useParams();
@@ -44,7 +45,7 @@ export default function MovieSongsPage() {
   const [pickerTrack, setPickerTrack] = useState(null);
   const { showToast } = useToast();
   const [bgColor, setBgColor] = useState("#2a2a2a");
-  
+  const { isGuest } = useAuth();
 
   useEffect(() => {
     async function load() {
@@ -69,19 +70,19 @@ export default function MovieSongsPage() {
   }, [movieId]);
 
   useEffect(() => {
-  if (!movie?.cover_url) return;
+    if (!movie?.cover_url) return;
 
-  const img = new Image();
-  img.crossOrigin = "Anonymous";
-  img.src = movie.cover_url;
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = movie.cover_url;
 
-  img.onload = () => {
-    const colorThief = new ColorThief();
-    const rgb = colorThief.getColor(img);
+    img.onload = () => {
+      const colorThief = new ColorThief();
+      const rgb = colorThief.getColor(img);
 
-    setBgColor(`rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
-  };
-}, [movie]);
+      setBgColor(`rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+    };
+  }, [movie]);
 
   useEffect(() => {
     async function loadLikes() {
@@ -102,46 +103,45 @@ export default function MovieSongsPage() {
 
   // seo
 
-//   const movieTitle = movie.title || "Movie";
+  //   const movieTitle = movie.title || "Movie";
 
-// const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
+  // const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
 
-// const movieDescription =
-//   songs.length > 0
-//     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
-//     : `Explore ${movieTitle} on MyRaagam.`;
+  // const movieDescription =
+  //   songs.length > 0
+  //     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
+  //     : `Explore ${movieTitle} on MyRaagam.`;
 
-// const movieJsonLd = {
-//   "@context": "https://schema.org",
-//   "@type": "Movie",
-//   name: movieTitle,
-//   url: movieUrl,
-//   image: movie.cover_url || undefined,
-//   dateCreated: movie.year
-//     ? `${movie.year}-01-01`
-//     : undefined,
-// };
+  // const movieJsonLd = {
+  //   "@context": "https://schema.org",
+  //   "@type": "Movie",
+  //   name: movieTitle,
+  //   url: movieUrl,
+  //   image: movie.cover_url || undefined,
+  //   dateCreated: movie.year
+  //     ? `${movie.year}-01-01`
+  //     : undefined,
+  // };
 
-const movieTitle = movie.title || "Movie";
+  const movieTitle = movie.title || "Movie";
 
-const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
+  const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
 
-const movieDescription =
-  songs.length > 0
-    ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
-    : `Explore ${movieTitle} on MyRaagam.`;
+  const movieDescription =
+    songs.length > 0
+      ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
+      : `Explore ${movieTitle} on MyRaagam.`;
 
-const movieJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Movie",
-  name: movieTitle,
-  url: movieUrl,
-  image: movie.cover_url || undefined,
-};
+  const movieJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    name: movieTitle,
+    url: movieUrl,
+    image: movie.cover_url || undefined,
+  };
 
   return (
     <main className="songspage-main">
-
       {/* seo */}
       {/* <SEO
   title={`${movieTitle} Songs | MyRaagam`}
@@ -152,19 +152,16 @@ const movieJsonLd = {
   jsonLd={movieJsonLd}
 /> */}
 
-<SEO
-  title={`${movieTitle} Songs | MyRaagam`}
-  description={movieDescription}
-  image={movie.cover_url}
-  url={movieUrl}
-  type="video.movie"
-  jsonLd={movieJsonLd}
-/>
+      <SEO
+        title={`${movieTitle} Songs | MyRaagam`}
+        description={movieDescription}
+        image={movie.cover_url}
+        url={movieUrl}
+        type="video.movie"
+        jsonLd={movieJsonLd}
+      />
       {/* <div className="sp-album"> */}
-      <div
-  className="sp-album"
-  style={{ "--background-color": bgColor }}
->
+      <div className="sp-album" style={{ "--background-color": bgColor }}>
         <button className="sp-back-btn" onClick={() => nav("/")}>
           {" "}
           <IoArrowBack />
@@ -216,7 +213,9 @@ const movieJsonLd = {
                     {song.artist || "Unknown Artist"}
                   </div> */}
                   <p className="sp-song-title">{song.title}</p>
-                  <p className="sp-song-artist">{song.artist || "Unknown Artist"}</p>
+                  <p className="sp-song-artist">
+                    {song.artist || "Unknown Artist"}
+                  </p>
                 </div>
               </div>
               {/* Like/Unlike button */}
@@ -229,9 +228,24 @@ const movieJsonLd = {
                     await unlikeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
                     showToast("Removed from Liked Songs");
+                    // } else {
+                    //   await likeSong(song);
+                    //   setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+                    //   showToast("Added to Liked Songs");
+                    // }
                   } else {
-                    // await likeSong(song.id);
-                    await likeSong(song);
+                    const result = await likeSong(song);
+
+                    if (result?.guest) {
+                      showToast("Sign in to add songs to your Liked Songs");
+                      return;
+                    }
+
+                    if (result?.error) {
+                      showToast("Unable to add song to Liked Songs");
+                      return;
+                    }
+
                     setLikedMap((prev) => ({ ...prev, [song.id]: true }));
                     showToast("Added to Liked Songs");
                   }
@@ -325,46 +339,75 @@ const movieJsonLd = {
             >
               📂 Add to Playlist
             </button> */}
-              <button
-                            onClick={() => {
-                              playNextInsert(selectedSong);
-                              setSelectedSong(null);
-                              showToast("Added to Play Next");
-                            }}
-                          >
-                            <span className="sheet-icon"><HiMiniPlay /></span> Play Next
-                            {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedSong(null);
-                              nav("/queue");
-                            }}
-                          >
-                            <span className="sheet-icon"><MdOutlineQueueMusic /></span> View Queue
-                            {/* <span className="sheet-icon">🎵</span> View Queue */}
-                          </button>
-                          <button
-                            onClick={() => {
-                              addToQueue(selectedSong);
-                              setSelectedSong(null);
-                              showToast("Added to Queue");
-                            }}
-                          >
-                            {/* <span className="sheet-icon">➕</span> Add to Queue */}
-                            <span className="sheet-icon"><MdQueue /></span> Add to Queue
-                          </button>
-            
-                          <button
-                            onClick={() => {
-                              setPickerTrack(selectedSong);
-                              setSelectedSong(null);
-                              setShowPicker(true);
-                            }}
-                          >
-                            <span className="sheet-icon"><PiPlaylistFill /></span> Add to Playlist
-                            {/* <span className="sheet-icon">📂</span> Add to Playlist */}
-                          </button>
+            <button
+              onClick={() => {
+                playNextInsert(selectedSong);
+                setSelectedSong(null);
+                showToast("Added to Play Next");
+              }}
+            >
+              <span className="sheet-icon">
+                <HiMiniPlay />
+              </span>{" "}
+              Play Next
+              {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+            </button>
+            <button
+              onClick={() => {
+                setSelectedSong(null);
+                nav("/queue");
+              }}
+            >
+              <span className="sheet-icon">
+                <MdOutlineQueueMusic />
+              </span>{" "}
+              View Queue
+              {/* <span className="sheet-icon">🎵</span> View Queue */}
+            </button>
+            <button
+              onClick={() => {
+                addToQueue(selectedSong);
+                setSelectedSong(null);
+                showToast("Added to Queue");
+              }}
+            >
+              {/* <span className="sheet-icon">➕</span> Add to Queue */}
+              <span className="sheet-icon">
+                <MdQueue />
+              </span>{" "}
+              Add to Queue
+            </button>
+
+            {/* <button
+              onClick={() => {
+                setPickerTrack(selectedSong);
+                setSelectedSong(null);
+                setShowPicker(true);
+              }}
+            >
+              <span className="sheet-icon">
+                <PiPlaylistFill />
+              </span>{" "}
+              Add to Playlist
+            </button> */}
+            <button
+  onClick={() => {
+    if (isGuest) {
+      setSelectedSong(null);
+      showToast("Sign in to create and manage your playlists");
+      return;
+    }
+
+    setPickerTrack(selectedSong);
+    setSelectedSong(null);
+    setShowPicker(true);
+  }}
+>
+  <span className="sheet-icon">
+    <PiPlaylistFill />
+  </span>{" "}
+  Add to Playlist
+</button>
           </div>
         </div>
       )}
@@ -373,8 +416,8 @@ const movieJsonLd = {
         // <PlaylistPicker
         //   trackId={pickerTrackId}
         <PlaylistPicker
-  // track={selectedSong}
-    track={pickerTrack}
+          // track={selectedSong}
+          track={pickerTrack}
           // onClose={() => {
           //   setShowPicker(false);
           //   setPickerTrackId(null);

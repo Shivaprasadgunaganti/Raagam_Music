@@ -17,6 +17,7 @@ import { FiSearch } from "react-icons/fi";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { IoIosShuffle } from "react-icons/io";
 import SEO from "./SEO";
+import OfflineIntroCard from "./OfflineIntroCard";
 
 import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 
@@ -33,7 +34,6 @@ import {
 } from "../utils/offlineCache";
 import OfflineHomeContent from "./OfflineHomeContent";
 import { FaHeart, FaPlay, FaRegHeart } from "react-icons/fa";
-
 
 export default function CollectionPage() {
   // const isOnline = useOnlineStatus();
@@ -67,6 +67,10 @@ export default function CollectionPage() {
   const username = displayName || user?.email?.split("@")[0] || "Listener";
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { syncVersion } = useSync();
+
+  const [showOfflineIntro, setShowOfflineIntro] = useState(
+  localStorage.getItem("raagam_offline_intro_seen") !== "true"
+);
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -218,19 +222,53 @@ export default function CollectionPage() {
     setNewQueue([track], 0);
   };
 
+  // const addToLiked = async (e, track) => {
+  //   e.stopPropagation();
+
+  //   if (likedMap[track.id]) {
+  //     await unlikeSong(track.id);
+  //   } else {
+  //     await likeSong(track);
+  //   }
+
+  //   setLikedMap((prev) => ({
+  //     ...prev,
+  //     [track.id]: !prev[track.id],
+  //   }));
+  // };
+
   const addToLiked = async (e, track) => {
     e.stopPropagation();
 
     if (likedMap[track.id]) {
       await unlikeSong(track.id);
-    } else {
-      await likeSong(track);
+
+      setLikedMap((prev) => ({
+        ...prev,
+        [track.id]: false,
+      }));
+
+      return;
+    }
+
+    const result = await likeSong(track);
+
+    if (result?.guest) {
+      showToast("Sign in to add songs to your Liked Songs");
+      return;
+    }
+
+    if (result?.error) {
+      showToast("Unable to add song to Liked Songs");
+      return;
     }
 
     setLikedMap((prev) => ({
       ...prev,
-      [track.id]: !prev[track.id],
+      [track.id]: true,
     }));
+
+    showToast("Added to Liked Songs");
   };
 
   const getPlaylistCovers = (playlist) => {
@@ -481,7 +519,7 @@ export default function CollectionPage() {
   //               alt={m.title}
   //             />
   //           </div>
-           
+
   //           <div>
   //             <p className="album-title">{m.title}</p>
   //             <p className="album-subtitle">{m.artist}</p>
@@ -492,34 +530,30 @@ export default function CollectionPage() {
   //   );
   // };
 
-// seo
-const renderMoviesRail = () => {
-  if (!movies.length) return null;
+  // seo
+  const renderMoviesRail = () => {
+    if (!movies.length) return null;
 
-  return (
-    <div className="horizontal-row">
-      {movies.map((m) => (
-        <Link
-          key={m.id}
-          to={`/movie/${m.id}`}
-          className="album-card"
-        >
-          <div className="album-img-shell">
-            <LazyImage
-              src={m.cover_url || "/covers/default.jpg"}
-              alt={m.title}
-            />
-          </div>
+    return (
+      <div className="horizontal-row">
+        {movies.map((m) => (
+          <Link key={m.id} to={`/movie/${m.id}`} className="album-card">
+            <div className="album-img-shell">
+              <LazyImage
+                src={m.cover_url || "/covers/default.jpg"}
+                alt={m.title}
+              />
+            </div>
 
-          <div>
-            <p className="album-title">{m.title}</p>
-            <p className="album-subtitle">{m.artist}</p>
-          </div>
-        </Link>
-      ))}
-    </div>
-  );
-};
+            <div>
+              <p className="album-title">{m.title}</p>
+              <p className="album-subtitle">{m.artist}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  };
 
   // profile icon
   const userName = user?.name || "User";
@@ -568,21 +602,20 @@ const renderMoviesRail = () => {
 
   return (
     // <main className="homepage page-safe">
-     <main className="homepage page page-safe">
-        <SEO
-      title="MyRaagam - Telugu Music & Songs"
-      description="Explore Telugu songs, movies and music on MyRaagam."
-      url="https://www.myraagam.com/"
-      type="website"
-      jsonLd={{
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: "MyRaagam",
-        url: "https://www.myraagam.com/",
-        description:
-          "Explore Telugu songs, movies and music on MyRaagam.",
-      }}
-    />
+    <main className="homepage page page-safe">
+      <SEO
+        title="MyRaagam - Telugu Music & Songs"
+        description="Explore Telugu songs, movies and music on MyRaagam."
+        url="https://www.myraagam.com/"
+        type="website"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "MyRaagam",
+          url: "https://www.myraagam.com/",
+          description: "Explore Telugu songs, movies and music on MyRaagam.",
+        }}
+      />
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
@@ -850,9 +883,26 @@ const renderMoviesRail = () => {
                   <button onClick={() => setShowPlaylistModal(false)}>
                     Cancel
                   </button>
+                  {/* <button
+                    className="modal-confirm"
+                    onClick={async () => {
+                      await createPlaylist();
+                      setShowPlaylistModal(false);
+                    }}
+                  >
+                    Create
+                  </button> */}
                   <button
                     className="modal-confirm"
                     onClick={async () => {
+                      if (isGuest) {
+                        setShowPlaylistModal(false);
+                        showToast(
+                          "Sign in to create and manage your playlists",
+                        );
+                        return;
+                      }
+
                       await createPlaylist();
                       setShowPlaylistModal(false);
                     }}
@@ -873,6 +923,16 @@ const renderMoviesRail = () => {
       ) : (
         <OfflineHomeContent />
       )}
+
+      {showOfflineIntro && (
+  <OfflineIntroCard
+    onOpen={() => {
+      localStorage.setItem("raagam_offline_intro_seen", "true");
+      setShowOfflineIntro(false);
+      nav("/offline");
+    }}
+  />
+)}
 
       {/* <img src={image} alt="" srcset="" /> */}
     </main>

@@ -276,7 +276,7 @@
   height: 24px;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 2px;
-  cursor: pointer;
+  /* cursor: pointer; */
   position: relative;
   margin-bottom: var(--sd-space-6);
   /* larger tap target on touch devices without changing visual height */

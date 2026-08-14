@@ -21,6 +21,7 @@ import { useToast } from "../context/ToastContext";
 import { HiMiniPlay } from "react-icons/hi2";
 import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 import SEO from "./SEO";
+import { useAuth } from "../context/AuthContext";
 
 function formatTime(sec = 0) {
   if (!Number.isFinite(sec) || sec <= 0) return "00:00";
@@ -54,6 +55,7 @@ export default function SongDetailPage() {
   const touchEndY = useRef(0);
   const isSwipingDown = useRef(false);
   const pageRef = useRef(null);
+  const { user, isGuest } = useAuth();
 
   // ✅ FIRST get from context
   const {
@@ -81,30 +83,26 @@ export default function SongDetailPage() {
   // );
 
   // URL is the source of truth for the song page
-const track = tracks.find(
-  (t) => String(t.id) === String(id)
-);
+  const track = tracks.find((t) => String(t.id) === String(id));
 
-const index = tracks.findIndex(
-  (t) => String(t.id) === String(id)
-);
+  const index = tracks.findIndex((t) => String(t.id) === String(id));
 
-  // for screen height 
+  // for screen height
   useEffect(() => {
-  const setAppHeight = () => {
-    document.documentElement.style.setProperty(
-      "--app-height",
-      `${window.innerHeight}px`
-    );
-  };
-  setAppHeight();
-  window.addEventListener("resize", setAppHeight);
-  window.visualViewport?.addEventListener("resize", setAppHeight);
-  return () => {
-    window.removeEventListener("resize", setAppHeight);
-    window.visualViewport?.removeEventListener("resize", setAppHeight);
-  };
-}, []);
+    const setAppHeight = () => {
+      document.documentElement.style.setProperty(
+        "--app-height",
+        `${window.innerHeight}px`,
+      );
+    };
+    setAppHeight();
+    window.addEventListener("resize", setAppHeight);
+    window.visualViewport?.addEventListener("resize", setAppHeight);
+    return () => {
+      window.removeEventListener("resize", setAppHeight);
+      window.visualViewport?.removeEventListener("resize", setAppHeight);
+    };
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -175,6 +173,12 @@ const index = tracks.findIndex(
   //   }
   // }, [currentTrack]);
 
+  useEffect(() => {
+  if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
+    nav(`/track/${currentTrack.id}`, { replace: true });
+  }
+}, [currentTrack, id, nav]);
+
   /* ---------------- GUARDS ---------------- */
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 
@@ -189,26 +193,26 @@ const index = tracks.findIndex(
   // seo
   const songTitle = track.title || "Song";
 
-const songArtist = track.artist || "Unknown Artist";
+  const songArtist = track.artist || "Unknown Artist";
 
-const songUrl = `https://www.myraagam.com/track/${track.id}`;
+  const songUrl = `https://www.myraagam.com/track/${track.id}`;
 
-const songDescription =
-  songArtist !== "Unknown Artist"
-    ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
-    : `Listen to ${songTitle} on MyRaagam.`;
+  const songDescription =
+    songArtist !== "Unknown Artist"
+      ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
+      : `Listen to ${songTitle} on MyRaagam.`;
 
-const songJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "MusicRecording",
-  name: songTitle,
-  url: songUrl,
-  image: track.cover_url || undefined,
-  byArtist: {
-    "@type": "MusicGroup",
-    name: songArtist,
-  },
-};
+  const songJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MusicRecording",
+    name: songTitle,
+    url: songUrl,
+    image: track.cover_url || undefined,
+    byArtist: {
+      "@type": "MusicGroup",
+      name: songArtist,
+    },
+  };
 
   const duration = audioRef.current?.duration || 0;
   const progressPct = duration ? (time / duration) * 100 : 0;
@@ -244,6 +248,21 @@ const songJsonLd = {
     setTime(audio.currentTime);
   }
 
+  // async function toggleLike() {
+  //   if (!track) return;
+
+  //   if (liked) {
+  //     await unlikeSong(track.id);
+  //     setLiked(false);
+  //     showToast("Removed from Liked Songs");
+  //   } else {
+  //     // await likeSong(track.id);
+  //     await likeSong(track);
+  //     setLiked(true);
+  //     showToast("Added to Liked Songs");
+  //   }
+  // }
+
   async function toggleLike() {
     if (!track) return;
 
@@ -252,8 +271,18 @@ const songJsonLd = {
       setLiked(false);
       showToast("Removed from Liked Songs");
     } else {
-      // await likeSong(track.id);
-      await likeSong(track);
+      const result = await likeSong(track);
+
+      if (result?.guest) {
+        showToast("Sign in to add songs to your Liked Songs");
+        return;
+      }
+
+      if (result?.error) {
+        showToast("Unable to add song to Liked Songs");
+        return;
+      }
+
       setLiked(true);
       showToast("Added to Liked Songs");
     }
@@ -312,6 +341,14 @@ const songJsonLd = {
     }, 300);
   };
 
+//   console.log("SONG DETAIL STATE:", {
+//   pageTrack: track?.title,
+//   pageTrackId: track?.id,
+//   currentTrack: currentTrack?.title,
+//   currentTrackId: currentTrack?.id,
+//   playing,
+// });
+
   return (
     <main
       ref={pageRef}
@@ -323,16 +360,16 @@ const songJsonLd = {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-{/* seo */}
+      {/* seo */}
 
-<SEO
-  title={`${songTitle} | MyRaagam`}
-  description={songDescription}
-  image={track.cover_url}
-  url={songUrl}
-  type="music.song"
-  jsonLd={songJsonLd}
-/>
+      <SEO
+        title={`${songTitle} | MyRaagam`}
+        description={songDescription}
+        image={track.cover_url}
+        url={songUrl}
+        type="music.song"
+        jsonLd={songJsonLd}
+      />
 
       <div className="song-detail-header">
         {/* <button className="back-btn" onClick={() => nav("/")}> */}
@@ -466,7 +503,7 @@ const songJsonLd = {
         </div>
       </div> */}
 
-       <div className="song-detail-card">
+      <div className="song-detail-card">
         <div className="song-art-wrapper">
           <div
             className="song-art"
@@ -481,109 +518,108 @@ const songJsonLd = {
 
         <div className="song-bottom">
           <div className="song-meta">
-          <div className="song-title-row">
-            <div className="song-title-marquee" ref={titleRef}>
-              <div className="marquee-inner">{track.title}</div>
+            <div className="song-title-row">
+              <div className="song-title-marquee" ref={titleRef}>
+                <div className="marquee-inner">{track.title}</div>
+              </div>
+
+              <button className="song-like-btn" onClick={toggleLike}>
+                {liked ? <FaHeart /> : <FaRegHeart />}
+              </button>
             </div>
 
-            <button className="song-like-btn" onClick={toggleLike}>
-              {liked ? <FaHeart /> : <FaRegHeart />}
-            </button>
-          </div>
-
-          <div className="song-artist-marquee" ref={artistRef}>
-            <div className="marquee-inner small">
-              {track.artist || "Unknown Artist"}
+            <div className="song-artist-marquee" ref={artistRef}>
+              <div className="marquee-inner small">
+                {track.artist || "Unknown Artist"}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="song-time-row">
-          <span>{formatTime(time)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
+          <div className="song-time-row">
+            <span>{formatTime(time)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
 
-       
-        <div
-          className="song-progress"
-          ref={progressRef}
-          onMouseDown={(e) => {
-            isSeeking.current = true;
-            seekTo(e.clientX);
-          }}
-          onMouseMove={(e) => {
-            if (isSeeking.current) {
-              seekTo(e.clientX);
-            }
-          }}
-          onMouseUp={() => {
-            isSeeking.current = false;
-          }}
-          onMouseLeave={() => {
-            isSeeking.current = false;
-          }}
-          onTouchStart={(e) => {
-            isSeeking.current = true;
-            seekTo(e.touches[0].clientX);
-          }}
-          onTouchMove={(e) => {
-            if (isSeeking.current) {
-              seekTo(e.touches[0].clientX);
-            }
-          }}
-          onTouchEnd={() => {
-            isSeeking.current = false;
-          }}
-        >
           <div
-            className="song-progress-fill"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-
-        <div className="song-main-controls">
-          <button
-            onClick={() => setShuffle((v) => !v)}
-            // style={{ color: shuffle ? "#4de08a" : "#9aa4b2" }}
-            style={{ color: shuffle  ? "#4de08a" : "#f7fcf7" }}
-          >
-            <IoIosShuffle />
-          </button>
-
-          <button onClick={playPrev}>
-            <FaStepBackward />
-          </button>
-
-          <button
-            className="song-play-btn"
-            onClick={() => {
-              if (currentTrack?.id === track.id) {
-                togglePlay();
-              } else {
-                setNewQueue(tracks, index);
+            className="song-progress"
+            ref={progressRef}
+            onMouseDown={(e) => {
+              isSeeking.current = true;
+              seekTo(e.clientX);
+            }}
+            onMouseMove={(e) => {
+              if (isSeeking.current) {
+                seekTo(e.clientX);
               }
             }}
+            onMouseUp={() => {
+              isSeeking.current = false;
+            }}
+            onMouseLeave={() => {
+              isSeeking.current = false;
+            }}
+            onTouchStart={(e) => {
+              isSeeking.current = true;
+              seekTo(e.touches[0].clientX);
+            }}
+            onTouchMove={(e) => {
+              if (isSeeking.current) {
+                seekTo(e.touches[0].clientX);
+              }
+            }}
+            onTouchEnd={() => {
+              isSeeking.current = false;
+            }}
           >
-            {playing && currentTrack?.id === track.id ? (
-              // <CiPause1 />
-              <IoIosPause />
-            ) : (
-              <FaPlay />
-            )}
-          </button>
+            <div
+              className="song-progress-fill"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
 
-          <button onClick={playNext}>
-            <FaStepForward />
-          </button>
+          <div className="song-main-controls">
+            <button
+              onClick={() => setShuffle((v) => !v)}
+              // style={{ color: shuffle ? "#4de08a" : "#9aa4b2" }}
+              style={{ color: shuffle ? "#4de08a" : "#f7fcf7" }}
+            >
+              <IoIosShuffle />
+            </button>
 
-          <button
-            onClick={() => setLoopOne((v) => !v)}
-            // style={{ color: loopOne ? "#4de08a" : "#9aa4b2" }}
-            style={{ color: loopOne ? "#4de08a" : "#f7fcf7" }}
-          >
-            <PiRepeatOnce />
-          </button>
-        </div>
+            <button onClick={playPrev}>
+              <FaStepBackward />
+            </button>
+
+            <button
+              className="song-play-btn"
+              onClick={() => {
+                if (currentTrack?.id === track.id) {
+                  togglePlay();
+                } else {
+                  setNewQueue(tracks, index);
+                }
+              }}
+            >
+              {playing && currentTrack?.id === track.id ? (
+                // <CiPause1 />
+                <IoIosPause />
+              ) : (
+                <FaPlay />
+              )}
+            </button>
+
+            <button onClick={playNext}>
+              <FaStepForward />
+            </button>
+
+            <button
+              onClick={() => setLoopOne((v) => !v)}
+              // style={{ color: loopOne ? "#4de08a" : "#9aa4b2" }}
+              style={{ color: loopOne ? "#4de08a" : "#f7fcf7" }}
+            >
+              <PiRepeatOnce />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -630,13 +666,29 @@ const songJsonLd = {
               <MdQueue /> Add to Queue
             </button>
 
-            <button
+            {/* <button
               onClick={() => {
                 setShowMenu(false);
                 setShowPicker(true);
               }}
             >
               <PiPlaylistFill /> Add to Playlist
+            </button> */}
+            <button
+              onClick={() => {
+                if (isGuest) {
+                  showToast("Sign in to create and manage your playlists");
+                  return;
+                }
+
+                setPickerTrack(selectedSong);
+                setShowPicker(true);
+              }}
+            >
+              <span className="sheet-icon">
+                <PiPlaylistFill />
+              </span>{" "}
+              Add to Playlist
             </button>
           </div>
         </div>
