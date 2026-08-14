@@ -189,7 +189,7 @@
 
 .settings-row {
   display: flex;
-  align-items: flex-start;
+  /* align-items: flex-start; */
 
   gap: 14px;
 

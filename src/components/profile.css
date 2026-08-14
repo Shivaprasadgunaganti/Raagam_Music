@@ -96,7 +96,11 @@ border-radius: 20%;
 
   border-radius: 50%;
 
-  background: linear-gradient(135deg, #1db954, #0f8a43);
+    background: linear-gradient(
+    135deg,
+    var(--accent-purple),
+    var(--accent-pink)
+  );
 
   display: flex;
   align-items: center;
@@ -124,10 +128,13 @@ border-radius: 20%;
 
   background: transparent;
 
-  color: #1db954;
+  /* color: #1db954; */
+    color: var(--accent-purple);
 
   font-size: 15px;
   font-weight: 700;
+    cursor: pointer;
+
 }
 
 /* FILTERS */

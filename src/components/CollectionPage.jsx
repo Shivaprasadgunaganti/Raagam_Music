@@ -18,6 +18,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { IoIosShuffle } from "react-icons/io";
 import SEO from "./SEO";
 import OfflineIntroCard from "./OfflineIntroCard";
+import OfflineGuidePopup from "./OfflineGuidePopup";
+import { MdOfflineBolt } from "react-icons/md";
+
 
 import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 
@@ -67,6 +70,7 @@ export default function CollectionPage() {
   const username = displayName || user?.email?.split("@")[0] || "Listener";
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { syncVersion } = useSync();
+  const [showOfflineGuide, setShowOfflineGuide] = useState(false);
 
   const [showOfflineIntro, setShowOfflineIntro] = useState(
   localStorage.getItem("raagam_offline_intro_seen") !== "true"
@@ -632,6 +636,16 @@ export default function CollectionPage() {
         </div>
 
         <div className="home-actions">
+          {/*  */}
+<button
+  className="home-offline-btn"
+  onClick={() => setShowOfflineGuide(true)}
+  aria-label="Offline Music"
+  title="Offline Music"
+>
+  <MdOfflineBolt />
+</button>
+
           <button
             className="icon-btn"
             onClick={() => nav("/search")}
@@ -931,6 +945,13 @@ export default function CollectionPage() {
       setShowOfflineIntro(false);
       nav("/offline");
     }}
+  />
+)}
+
+{/*  */}
+{showOfflineGuide && (
+  <OfflineGuidePopup
+    onClose={() => setShowOfflineGuide(false)}
   />
 )}
 
