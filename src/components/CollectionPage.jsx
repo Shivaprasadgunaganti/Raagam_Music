@@ -637,14 +637,14 @@ export default function CollectionPage() {
 
         <div className="home-actions">
           {/*  */}
-<button
+{/* <button
   className="home-offline-btn"
   onClick={() => setShowOfflineGuide(true)}
   aria-label="Offline Music"
   title="Offline Music"
 >
   <MdOfflineBolt />
-</button>
+</button> */}
 
           <button
             className="icon-btn"
