@@ -59,15 +59,6 @@ export default function SearchPage() {
     setHistory(saved);
   }, []);
 
-  // function getPlaylistCovers(playlist) {
-  //   if (!playlist.playlist_tracks) return [];
-
-  //   return playlist.playlist_tracks
-  //     .slice(0, 4)
-  //     .map((pt) => pt.tracks?.cover_url)
-  //     .filter(Boolean);
-  // }
-
   function getPlaylistCovers(playlist) {
     if (!playlist.playlist_tracks) return [];
 
@@ -86,29 +77,6 @@ export default function SearchPage() {
       return;
     }
 
-    // async function searchAll() {
-    //   const searchTerm = `%${debounced}%`;
-
-    //   const { data: songData } = await supabase
-    //     .from("tracks")
-    //     .select("*")
-    //     .or(`title.ilike.${searchTerm},artist.ilike.${searchTerm}`);
-
-    //   const { data: movieData } = await supabase
-    //     .from("movies")
-    //     .select("*")
-    //     .ilike("title", searchTerm);
-
-    //   const { data: playlistData } = await supabase
-    //     .from("playlists")
-    //     .select("*")
-    //     .ilike("name", searchTerm);
-
-    //   setTracks(songData || []);
-    //   setMovies(movieData || []);
-    //   setPlaylists(playlistData || []);
-    // }
-
     async function searchAll() {
       setLoading(true);
 
@@ -124,11 +92,6 @@ export default function SearchPage() {
           .from("movies")
           .select("*")
           .ilike("title", searchTerm);
-
-        // const { data: playlistData } = await supabase
-        //   .from("playlists")
-        //   .select("*")
-        //   .ilike("name", searchTerm);
 
         const { data: playlistData } = await supabase
           .from("playlists")
@@ -202,12 +165,12 @@ export default function SearchPage() {
   // console.log("PLAYLIST RAW:", playlists);
   return (
     <main className="search-page page-safe">
-{/* seo */}
-<SEO
-  title="Offline Songs | MyRaagam"
-  description="Access your offline songs on MyRaagam."
-  robots="noindex, nofollow"
-/>
+      {/* seo */}
+      <SEO
+        title="Offline Songs | MyRaagam"
+        description="Access your offline songs on MyRaagam."
+        robots="noindex, nofollow"
+      />
       <div className="search-header">
         <input
           type="search"
@@ -218,65 +181,11 @@ export default function SearchPage() {
           onFocus={() => setShowDropdown(true)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              // saveSearch(query); 
+              // saveSearch(query);
               setShowDropdown(false);
             }
           }}
         />
-
-        {/* {showDropdown && ( */}
-        {/* {showDropdown && query.trim().length > 0 && (
-          <div className="search-dropdown">
-            {query.trim().length > 0 ? (
-              suggestionList.length > 0 ? (
-                suggestionList.map((item) => (
-                  <div
-                    key={item.id}
-                    className="dropdown-item"
-                    onMouseDown={() => {
-                      if (item.type === "song") {
-                        setNewQueue(
-                          filteredSongs,
-                          filteredSongs.findIndex((x) => x.id === item.id),
-                        );
-                      }
-
-                      saveSearch({
-                        id: item.id,
-                        title: item.title || item.name,
-                        cover_url: item.cover_url,
-                        type: item.type,
-                      });
-
-                      setShowDropdown(false);
-
-                      if (item.type === "song") nav(`/track/${item.id}`);
-                      if (item.type === "album") nav(`/movie/${item.id}`);
-                      if (item.type === "playlist") nav(`/playlist/${item.id}`);
-                    }}
-                  >
-                    <img
-                      src={item.cover_url || "/covers/default.jpg"}
-                      className="dropdown-img"
-                    />
-
-                    <div className="dropdown-info">
-                      <div className="dropdown-title">
-                        {item.title || item.name}
-                      </div>
-                      <div className="dropdown-meta">{item.type}</div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                // <div className="dropdown-empty">No results found</div>
-                <div className="dropdown-loading">
-  <div className="search-spinner"></div>
-</div>
-              )
-            ) : null  }
-          </div>
-        )} */}
 
         {showDropdown && query.trim().length > 0 && (
           <div className="search-dropdown">
@@ -449,16 +358,6 @@ export default function SearchPage() {
 
                       nav(`/track/${t.id}`);
                     }}
-                    // onClick={() => {
-                    //   saveSearch({
-                    //     id: t.id,
-                    //     title: t.title,
-                    //     cover_url: t.cover_url,
-                    //     type: "song",
-                    //   });
-
-                    //   nav(`/track/${t.id}`);
-                    // }}
                   >
                     <img src={t.cover_url} alt="" />
                     <div>

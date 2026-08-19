@@ -1,14 +1,8 @@
 /* .search-page {
   padding: 20px;
-  color: white;
-} */
-
-.search-page {
-  padding: 20px;
   color: var(--text-primary);
 }
 
-/* HEADER */
 .search-header {
   margin-bottom: 16px;
 }
@@ -17,9 +11,7 @@
   width: 100%;
   padding: 10px 14px;
   border-radius: 30px;
-  /* border: 1px solid rgba(255, 255, 255, 0.15); */
-  /* background: #1e1e1e;
-  color: white; */
+
   font-size: 14px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -32,11 +24,9 @@
 
 .search-input:focus {
   outline: none;
-  /* border-color: #1db954; */
   border-color: #9929ea;
 }
 
-/* TABS */
 .search-tabs {
   display: flex;
   gap: 10px;
@@ -47,23 +37,18 @@
   padding: 6px 14px;
   border-radius: 20px;
   border: none;
-  /* background: #2a2a2a;
-  color: white; */
   background: var(--surface-2);
-color: var(--text-primary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 13px;
 }
 
 .search-tabs button.active {
-  /* background: #1db954;
-  color: black; */
   background: var(--accent-purple);
-color: var(--text-on-accent);
+  color: var(--text-on-accent);
   font-weight: 600;
 }
 
-/* SONG LIST */
 .search-item {
   display: flex;
   align-items: center;
@@ -86,12 +71,10 @@ color: var(--text-on-accent);
 
 .search-item .sub {
   font-size: 12px;
-  /* opacity: 0.6; */
-  
+
   color: var(--text-secondary);
 }
 
-/* Section */
 .albums-section {
   width: 100%;
 }
@@ -102,14 +85,12 @@ color: var(--text-on-accent);
   font-weight: 600;
 }
 
-/* List container */
 .search-albums-list {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-/* Each row */
 .search-album-row {
   display: flex;
   align-items: center;
@@ -124,52 +105,42 @@ color: var(--text-on-accent);
   width: 100%;
 }
 
-/* Hover */
 .search-album-row:hover {
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Image */
 .search-album-row img {
   width: 56px;
   height: 56px;
-  min-width: 56px; /* prevents stretching */
+  min-width: 56px;
   border-radius: 6px;
   object-fit: cover;
 }
 
-/* Info container */
 .album-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* THIS FIXES CENTER ISSUE */
-  text-align: left; /* Prevent global center */
+  align-items: flex-start;
+  text-align: left;
 }
 
-/* Title */
 .album-title {
-  /* font-size: 16px; */
   font-size: 13px;
   font-weight: 600;
-  /* color: #fff; */
   color: var(--text-primary);
 }
 
-/* Subtitle */
 .album-meta {
   font-size: 13px;
-  /* color: rgba(255, 255, 255, 0.6); */
   color: var(--text-secondary);
 }
 
-/* PLACEHOLDER */
 .search-placeholder {
   text-align: center;
   margin-top: 60px;
   opacity: 0.6;
 }
 
-/*new*/
 .search-header {
   position: relative;
 }
@@ -179,9 +150,8 @@ color: var(--text-on-accent);
   top: 60px;
   left: 16px;
   right: 16px;
-  /* background: #181818; */
   background: var(--modal-bg);
-border: 1px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: 10px;
   z-index: 20;
   padding: 8px;
@@ -191,25 +161,23 @@ border: 1px solid var(--border);
   padding: 10px;
   border-radius: 6px;
   cursor: pointer;
-    border-bottom: 0.5px solid var(--border);
-  border-radius: 8px; /* only visible when a row has a bg, e.g. "now playing" */
+  border-bottom: 0.5px solid var(--border);
+  border-radius: 8px;
 }
 
 .dropdown-item:hover {
-  /* background: rgba(255, 255, 255, 0.08); */
   background: var(--surface-hover);
 }
 
 .search-dropdown {
   position: absolute;
-  top: 100%; /* directly below input */
+  top: 100%;
   left: 0;
   right: 0;
 
   margin-top: 8px;
   padding: 8px;
 
-  /* background: #181818; */
   border-radius: 12px;
 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
@@ -224,8 +192,7 @@ border: 1px solid var(--border);
 }
 
 .dropdown-item:hover {
-  /* background: rgba(255, 255, 255, 0.08); */
-background: var(--surface-hover);
+  background: var(--surface-hover);
 }
 
 .dropdown-item {
@@ -238,8 +205,7 @@ background: var(--surface-hover);
 }
 
 .dropdown-item:hover {
-  /* background: rgba(255, 255, 255, 0.08); */
-background: var(--surface-hover);
+  background: var(--surface-hover);
 }
 
 .dropdown-img {
@@ -261,7 +227,6 @@ background: var(--surface-hover);
 
 .dropdown-meta {
   font-size: 11px;
-  /* opacity: 0.6; */
   color: var(--text-secondary);
 }
 .dropdown-empty {
@@ -284,14 +249,12 @@ background: var(--surface-hover);
   margin-left: auto;
   background: transparent;
   border: none;
-  /* color: #aaa; */
   color: var(--text-secondary);
   font-size: 14px;
   cursor: pointer;
 }
 
 .history-remove:hover {
-  /* color: #fff; */
   color: var(--text-primary);
 }
 
@@ -305,10 +268,8 @@ background: var(--surface-hover);
 .search-spinner {
   width: 20px;
   height: 20px;
-  /* border: 2px solid rgba(255, 255, 255, 0.2); */
   border: 2px solid var(--border);
-  /* border-top-color: #1db954; */
-  /* border-top-color: #9929ea; */
+
   border-top-color: var(--accent-purple);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -318,4 +279,482 @@ background: var(--surface-hover);
   to {
     transform: rotate(360deg);
   }
+} */
+
+
+/* =========================================================
+   SEARCH PAGE
+   ========================================================= */
+
+/* .search-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 20px;
+  box-sizing: border-box;
+
+  color: var(--text-primary);
+  overflow-x: hidden;
+} */
+
+.search-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  min-height: 100%;
+
+  padding: 20px;
+  box-sizing: border-box;
+
+  color: var(--text-primary);
+
+  /* background: var(--bg-gradient); */
+  background: var(--bg-primary);
+
+  /* overflow-x: hidden; */
+}
+
+.search-page *,
+.search-page *::before,
+.search-page *::after {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SEARCH HEADER
+   ========================================================= */
+
+.search-header {
+  position: relative;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  margin-bottom: 16px;
+}
+
+
+/* SEARCH INPUT */
+
+.search-input {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 10px 14px;
+
+  /* border-radius: 30px; */
+  border-radius: 10px;
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+  color: var(--text-primary);
+
+  font-size: 14px;
+}
+
+.search-input::placeholder {
+  color: var(--text-faint);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #9929ea;
+}
+
+
+/* =========================================================
+   SEARCH TABS
+   ========================================================= */
+
+.search-tabs {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+  margin-bottom: 18px;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  /* Only tabs can scroll horizontally if necessary */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.search-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.search-tabs button {
+  flex: 0 0 auto;
+
+  padding: 6px 14px;
+
+  border-radius: 20px;
+  border: none;
+
+  background: var(--surface-2);
+  color: var(--text-primary);
+
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-tabs button.active {
+  background: var(--accent-purple);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   SEARCH DROPDOWN
+   ========================================================= */
+
+.search-dropdown {
+  position: absolute;
+
+  top: 100%;
+  left: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  margin-top: 8px;
+  padding: 8px;
+
+  background: var(--modal-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+
+  z-index: 20;
+}
+
+
+/* =========================================================
+   DROPDOWN ITEMS
+   ========================================================= */
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  gap: 10px;
+  padding: 10px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: var(--surface-hover);
+}
+
+
+/* DROPDOWN IMAGE */
+
+.dropdown-img {
+  width: 40px;
+  height: 40px;
+
+  min-width: 40px;
+  flex: 0 0 40px;
+
+  border-radius: 6px;
+
+  object-fit: cover;
+}
+
+
+/* DROPDOWN TEXT */
+
+.dropdown-info {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  flex: 1;
+}
+
+.dropdown-title {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.dropdown-empty {
+  padding: 12px;
+
+  text-align: center;
+
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+
+/* =========================================================
+   DROPDOWN LOADING
+   ========================================================= */
+
+.dropdown-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 16px;
+}
+
+.search-spinner {
+  width: 20px;
+  height: 20px;
+
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-purple);
+
+  border-radius: 50%;
+
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   SONGS / PLAYLISTS
+   ========================================================= */
+
+.search-item {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  gap: 12px;
+
+  padding: 10px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.search-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+
+/* SONG / PLAYLIST IMAGE */
+
+.search-item img {
+  width: 50px;
+  height: 50px;
+
+  min-width: 50px;
+  flex: 0 0 50px;
+
+  border-radius: 6px;
+
+  object-fit: cover;
+}
+
+
+/* SONG / PLAYLIST TEXT CONTAINER */
+
+.search-item > div {
+  min-width: 0;
+  flex: 1;
+}
+
+
+/* TITLE */
+
+.search-item .title {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   ALBUMS
+   ========================================================= */
+
+.albums-section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+
+/* ALBUM LIST */
+
+.search-albums-list {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+
+/* ALBUM ROW */
+
+.search-album-row {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  gap: 14px;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+
+  box-sizing: border-box;
+}
+
+.search-album-row:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ALBUM IMAGE */
+
+.search-album-row img {
+  width: 56px;
+  height: 56px;
+
+  min-width: 56px;
+  flex: 0 0 56px;
+
+  border-radius: 6px;
+
+  object-fit: cover;
+}
+
+
+/* ALBUM INFORMATION */
+
+.album-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  min-width: 0;
+  flex: 1;
+
+  text-align: left;
+}
+
+
+/* ALBUM TITLE */
+
+.album-title {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ALBUM META */
+
+.album-meta {
+  font-size: 13px;
+
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   RECENT SEARCHES
+   ========================================================= */
+
+.search-placeholder {
+  text-align: center;
+
+  margin-top: 60px;
+
+  opacity: 0.6;
+}
+
+
+/* REMOVE HISTORY BUTTON */
+
+.history-remove {
+  flex: 0 0 auto;
+
+  margin-left: auto;
+
+  background: transparent;
+  border: none;
+
+  color: var(--text-secondary);
+
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.history-remove:hover {
+  color: var(--text-primary);
 }
