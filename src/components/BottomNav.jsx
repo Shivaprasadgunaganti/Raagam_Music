@@ -4,16 +4,19 @@ import "./bottomnav.css";
 import { GrHomeRounded } from "react-icons/gr";
 import { BiMoviePlay } from "react-icons/bi";
 import { FiSearch } from "react-icons/fi";
-import { MdOutlineAccountCircle } from "react-icons/md";
+import { MdDownloadForOffline, MdOfflineBolt, MdOutlineAccountCircle, MdOutlineDownloadForOffline, MdOutlineFileDownload } from "react-icons/md";
 import { FaRegHeart } from "react-icons/fa";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
+import OfflineGuidePopup from "./OfflineGuidePopup";
 
 export default function BottomNav() {
   const { currentTrack } = useAudio();
   const nav = useNavigate();
   const { isGuest } = useAuth();
+    const [showOfflineGuide, setShowOfflineGuide] = useState(false);
+  
 
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -52,7 +55,21 @@ export default function BottomNav() {
         <span>Library</span>
       </NavLink> */}
 
-        {isGuest ? (
+       <button
+  // className="home-offline-btn"
+  className="nav-item"
+  onClick={() => setShowOfflineGuide(true)}
+  aria-label="Offline Music"
+  title="Offline Music"
+>
+  {/* <MdOfflineBolt /> */}
+  {/* <MdOutlineDownloadForOffline size={25}/> */}
+  {/* <MdDownloadForOffline/> */}
+  <MdOutlineFileDownload size={16}/>
+    <span>Offline</span>
+</button>
+
+        {/* {isGuest ? (
           <button className="nav-item" onClick={() => setShowAuthModal(true)}>
             <MdOutlineAccountCircle size={15}/>
             <span>Library</span>
@@ -62,12 +79,18 @@ export default function BottomNav() {
             <MdOutlineAccountCircle size={17}/>
             <span>Library</span>
           </NavLink>
-        )}
+        )} */}
       </nav>
       <AuthRequiredModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />
+
+      {showOfflineGuide && (
+        <OfflineGuidePopup
+          onClose={() => setShowOfflineGuide(false)}
+        />
+      )}
     </>
   );
 }

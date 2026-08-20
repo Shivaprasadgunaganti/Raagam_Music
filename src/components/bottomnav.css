@@ -39,3 +39,32 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+
+.home-offline-btn {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #fff;
+
+  font-size: 21px;
+
+  cursor: pointer;
+}
+
+.home-offline-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.home-offline-btn:active {
+  transform: scale(0.94);
+}
