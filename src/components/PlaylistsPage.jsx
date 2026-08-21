@@ -331,7 +331,7 @@ export default function PlaylistsPage() {
 
               <div className="playlist-info">
                 <div className="playlist-actions">
-                  <button
+                  {/* <button
                     className="playlist-menu-btn"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -340,7 +340,18 @@ export default function PlaylistsPage() {
                     }}
                   >
                     <FiMoreVertical />
-                  </button>
+                  </button> */}
+                 <div
+                    className="playlist-menu-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      setActiveMenu(activeMenu === pl.id ? null : pl.id);
+                    }}
+                  >
+                    <FiMoreVertical />
+                  
+                  </div>
 
                   {activeMenu === pl.id && (
                     <div

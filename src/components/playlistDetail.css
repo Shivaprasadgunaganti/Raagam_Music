@@ -1,6 +1,7 @@
 /* ---------- Page ---------- */
 .pd-page {
-  min-height: 100%;
+  /* min-height: 100%; */
+  height: var(--app-height);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -17,14 +18,15 @@
 /* ---------- Hero ---------- */
 .pd-hero {
   position: relative;
-  /* padding: 56px 20px 80px; */
-  padding: 56px 20px 20px;
+  /* padding: 56px 20px 20px; */
   background: linear-gradient(180deg, #c0181e 0%, #7a0e12 50%, #121212 100%);
   display: flex;
   flex-direction: column;
   /* align-items: flex-start; */
   align-items: center;
-  min-height: 320px;
+  /* min-height: 320px; */
+  padding: 48px 20px 20px;
+  min-height: auto;
 }
 
 /* Back button */
@@ -148,12 +150,29 @@
 }
 
 /* ---------- Song list ---------- */
-.pd-list {
+/* .pd-list {
   list-style: none;
   padding: 8px 0;
   margin: 0;
   display: flex;
   flex-direction: column;
+} */
+
+.pd-list {
+  flex: 1;
+  min-height: 0;
+
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Each row */

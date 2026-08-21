@@ -1,4 +1,4 @@
-.playlists-page {
+/* .playlists-page {
   padding: 20px;
   color: white;
 }
@@ -85,11 +85,7 @@
 }
 
 
-/* ===== Page shell — force full width ===== */
 
-/* ===========================
-   PAGE
-=========================== */
 
 .playlists-page {
   min-height: 100vh;
@@ -105,9 +101,7 @@
   letter-spacing: -0.5px;
 }
 
-/* ===========================
-   GRID
-=========================== */
+
 
 .playlists-grid {
   display: grid;
@@ -115,9 +109,7 @@
   gap: 28px;
 }
 
-/* ===========================
-   CARD
-=========================== */
+
 
 .playlist-card {
   position: relative;
@@ -135,7 +127,6 @@
 
   cursor: pointer;
 
-  /* IMPORTANT */
   overflow: visible;
 }
 
@@ -149,9 +140,7 @@
     0 0 30px rgba(29, 185, 84, .15);
 }
 
-/* ===========================
-   COVER
-=========================== */
+
 
 .playlist-cover {
   position: relative;
@@ -193,9 +182,7 @@
   transform: scale(1.08);
 }
 
-/* ===========================
-   COVER GRID
-=========================== */
+
 
 .playlist-cover-grid {
   display: grid;
@@ -232,9 +219,7 @@
   grid-template-rows: repeat(2, 1fr);
 }
 
-/* ===========================
-   INFO
-=========================== */
+
 
 .playlist-info {
   position: relative;
@@ -266,9 +251,7 @@
   overflow: hidden;
 }
 
-/* ===========================
-   ACTION BUTTON
-=========================== */
+
 
 .playlist-actions {
   position: absolute;
@@ -303,9 +286,7 @@
   transform: rotate(90deg);
 }
 
-/* ===========================
-   POPUP MENU
-=========================== */
+
 
 .playlist-menu {
   position: absolute;
@@ -372,9 +353,7 @@
   color: #ff6b6b;
 }
 
-/* ===========================
-   MODAL
-=========================== */
+
 
 .modal-overlay {
   position: fixed;
@@ -391,46 +370,6 @@
   z-index: 5000;
 }
 
-/* .modal-sheet {
-  width: min(420px,90vw);
-
-  padding: 28px;
-
-  border-radius: 18px;
-
-  background: #1d1d1d;
-
-  box-shadow: 0 20px 40px rgba(0,0,0,.45);
-}
-
-.modal-sheet h3 {
-  margin: 0 0 18px;
-}
-
-.modal-sheet p {
-  color: rgba(255,255,255,.7);
-}
-
-.modal-sheet input {
-  width: 100%;
-
-  margin-top: 16px;
-
-  padding: 14px;
-
-  border-radius: 10px;
-
-  border: 1px solid #333;
-
-  background: #111;
-
-  color: white;
-}
-
-.modal-sheet input:focus {
-  outline: none;
-  border-color: #1db954;
-} */
 
 
 .modal-sheet {
@@ -509,9 +448,7 @@
   transform: translateY(-2px);
 }
 
-/* ===========================
-   MOBILE
-=========================== */
+
 
 @media (max-width: 768px) {
 
@@ -536,4 +473,340 @@
     right: -8px;
   }
 
+} */
+
+
+
+
+
+
+
+
+/* ===========================
+   PLAYLIST PAGE
+=========================== */
+
+.playlists-page {
+  padding: 24px;
+  color: var(--text-primary);
+  /* background: var(--bg-gradient); */
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.playlists-page h1 {
+  font-size: 28px;
+  margin: 0 0 24px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+
+/* ===========================
+   GRID
+=========================== */
+
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+}
+
+
+/* ===========================
+   CARD
+=========================== */
+
+.playlist-card {
+  position: relative;
+  /* cursor: pointer; */
+  transition: transform 0.2s ease;
+  /* min-width: 0; */
+  min-width: fit-content;
+}
+
+.playlist-card:hover {
+  /* transform: translateY(-6px); */
+    transform: none;
+
+}
+
+
+/* ===========================
+   COVER
+=========================== */
+
+.playlist-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+
+/* Normal single cover */
+
+.playlist-cover > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 14px;
+  transition: transform 0.3s ease;
+}
+
+
+/* Hover zoom */
+
+.playlist-card:hover .playlist-cover > img {
+  transform: scale(1.05);
+}
+
+
+/* ===========================
+   COVER GRID
+=========================== */
+
+.playlist-cover-grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+}
+
+.playlist-cover-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* 1 cover */
+
+.playlist-cover-grid.count-1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+
+/* 2 covers */
+
+.playlist-cover-grid.count-2 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+}
+
+
+/* 3 covers */
+
+.playlist-cover-grid.count-3 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.playlist-cover-grid.count-3 img:last-child {
+  grid-column: span 2;
+}
+
+
+/* 4 covers */
+
+.playlist-cover-grid.count-4 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+
+/* ===========================
+   INFO
+=========================== */
+
+.playlist-info {
+  position: relative;
+  margin-top: 10px;
+  min-width: 0;
+}
+
+.playlist-info h3 {
+  margin: 0;
+  padding-right: 42px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-info p {
+  margin: 4px 0 0;
+  padding-right: 42px;
+
+  font-size: 13px;
+  color: var(--text-secondary);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ===========================
+   THREE DOT MENU
+=========================== */
+
+.playlist-actions {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  z-index: 100;
+}
+
+.playlist-menu-btn {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* border: none; */
+  /* border-radius: 50%; */
+
+  /* background: var(--surface-2);
+  border: 1px solid var(--border);
+
+  color: var(--text-primary); */
+
+  cursor: pointer;
+
+  /* transition:
+    background 0.2s ease,
+    transform 0.2s ease; */
+}
+
+.playlist-menu-btn:hover {
+
+   background: var(--surface-hover);
+  transform: scale(1.05);
+}
+
+
+/* ===========================
+   POPUP MENU
+=========================== */
+
+.playlist-menu {
+  position: absolute;
+  top: 44px;
+  right: 0;
+
+  width: 170px;
+
+  border-radius: 14px;
+
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+
+  overflow: hidden;
+
+  z-index: 99999;
+
+  animation: menuShow 0.18s ease;
+}
+
+@keyframes menuShow {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.playlist-menu button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 13px 16px;
+
+  border: none;
+  background: transparent;
+
+  color: var(--text-primary);
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.playlist-menu button:hover {
+  background: var(--surface-hover);
+}
+
+.playlist-menu button.danger:hover {
+  background: rgba(255, 0, 0, 0.12);
+  color: #ff6b6b;
+}
+
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media (max-width: 768px) {
+
+  .playlists-page {
+    padding: 20px 16px;
+  }
+
+  .playlists-page h1 {
+    font-size: 26px;
+    margin-bottom: 24px;
+  }
+
+  .playlists-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+  }
+
+  .playlist-info {
+    margin-top: 9px;
+  }
+
+  .playlist-info h3 {
+    font-size: 15px;
+    padding-right: 38px;
+  }
+
+  .playlist-info p {
+    font-size: 13px;
+    padding-right: 38px;
+  }
+
+  .playlist-actions {
+    top: -2px;
+  }
+
+  .playlist-menu-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .playlist-menu {
+    top: 40px;
+    right: -4px;
+  }
 }

@@ -30,6 +30,8 @@
 .movie-card {
   cursor: pointer;
   transition: transform 0.2s ease;
+  text-decoration: none;
+  padding: 5px;
 }
 
 .movie-card:hover {
@@ -80,6 +82,9 @@
 /* INFO */
 .movie-info {
   margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding-inline: 5px;
 }
 
 .movie-info h3 {

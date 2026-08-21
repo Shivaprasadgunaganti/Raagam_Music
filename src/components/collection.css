@@ -264,7 +264,8 @@
   width: 148px;
   min-width: 148px;
   flex-shrink: 0;
-  cursor: pointer;
+  /* cursor: pointer; */
+   text-decoration: none;
 }
 
 .album-img-shell,
