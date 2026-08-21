@@ -60,8 +60,8 @@
 /* ---------- Card ---------- */
 
 .settings-section {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  /* background: var(--surface); */
+  /* border: 1px solid var(--border); */
   border-radius: 18px;
   overflow: hidden;
 }
@@ -75,8 +75,8 @@
 .settings-row {
   height: 62px;
   display: flex;
-  /* align-items: center; */
- align-content: center;
+  align-items: center;
+ /* align-content: center; */
   justify-content: space-between;
   padding: 0 18px;
   transition: .25s;

@@ -26,6 +26,7 @@
   /* padding: 10px 4px; */
   border-bottom: 0.5px solid var(--border);
   border-radius: 8px; /* only visible when a row has a bg, e.g. "now playing" */
+  padding-inline: 4%;
 }
 
 .song-menu-sheet {

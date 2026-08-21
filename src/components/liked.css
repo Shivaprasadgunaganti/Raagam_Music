@@ -4,7 +4,7 @@
       height: var(--app-height);
   /* background: #121212;
   color: var(--text-primary);f; */
-  background: var(--bg-gradient);
+  /* background: var(--bg-gradient); */
   color: var(--text-primary);
   display: flex;
   flex-direction: column;

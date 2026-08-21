@@ -15,7 +15,8 @@
 } */
 
 .offline-screen {
-  min-height: 100vh;
+  min-height: 100%;
+  /* min-height: 100vh; */
   padding: 96px 24px 24px; /* extra top padding for fixed header */
   /* color: #fff; */
   /* background: linear-gradient(

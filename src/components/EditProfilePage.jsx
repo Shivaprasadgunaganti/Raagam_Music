@@ -312,23 +312,7 @@ export default function EditProfilePage() {
           </div>
 
           {/* BIO */}
-          <div className="settings-row">
-            <div className="row-icon blue">
-              <IoCreateOutline />
-            </div>
-
-            <div className="row-content">
-              <span>Bio</span>
-
-              <textarea
-                value={bio}
-                onChange={(e) =>
-                  setBio(e.target.value)
-                }
-                placeholder="Tell something..."
-              />
-            </div>
-          </div>
+      
         </div>
       </section>
 

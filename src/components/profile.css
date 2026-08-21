@@ -12,6 +12,9 @@
   padding-right: 18px;
   padding-left: 18px;
   /* padding-bottom: 90px !important; */
+    padding-bottom: var(--footer-offset) !important;
+  box-sizing: border-box;
+
 
   background: var(--bg-primary);
   color: var(--text-primary);
