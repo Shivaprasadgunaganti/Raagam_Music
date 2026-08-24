@@ -35,6 +35,7 @@ import OfflineBanner from "./components/OfflineBanner";
 import OfflineSongsPage from "./components/OfflineSongsPage";
 import useNetworkSync from "./hooks/useNetworkSync";
 import SettingsPage from "./pages/SettingsPage";
+import FeedbackPage from "./pages/FeedbackPage";
 // import { ThemeProvider } from "./context/ThemeContext";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
@@ -68,6 +69,7 @@ function AppContent() {
   const noFooterSpacing =
     fullScreenPage ||
     location.pathname === "/settings" ||
+    location.pathname === "/feedback" ||
     location.pathname === "/edit" ||
   location.pathname === "/account";
 
@@ -211,6 +213,15 @@ function AppContent() {
               </GuestRestrictedRoute>
             }
           />
+<Route
+  path="/feedback"
+  element={
+    <GuestRestrictedRoute>
+      <FeedbackPage />
+    </GuestRestrictedRoute>
+  }
+/>
+          
 
           <Route
             path="/edit"
