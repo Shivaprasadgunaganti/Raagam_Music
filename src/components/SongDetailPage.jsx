@@ -335,7 +335,7 @@ export default function SongDetailPage() {
         </button>
 
         {/* <h3>Song details</h3> */}
-        <span>Song details</span>
+        <span className="song-details">Song details</span>
 
         <span className="menu-dots" onClick={() => setShowMenu((v) => !v)}>
           <SlOptionsVertical />

@@ -1,19 +1,30 @@
 /* ---------- Page ---------- */
-.liked-page {
-  /* min-height: 100dvh; */
-      height: var(--app-height);
-  /* background: #121212;
-  color: var(--text-primary);f; */
-  /* background: var(--bg-gradient); */
+/* .liked-page {
+  height: var(--app-height);
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  /* padding-bottom: 80px; */
   padding-bottom: 0px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+.liked-page::-webkit-scrollbar {
+  display: none;
+} */
+
+.liked-page {
+  min-height: 0;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+  overflow: visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 .liked-page::-webkit-scrollbar {
   display: none;
 }

@@ -30,15 +30,32 @@ button {
 
 
 
-html,
+/* html,
 body,
 #root {
-  /* height: 100%; */
     min-height: 100%;
   margin: 0;
   padding: 0;
-  /* background: #0a0a0a; */
+} */
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+
+  /* Hide scrollbar but keep scrolling */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar {
+  display: none;
+}
+
 
 .auth-loading {
   height: 100vh;

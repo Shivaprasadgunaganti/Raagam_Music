@@ -213,16 +213,32 @@ export default function MovieSongsPage() {
                 className="sp-row-main"
                 onClick={() => setNewQueue(songs, index)}
               >
-                <div className="sp-song-meta">
-                  {/* <div className="sp-song-title">{song.title}</div>
-                  <div className="sp-song-artist">
-                    {song.artist || "Unknown Artist"}
-                  </div> */}
+                {/* <div className="sp-song-meta">
+               
                   <p className="sp-song-title">{song.title}</p>
+                  
                   <p className="sp-song-artist">
                     {song.artist || "Unknown Artist"}
                   </p>
-                </div>
+                </div> */}
+                <div className="sp-song-meta">
+  <div className="sp-song-title-row">
+    <p className="sp-song-title">{song.title}</p>
+
+    {isActive && (
+      <div className="playing-bars">
+        <span />
+        <span />
+        <span />
+      </div>
+    )}
+  </div>
+
+  <p className="sp-song-artist">
+    {song.artist || "Unknown Artist"}
+  </p>
+</div>
+
               </div>
               {/* Like/Unlike button */}
               <button
