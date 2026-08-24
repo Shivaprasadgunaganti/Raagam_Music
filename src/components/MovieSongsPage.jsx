@@ -127,10 +127,15 @@ export default function MovieSongsPage() {
 
   const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
 
+  // const movieDescription =
+  //   songs.length > 0
+  //     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
+  //     : `Explore ${movieTitle} on MyRaagam.`;
+
   const movieDescription =
-    songs.length > 0
-      ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
-      : `Explore ${movieTitle} on MyRaagam.`;
+  songs.length > 0
+    ? `Listen to ${movieTitle} Telugu movie songs on MyRaagam. Explore ${songs.length} songs from the movie and play them online.`
+    : `Explore ${movieTitle} Telugu movie songs and soundtrack on MyRaagam.`;
 
   const movieJsonLd = {
     "@context": "https://schema.org",
@@ -153,7 +158,8 @@ export default function MovieSongsPage() {
 /> */}
 
       <SEO
-        title={`${movieTitle} Songs | MyRaagam`}
+        // title={`${movieTitle} Songs | MyRaagam`}
+          title={`${movieTitle} Telugu Movie Songs | MyRaagam`}
         description={movieDescription}
         image={movie.cover_url}
         url={movieUrl}

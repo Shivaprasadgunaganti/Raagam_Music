@@ -57,7 +57,6 @@
 //   );
 // }
 
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
@@ -90,23 +89,25 @@ export default function MoviesPage() {
     <main>
       <SEO
         title="Telugu Movies & Songs | MyRaagam"
-        description="Explore movies and discover their songs on MyRaagam."
+        // description="Explore movies and discover their songs on MyRaagam."
+        description="Explore Telugu movies and discover their songs, soundtracks and music on MyRaagam."
         url="https://www.myraagam.com/movies"
         type="website"
       />
 
-      <h1>Movies & Songs</h1>
-      <p>Explore movies and discover their songs on MyRaagam</p>
+      {/* <h1>Movies & Songs</h1>
+      <p>Explore movies and discover their songs on MyRaagam</p> */}
+      <h1>Telugu Movies & Songs</h1>
+      <p>
+        Explore Telugu movies and discover their songs and soundtracks on
+        MyRaagam.
+      </p>
       {/* <h1>Albums</h1>
       <p>Browse all movie albums</p> */}
 
       <div className="movies-grid">
         {movies.map((movie) => (
-          <Link
-            key={movie.id}
-            to={`/movie/${movie.id}`}
-            className="movie-card"
-          >
+          <Link key={movie.id} to={`/movie/${movie.id}`} className="movie-card">
             <div className="movie-img-wrap">
               <img
                 src={movie.cover_url || "/covers/default.jpg"}

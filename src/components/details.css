@@ -728,3 +728,9 @@
     font-size: 30px;
   }
 }
+
+.song-title-marquee h1 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}

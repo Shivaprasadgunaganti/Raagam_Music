@@ -21,7 +21,6 @@ import OfflineIntroCard from "./OfflineIntroCard";
 import OfflineGuidePopup from "./OfflineGuidePopup";
 import { MdOfflineBolt } from "react-icons/md";
 
-
 import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 
 import "swiper/css";
@@ -73,8 +72,8 @@ export default function CollectionPage() {
   const [showOfflineGuide, setShowOfflineGuide] = useState(false);
 
   const [showOfflineIntro, setShowOfflineIntro] = useState(
-  localStorage.getItem("raagam_offline_intro_seen") !== "true"
-);
+    localStorage.getItem("raagam_offline_intro_seen") !== "true",
+  );
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -226,21 +225,6 @@ export default function CollectionPage() {
     setNewQueue([track], 0);
   };
 
-  // const addToLiked = async (e, track) => {
-  //   e.stopPropagation();
-
-  //   if (likedMap[track.id]) {
-  //     await unlikeSong(track.id);
-  //   } else {
-  //     await likeSong(track);
-  //   }
-
-  //   setLikedMap((prev) => ({
-  //     ...prev,
-  //     [track.id]: !prev[track.id],
-  //   }));
-  // };
-
   const addToLiked = async (e, track) => {
     e.stopPropagation();
 
@@ -330,18 +314,6 @@ export default function CollectionPage() {
       return title.includes(q) || artist.includes(q);
     });
   }, [tracks, debounced]);
-
-  // const heroSlides = useMemo(() => {
-  //   const base = [trendingTracks[0], madeForYou[0]].filter(Boolean);
-  //   return base.slice(0, 2).map((track, index) => ({
-  //     id: track.id,
-  //     title: track.title,
-  //     artist: track.artist || "Unknown Artist",
-  //     description: "A fresh pick based on your recent listening.",
-  //     image: track.cover_url || "/covers/default.jpg",
-  //     onClick: () => setNewQueue(base, index),
-  //   }));
-  // }, [trendingTracks, madeForYou, setNewQueue]);
 
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
@@ -444,7 +416,8 @@ export default function CollectionPage() {
               : 0;
 
           return (
-            <div
+            // <div
+            <Link
               key={`${track.id}-${index}`}
               className="album-card"
               onClick={() =>
@@ -463,7 +436,7 @@ export default function CollectionPage() {
               <div>
                 <p className="album-title">{track.title}</p>
               </div>
-            </div>
+              </Link>
           );
         })}
       </div>
@@ -505,34 +478,6 @@ export default function CollectionPage() {
       </div>
     );
   };
-
-  // const renderMoviesRail = () => {
-  //   if (!movies.length) return null;
-
-  //   return (
-  //     <div className="horizontal-row">
-  //       {movies.map((m) => (
-  //         <div
-  //           key={m.id}
-  //           className="album-card"
-  //           onClick={() => nav(`/movie/${m.id}`)}
-  //         >
-  //           <div className="album-img-shell">
-  //             <LazyImage
-  //               src={m.cover_url || "/covers/default.jpg"}
-  //               alt={m.title}
-  //             />
-  //           </div>
-
-  //           <div>
-  //             <p className="album-title">{m.title}</p>
-  //             <p className="album-subtitle">{m.artist}</p>
-  //           </div>
-  //         </div>
-  //       ))}
-  //     </div>
-  //   );
-  // };
 
   // seo
   const renderMoviesRail = () => {
@@ -607,6 +552,13 @@ export default function CollectionPage() {
   return (
     // <main className="homepage page-safe">
     <main className="homepage page page-safe">
+
+      <SEO
+  title="Telugu Songs & Music | MyRaagam"
+  description="Listen to Telugu songs, movie soundtracks and music online on MyRaagam. Discover Telugu movie songs, albums and more."
+  url="https://www.myraagam.com/"
+  type="website"
+/>
       <SEO
         title="MyRaagam - Telugu Music & Songs"
         description="Explore Telugu songs, movies and music on MyRaagam."
@@ -625,26 +577,20 @@ export default function CollectionPage() {
 
       <header className="home-header">
         <div className="home-left">
-          <p className="home-greeting">Hi,</p>
+          {/* <p className="home-greeting">Hi,</p> */}
+          <h1 className="home-greeting">MyRaagam - Telugu Music</h1>
           {/* <h1 className="home-title">{username}</h1> */}
-          <h1 className="home-title">
+          <p className="home-title">
+            <span>Hi, </span>
             {username
               ? username.charAt(0).toUpperCase() +
                 username.slice(1).toLowerCase()
               : ""}
-          </h1>
+          </p>
         </div>
 
         <div className="home-actions">
           {/*  */}
-{/* <button
-  className="home-offline-btn"
-  onClick={() => setShowOfflineGuide(true)}
-  aria-label="Offline Music"
-  title="Offline Music"
->
-  <MdOfflineBolt />
-</button> */}
 
           <button
             className="icon-btn"
@@ -790,7 +736,8 @@ export default function CollectionPage() {
           {movies.length > 0 && (
             <section className="home-section">
               {renderSectionHeader(
-                "Albums For You",
+                // "Albums For You",
+                "Telugu Movie Albums",
                 () => nav("/movies"),
                 true,
               )}
@@ -821,7 +768,8 @@ export default function CollectionPage() {
                     <SkeletonCard key={i} />
                   ))
                 : filtered.slice(0, 3).map((t, index) => (
-                    <Card
+                    // <Card
+                    <Link
                       key={t.id}
                       className="song-list-card"
                       onClick={() => setNewQueue(filtered, index)}
@@ -860,7 +808,7 @@ export default function CollectionPage() {
                           <FaPlay />
                         </button>
                       </div>
-                    </Card>
+                      </Link>
                   ))}
             </div>
           </section>
@@ -938,22 +886,10 @@ export default function CollectionPage() {
         <OfflineHomeContent />
       )}
 
-      {/* {showOfflineIntro && (
-  <OfflineIntroCard
-    onOpen={() => {
-      localStorage.setItem("raagam_offline_intro_seen", "true");
-      setShowOfflineIntro(false);
-      nav("/offline");
-    }}
-  />
-)} */}
-
-{/*  */}
-{showOfflineGuide && (
-  <OfflineGuidePopup
-    onClose={() => setShowOfflineGuide(false)}
-  />
-)}
+      {/*  */}
+      {showOfflineGuide && (
+        <OfflineGuidePopup onClose={() => setShowOfflineGuide(false)} />
+      )}
 
       {/* <img src={image} alt="" srcset="" /> */}
     </main>

@@ -57,9 +57,7 @@ export default function SongDetailPage() {
   const pageRef = useRef(null);
   const { user, isGuest } = useAuth();
   const [pickerTrack, setPickerTrack] = useState(null);
-    const [selectedSong, setSelectedSong] = useState(null);
-  
-
+  const [selectedSong, setSelectedSong] = useState(null);
 
   // ✅ FIRST get from context
   const {
@@ -79,14 +77,6 @@ export default function SongDetailPage() {
     currentTime,
   } = useAudio();
 
-  // ✅ THEN use it
-  // const track = currentTrack;
-
-  // const index = tracks.findIndex(
-  //   (t) => String(t.id) === String(currentTrack?.id),
-  // );
-
-  // URL is the source of truth for the song page
   const track = tracks.find((t) => String(t.id) === String(id));
 
   const index = tracks.findIndex((t) => String(t.id) === String(id));
@@ -171,17 +161,11 @@ export default function SongDetailPage() {
     setTime(currentTime || 0);
   }, [currentTime]);
 
-  // useEffect(() => {
-  //   if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
-  //     nav(`/track/${currentTrack.id}`, { replace: true });
-  //   }
-  // }, [currentTrack]);
-
   useEffect(() => {
-  if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
-    nav(`/track/${currentTrack.id}`, { replace: true });
-  }
-}, [currentTrack, id, nav]);
+    if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
+      nav(`/track/${currentTrack.id}`, { replace: true });
+    }
+  }, [currentTrack, id, nav]);
 
   /* ---------------- GUARDS ---------------- */
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
@@ -201,10 +185,15 @@ export default function SongDetailPage() {
 
   const songUrl = `https://www.myraagam.com/track/${track.id}`;
 
+  // const songDescription =
+  //   songArtist !== "Unknown Artist"
+  //     ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
+  //     : `Listen to ${songTitle} on MyRaagam.`;
+
   const songDescription =
-    songArtist !== "Unknown Artist"
-      ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
-      : `Listen to ${songTitle} on MyRaagam.`;
+  songArtist !== "Unknown Artist"
+    ? `Listen to ${songTitle}, a Telugu song by ${songArtist}, on MyRaagam. Play the song online and discover more Telugu music.`
+    : `Listen to ${songTitle}, a Telugu song on MyRaagam. Play the song online and discover more Telugu music.`;
 
   const songJsonLd = {
     "@context": "https://schema.org",
@@ -220,20 +209,6 @@ export default function SongDetailPage() {
 
   const duration = audioRef.current?.duration || 0;
   const progressPct = duration ? (time / duration) * 100 : 0;
-
-  /* ---------------- SEEK ---------------- */
-  // function handleSeek(e) {
-  //   const audio = audioRef.current;
-  //   const bar = progressRef.current;
-  //   if (!audio || !bar || !audio.duration) return;
-
-  //   const rect = bar.getBoundingClientRect();
-  //   const clickX = e.clientX ?? e.touches?.[0]?.clientX;
-  //   const percent = Math.min(Math.max((clickX - rect.left) / rect.width, 0), 1);
-
-  //   audio.currentTime = percent * audio.duration;
-  //   setTime(audio.currentTime);
-  // }
 
   function seekTo(clientX) {
     const audio = audioRef.current;
@@ -251,21 +226,6 @@ export default function SongDetailPage() {
     audio.currentTime = percent * audio.duration;
     setTime(audio.currentTime);
   }
-
-  // async function toggleLike() {
-  //   if (!track) return;
-
-  //   if (liked) {
-  //     await unlikeSong(track.id);
-  //     setLiked(false);
-  //     showToast("Removed from Liked Songs");
-  //   } else {
-  //     // await likeSong(track.id);
-  //     await likeSong(track);
-  //     setLiked(true);
-  //     showToast("Added to Liked Songs");
-  //   }
-  // }
 
   async function toggleLike() {
     if (!track) return;
@@ -345,14 +305,6 @@ export default function SongDetailPage() {
     }, 300);
   };
 
-//   console.log("SONG DETAIL STATE:", {
-//   pageTrack: track?.title,
-//   pageTrackId: track?.id,
-//   currentTrack: currentTrack?.title,
-//   currentTrackId: currentTrack?.id,
-//   playing,
-// });
-
   return (
     <main
       ref={pageRef}
@@ -367,7 +319,8 @@ export default function SongDetailPage() {
       {/* seo */}
 
       <SEO
-        title={`${songTitle} | MyRaagam`}
+        // title={`${songTitle} | MyRaagam`}
+        title={`${songTitle} Telugu Song | MyRaagam`}
         description={songDescription}
         image={track.cover_url}
         url={songUrl}
@@ -381,131 +334,13 @@ export default function SongDetailPage() {
           <IoArrowBack />
         </button>
 
-        <h3>Song details</h3>
+        {/* <h3>Song details</h3> */}
+        <span>Song details</span>
 
         <span className="menu-dots" onClick={() => setShowMenu((v) => !v)}>
           <SlOptionsVertical />
         </span>
       </div>
-
-      {/* <div className="song-detail-card">
-        <div className="song-art-wrapper">
-          <div
-            className="song-art"
-            role="presentation"
-            style={{
-              backgroundImage: `url(${
-                track.cover_url || "/covers/default.jpg"
-              })`,
-            }}
-          ></div>
-        </div>
-
-        <div className="song-meta">
-          <div className="song-title-row">
-            <div className="song-title-marquee" ref={titleRef}>
-              <div className="marquee-inner">{track.title}</div>
-            </div>
-
-            <button className="song-like-btn" onClick={toggleLike}>
-              {liked ? <FaHeart /> : <FaRegHeart />}
-            </button>
-          </div>
-
-          <div className="song-artist-marquee" ref={artistRef}>
-            <div className="marquee-inner small">
-              {track.artist || "Unknown Artist"}
-            </div>
-          </div>
-        </div>
-
-        <div className="song-time-row">
-          <span>{formatTime(time)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
-
-       
-        <div
-          className="song-progress"
-          ref={progressRef}
-          onMouseDown={(e) => {
-            isSeeking.current = true;
-            seekTo(e.clientX);
-          }}
-          onMouseMove={(e) => {
-            if (isSeeking.current) {
-              seekTo(e.clientX);
-            }
-          }}
-          onMouseUp={() => {
-            isSeeking.current = false;
-          }}
-          onMouseLeave={() => {
-            isSeeking.current = false;
-          }}
-          onTouchStart={(e) => {
-            isSeeking.current = true;
-            seekTo(e.touches[0].clientX);
-          }}
-          onTouchMove={(e) => {
-            if (isSeeking.current) {
-              seekTo(e.touches[0].clientX);
-            }
-          }}
-          onTouchEnd={() => {
-            isSeeking.current = false;
-          }}
-        >
-          <div
-            className="song-progress-fill"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-
-        <div className="song-main-controls">
-          <button
-            onClick={() => setShuffle((v) => !v)}
-            // style={{ color: shuffle ? "#4de08a" : "#9aa4b2" }}
-            style={{ color: shuffle ? "#4de08a" : "#f7fcf7" }}
-          >
-            <IoIosShuffle />
-          </button>
-
-          <button onClick={playPrev}>
-            <FaStepBackward />
-          </button>
-
-          <button
-            className="song-play-btn"
-            onClick={() => {
-              if (currentTrack?.id === track.id) {
-                togglePlay();
-              } else {
-                setNewQueue(tracks, index);
-              }
-            }}
-          >
-            {playing && currentTrack?.id === track.id ? (
-              // <CiPause1 />
-              <IoIosPause />
-            ) : (
-              <FaPlay />
-            )}
-          </button>
-
-          <button onClick={playNext}>
-            <FaStepForward />
-          </button>
-
-          <button
-            onClick={() => setLoopOne((v) => !v)}
-            // style={{ color: loopOne ? "#4de08a" : "#9aa4b2" }}
-            style={{ color: loopOne ? "#4de08a" : "#f7fcf7" }}
-          >
-            <PiRepeatOnce />
-          </button>
-        </div>
-      </div> */}
 
       <div className="song-detail-card">
         <div className="song-art-wrapper">
@@ -524,7 +359,8 @@ export default function SongDetailPage() {
           <div className="song-meta">
             <div className="song-title-row">
               <div className="song-title-marquee" ref={titleRef}>
-                <div className="marquee-inner">{track.title}</div>
+                {/* <div className="marquee-inner">{track.title}</div> */}
+                <h1 className="marquee-inner">{track.title}</h1>
               </div>
 
               <button className="song-like-btn" onClick={toggleLike}>
@@ -670,37 +506,95 @@ export default function SongDetailPage() {
               <MdQueue /> Add to Queue
             </button>
 
-            {/* <button
-              onClick={() => {
-                setShowMenu(false);
-                setShowPicker(true);
-              }}
-            >
-              <PiPlaylistFill /> Add to Playlist
-            </button> */}
             <button
-  onClick={() => {
-    if (isGuest) {
-      showToast("Sign in to create and manage your playlists");
-      return;
-    }
-
-    setPickerTrack(track);
-    setShowMenu(false);
-    setShowPicker(true);
-  }}
-> <span className="sheet-icon">
-                <PiPlaylistFill />
-              </span>{" "}
-              Add to Playlist</button>
-            {/* <button
               onClick={() => {
                 if (isGuest) {
                   showToast("Sign in to create and manage your playlists");
                   return;
                 }
 
+                setPickerTrack(track);
+                setShowMenu(false);
+                setShowPicker(true);
+              }}
+            >
+              {" "}
+              <span className="sheet-icon">
+                <PiPlaylistFill />
+              </span>{" "}
+              Add to Playlist
+            </button>
+          </div>
+        </div>
+      )}
+      {selectedSong && (
+        <div
+          className="song-menu-overlay"
+          onClick={() => setSelectedSong(null)}
+        >
+          <div
+            className="song-menu-sheet slide-up-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sheet-song-info">
+              <img
+                src={selectedSong.cover_url || "/covers/default.jpg"}
+                alt={selectedSong.title}
+                className="sheet-cover"
+              />
+              <div>
+                <div className="sheet-title">{selectedSong.title}</div>
+                <div className="sheet-artist">
+                  {selectedSong.artist || "Unknown Artist"}
+                </div>
+              </div>
+            </div>
+
+            <div className="sheet-divider" />
+
+            <button
+              onClick={() => {
+                playNextInsert(selectedSong);
+                setSelectedSong(null);
+                showToast("Added to Play Next");
+              }}
+            >
+              <span className="sheet-icon">
+                <HiMiniPlay />
+              </span>{" "}
+              Play Next
+              {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+            </button>
+            <button
+              onClick={() => {
+                setSelectedSong(null);
+                nav("/queue");
+              }}
+            >
+              <span className="sheet-icon">
+                <MdOutlineQueueMusic />
+              </span>{" "}
+              View Queue
+              {/* <span className="sheet-icon">🎵</span> View Queue */}
+            </button>
+            <button
+              onClick={() => {
+                addToQueue(selectedSong);
+                setSelectedSong(null);
+                showToast("Added to Queue");
+              }}
+            >
+              {/* <span className="sheet-icon">➕</span> Add to Queue */}
+              <span className="sheet-icon">
+                <MdQueue />
+              </span>{" "}
+              Add to Queue
+            </button>
+
+            <button
+              onClick={() => {
                 setPickerTrack(selectedSong);
+                setSelectedSong(null);
                 setShowPicker(true);
               }}
             >
@@ -708,154 +602,11 @@ export default function SongDetailPage() {
                 <PiPlaylistFill />
               </span>{" "}
               Add to Playlist
-            </button> */}
+              {/* <span className="sheet-icon">📂</span> Add to Playlist */}
+            </button>
           </div>
         </div>
       )}
-      {/* {snack && <div className="sp-snackbar">Song {snack}</div>} */}
-       {selectedSong && (
-              <div
-                className="song-menu-overlay"
-                onClick={() => setSelectedSong(null)}
-              >
-                {/* <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}> */}
-                <div
-                  className="song-menu-sheet slide-up-sheet"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="sheet-song-info">
-                    <img
-                      src={selectedSong.cover_url || "/covers/default.jpg"}
-                      alt={selectedSong.title}
-                      className="sheet-cover"
-                    />
-                    <div>
-                      <div className="sheet-title">{selectedSong.title}</div>
-                      <div className="sheet-artist">
-                        {selectedSong.artist || "Unknown Artist"}
-                      </div>
-                    </div>
-                  </div>
-      
-                  <div className="sheet-divider" />
-      
-                  {/* <button
-                    onClick={() => {
-                      addToQueue(selectedSong);
-                      setSelectedSong(null);
-                      // showSnack("Added to queue");
-                      showToast("Added to Queue");
-                    }}
-                  >
-                    ➕ Add to Queue
-                  </button>
-      
-                  <button
-                    onClick={() => {
-                      playNextInsert(selectedSong);
-                      setSelectedSong(null);
-                      // showSnack("Added to Play Next");
-                      showToast("Added to Play Next");
-                    }}
-                  >
-                    ▶ Play Next
-                  </button>
-      
-                  <button
-                    onClick={() => {
-                      setSelectedSong(null);
-                      nav("/queue");
-                    }}
-                  >
-                    🎵 View Queue
-                  </button>
-      
-                  <button
-                    onClick={() => {
-                      // setPickerTrackId(selectedSong.id);
-                      setPickerTrack(selectedSong);
-      
-                      setSelectedSong(null);
-                      setShowPicker(true);
-                    }}
-                  >
-                    📂 Add to Playlist
-                  </button> */}
-                  <button
-                    onClick={() => {
-                      playNextInsert(selectedSong);
-                      setSelectedSong(null);
-                      showToast("Added to Play Next");
-                    }}
-                  >
-                    <span className="sheet-icon">
-                      <HiMiniPlay />
-                    </span>{" "}
-                    Play Next
-                    {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedSong(null);
-                      nav("/queue");
-                    }}
-                  >
-                    <span className="sheet-icon">
-                      <MdOutlineQueueMusic />
-                    </span>{" "}
-                    View Queue
-                    {/* <span className="sheet-icon">🎵</span> View Queue */}
-                  </button>
-                  <button
-                    onClick={() => {
-                      addToQueue(selectedSong);
-                      setSelectedSong(null);
-                      showToast("Added to Queue");
-                    }}
-                  >
-                    {/* <span className="sheet-icon">➕</span> Add to Queue */}
-                    <span className="sheet-icon">
-                      <MdQueue />
-                    </span>{" "}
-                    Add to Queue
-                  </button>
-      
-                  <button
-                    onClick={() => {
-                      setPickerTrack(selectedSong);
-                      setSelectedSong(null);
-                      setShowPicker(true);
-                    }}
-                  >
-                    <span className="sheet-icon">
-                      <PiPlaylistFill />
-                    </span>{" "}
-                    Add to Playlist
-                    {/* <span className="sheet-icon">📂</span> Add to Playlist */}
-                  </button>
-                </div>
-              </div>
-            )}
-       {/* {showPicker && (
-              // <PlaylistPicker
-              //   trackId={pickerTrackId}
-              <PlaylistPicker
-                // track={selectedSong}
-                track={pickerTrack}
-                onClose={(status) => {
-                  setShowPicker(false);
-                  // setPickerTrackId(null);
-                  setPickerTrack(null);
-                  if (status === "added") {
-                    // showSnack("added to playlist");.
-                    showToast("Added to Playlist");
-                  } else if (status === "exists") {
-                    // showSnack("already in playlist");
-                    showToast("Already in Playlist");
-                  }
-                }}
-              />
-            )} */}
     </main>
   );
 }
