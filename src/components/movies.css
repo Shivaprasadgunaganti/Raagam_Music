@@ -2,6 +2,10 @@
   padding: 24px;
   color: #fff;
 }
+.moviespageheader{
+  /* border: 1px solid; */
+  padding-inline: 2%;
+}
 
 .movies-header {
   margin-bottom: 24px;

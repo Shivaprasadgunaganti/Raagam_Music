@@ -97,11 +97,13 @@ export default function MoviesPage() {
 
       {/* <h1>Movies & Songs</h1>
       <p>Explore movies and discover their songs on MyRaagam</p> */}
-      <h1>Telugu Movies & Songs</h1>
+     <div className="moviespageheader">
+       <h1>Telugu Movies & Songs</h1>
       <p>
         Explore Telugu movies and discover their songs and soundtracks on
         MyRaagam.
       </p>
+     </div>
       {/* <h1>Albums</h1>
       <p>Browse all movie albums</p> */}
 

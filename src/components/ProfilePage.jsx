@@ -36,11 +36,15 @@ export default function ProfilePage() {
 
   const { tracks } = useTracks();
   const [displayName, setDisplayName] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const [activeFilter, setActiveFilter] = useState("All");
 
   // const username = user?.email?.split("@")[0] || "Listener";
-  const username = displayName || user?.email?.split("@")[0] || "Listener";
+  const username = profileLoading
+  ? ""
+  : displayName || user?.email?.split("@")[0] || "Listener";
+  // const username = displayName || user?.email?.split("@")[0] || "Listener";
 
   const [likedCount, setLikedCount] = useState(0);
   const [playlists, setPlaylists] = useState([]);
@@ -63,20 +67,6 @@ export default function ProfilePage() {
     return "Good Evening 🌙";
   }, []);
 
-  // async function handleLogout() {
-  //   await supabase.auth.signOut();
-
-  //   clearQueue();
-
-  //   Object.keys(localStorage).forEach((key) => {
-  //     if (key.startsWith("audio_state_")) {
-  //       localStorage.removeItem(key);
-  //     }
-  //   });
-
-  //   window.location.href = "/login";
-  // }
-
   async function handleLogout() {
     clearQueue();
 
@@ -92,6 +82,33 @@ export default function ProfilePage() {
 
     nav("/login", { replace: true });
   }
+
+// load profile
+
+useEffect(() => {
+  async function loadProfile() {
+    if (!user?.id) {
+      setProfileLoading(false);
+      return;
+    }
+
+    setProfileLoading(true);
+
+    const { data, error } = await supabase
+      .from("profiles_data")
+      .select("display_name")
+      .eq("id", user.id)
+      .single();
+
+    if (!error && data) {
+      setDisplayName(data.display_name || "");
+    }
+
+    setProfileLoading(false);
+  }
+
+  loadProfile();
+}, [user]);
 
   useEffect(() => {
     async function loadLikedCount() {
@@ -134,23 +151,23 @@ export default function ProfilePage() {
     loadMoviesCount();
   }, []);
 
-  useEffect(() => {
-    async function loadProfile() {
-      if (!user?.id) return;
+  // useEffect(() => {
+  //   async function loadProfile() {
+  //     if (!user?.id) return;
 
-      const { data, error } = await supabase
-        .from("profiles_data")
-        .select("display_name")
-        .eq("id", user.id)
-        .single();
+  //     const { data, error } = await supabase
+  //       .from("profiles_data")
+  //       .select("display_name")
+  //       .eq("id", user.id)
+  //       .single();
 
-      if (!error && data) {
-        setDisplayName(data.display_name || "");
-      }
-    }
+  //     if (!error && data) {
+  //       setDisplayName(data.display_name || "");
+  //     }
+  //   }
 
-    loadProfile();
-  }, [user]);
+  //   loadProfile();
+  // }, [user]);
 
   useEffect(() => {
     async function loadCacheStats() {
@@ -192,20 +209,6 @@ export default function ProfilePage() {
       icon: <MdOfflinePin />,
       path: "/offline",
     },
-
-    // {
-    //   title: "Queue",
-    //   count: tracks?.length || 0,
-    //   icon: <MdQueueMusic />,
-    //   path: "/queue",
-    // },
-
-    // {
-    //   title: "Recently Played",
-    //   count: recent?.length || 0,
-    //   icon: <MdHistory />,
-    //   path: "/all-songs",
-    // },
   ];
 
   const loadPlaylists = async () => {
@@ -261,12 +264,12 @@ export default function ProfilePage() {
 
   return (
     <main className="library-page page-safe">
-{/* seo */}
-<SEO
-  title="Account | MyRaagam"
-  description="Manage your MyRaagam account and music library."
-  robots="noindex, nofollow"
-/>
+      {/* seo */}
+      <SEO
+        title="Account | MyRaagam"
+        description="Manage your MyRaagam account and music library."
+        robots="noindex, nofollow"
+      />
 
       {/* HEADER */}
       <section className="library-header">
@@ -276,21 +279,13 @@ export default function ProfilePage() {
           {/* <h1>Your Library</h1> */}
         </div>
 
-    
-
-        {/* <button
-          className="library-settings-btn"
-          onClick={() => nav("/settings")}
-        >
-          <IoSettingsOutline />
-        </button> */}
         <div className="library-settings-div">
           <button
-          className="library-settings-btn"
-          onClick={() => nav("/settings")}
-        >
-          <IoSettingsOutline />
-        </button>
+            className="library-settings-btn"
+            onClick={() => nav("/settings")}
+          >
+            <IoSettingsOutline />
+          </button>
         </div>
       </section>
 
@@ -318,31 +313,6 @@ export default function ProfilePage() {
           Edit
         </button>
       </section>
-
-      {/* FILTERS */}
-      {/* <section className="library-filters">
-        {[
-          "All",
-          "Playlists",
-          "Albums",
-          "Artists",
-          "Liked",
-        ].map((item) => (
-          <button
-            key={item}
-            className={
-              activeFilter === item
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setActiveFilter(item)
-            }
-          >
-            {item}
-          </button>
-        ))}
-      </section> */}
 
       {/* LIBRARY LIST */}
       <section className="library-list">
@@ -386,43 +356,6 @@ export default function ProfilePage() {
           Shuffle All
         </button>
       </section>
-
-      {/* HISTORY */}
-      {/* {recent?.length > 0 && (
-        <section className="library-history">
-          <div className="section-top">
-            <h2>History</h2>
-
-            <button>Clear</button>
-          </div>
-
-          <div className="history-list">
-            {recent.slice(0, 5).map((track) => (
-              <div
-                key={track.id}
-                className="history-row"
-                onClick={() => nav(`/track/${track.id}`)}
-              >
-                <img
-                  src={track.cover_url || "/covers/default.jpg"}
-                  alt={track.title}
-                />
-
-                <div className="history-info">
-                  <div className="history-title">{track.title}</div>
-
-                  <div className="history-artist">
-                    {track.artist || "Unknown Artist"}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )} */}
-      {/* <button onClick={() => setShowCreatePopup(true)}>
-  + Create Playlist
-</button> */}
 
       {showCreatePopup && (
         <div
