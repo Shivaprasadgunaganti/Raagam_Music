@@ -36,6 +36,8 @@ import OfflineSongsPage from "./components/OfflineSongsPage";
 import useNetworkSync from "./hooks/useNetworkSync";
 import SettingsPage from "./pages/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
 // import { ThemeProvider } from "./context/ThemeContext";
 
 /* ---------------- PROTECTED APP CONTENT ---------------- */
@@ -221,7 +223,19 @@ function AppContent() {
     </GuestRestrictedRoute>
   }
 />
-          
+  <Route
+  path="/privacy-policy"
+  element={
+    <PrivacyPolicyPage />
+  }
+/>
+
+<Route
+  path="/terms-of-service"
+  element={
+    <TermsOfServicePage />
+  }
+/>        
 
           <Route
             path="/edit"

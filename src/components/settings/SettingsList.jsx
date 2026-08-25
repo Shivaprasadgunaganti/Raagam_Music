@@ -383,6 +383,30 @@ export default function SettingsList() {
           <span>1.0.0</span>
         </div>
 
+        <div
+  className="settings-row"
+  onClick={() => navigate("/privacy-policy")}
+>
+  <div className="settings-left">
+    <MdInfoOutline />
+    <span>Privacy Policy</span>
+  </div>
+
+  <IoChevronForward />
+</div>
+
+<div
+  className="settings-row"
+  onClick={() => navigate("/terms-of-service")}
+>
+  <div className="settings-left">
+    <MdInfoOutline />
+    <span>Terms & Conditions</span>
+  </div>
+
+  <IoChevronForward />
+</div>
+
         <div className="settings-row" onClick={() => navigate("/feedback")}>
           <div className="settings-left">
             <MdInfoOutline />
