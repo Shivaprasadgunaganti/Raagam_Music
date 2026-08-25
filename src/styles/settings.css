@@ -64,7 +64,7 @@
   /* background: var(--surface); */
   /* border: 1px solid var(--border); */
   border-radius: 18px;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .settings-section h3 {
@@ -73,11 +73,10 @@
 
 /* ---------- Row ---------- */
 
-.settings-row {
+/* .settings-row {
   height: 62px;
   display: flex;
   align-items: center;
- /* align-content: center; */
   justify-content: space-between;
   padding: 0 18px;
   transition: .25s;
@@ -86,7 +85,25 @@
 
 .settings-row:hover {
   background: var(--surface-hover);
+} */
+
+.settings-row {
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+
+  transition: background-color 0.15s ease;
+  cursor: pointer;
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .settings-row:hover {
+    background: var(--surface-hover);
+  }
+}
+
 
 .settings-row + .settings-row {
   border-top: 1px solid var(--border-soft);

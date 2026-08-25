@@ -322,6 +322,8 @@ export default function SettingsList() {
       <section className="settings-section">
         <h3>Appearance</h3>
 
+        
+
         <div className="settings-row" onClick={toggleTheme}>
           <div className="settings-left">
             <MdPalette />
@@ -333,7 +335,9 @@ export default function SettingsList() {
 
             <IoChevronForward />
           </div>
+          
         </div>
+   
       </section>
 
       {/* Offline */}
@@ -401,7 +405,8 @@ export default function SettingsList() {
 >
   <div className="settings-left">
     <MdInfoOutline />
-    <span>Terms & Conditions</span>
+    <span>Terms of Service</span>
+    {/* <span>Terms & Conditions</span> */}
   </div>
 
   <IoChevronForward />

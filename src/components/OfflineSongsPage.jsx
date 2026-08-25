@@ -6,6 +6,10 @@ import { getAllCachedTracks } from "../utils/offlineCache";
 import { deleteTrack } from "../utils/offlineCache";
 import { useToast } from "../context/ToastContext";
 import "./OfflineSongsPage.css";
+import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+import { FaPlay, FaShuffle } from "react-icons/fa6";
+import { MdOutlineDeleteOutline } from "react-icons/md";
+
 import SEO from "./SEO";
 
 export default function OfflineSongsPage() {
@@ -44,28 +48,6 @@ export default function OfflineSongsPage() {
   //   }
   if (!loading && songs.length === 0) {
     return (
-      // <div className="liked-page">
-      //   <div className="liked-header">
-      //     <button onClick={() => nav(-1)}>
-      //       <IoArrowBack />
-      //     </button>
-
-      //     <h2>Offline Songs</h2>
-      //   </div>
-
-      //   <div
-      //     style={{
-      //       textAlign: "center",
-      //       padding: "60px 20px",
-      //     }}
-      //   >
-      //     <h3>No Offline Songs Yet</h3>
-
-      //     <p>
-      //       Play songs online to make them available offline.
-      //     </p>
-      //   </div>
-      // </div>
       <div className="offline-screen">
         <div className="offline-topbar">
           <button className="offline-back-btn" onClick={() => nav(-1)}>
@@ -85,11 +67,6 @@ export default function OfflineSongsPage() {
   }
 
   return (
-    // <div className="liked-page">
-    //   <div className="liked-header">
-    //     <button onClick={() => nav(-1)}>
-    //       <IoArrowBack />
-    //     </button>
     <div className="offline-screen">
       <SEO
         title="Offline Songs | MyRaagam"
@@ -187,18 +164,6 @@ export default function OfflineSongsPage() {
 
             <button
               onClick={() => {
-                addToQueue(selectedSong);
-
-                setSelectedSong(null);
-
-                showToast("Added to Queue");
-              }}
-            >
-              ➕ Add to Queue
-            </button>
-
-            <button
-              onClick={() => {
                 playNextInsert(selectedSong);
 
                 setSelectedSong(null);
@@ -206,7 +171,8 @@ export default function OfflineSongsPage() {
                 showToast("Added to Play Next");
               }}
             >
-              ▶ Play Next
+              <FaPlay /> Play Next
+              {/* ▶ Play Next */}
             </button>
 
             <button
@@ -216,7 +182,27 @@ export default function OfflineSongsPage() {
                 nav("/queue");
               }}
             >
-              🎵 View Queue
+              <span className="sheet-icon">
+                <MdOutlineQueueMusic />
+              </span>{" "}
+              View Queue
+              {/* 🎵 View Queue */}
+            </button>
+
+            <button
+              onClick={() => {
+                addToQueue(selectedSong);
+
+                setSelectedSong(null);
+
+                showToast("Added to Queue");
+              }}
+            >
+              {/* ➕ Add to Queue */}
+              <span className="sheet-icon">
+                <MdQueue />
+              </span>{" "}
+              Add to Queue
             </button>
 
             <button
@@ -232,7 +218,8 @@ export default function OfflineSongsPage() {
                 showToast("Offline copy removed");
               }}
             >
-              🗑 Remove Offline Copy
+              <MdOutlineDeleteOutline /> Remove Offline Copy
+              {/* 🗑 Remove Offline Copy */}
             </button>
           </div>
         </div>
