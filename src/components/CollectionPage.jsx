@@ -225,39 +225,74 @@ export default function CollectionPage() {
     setNewQueue([track], 0);
   };
 
-  const addToLiked = async (e, track) => {
-    e.stopPropagation();
+  // const addToLiked = async (e, track) => {
+  //   e.stopPropagation();
 
-    if (likedMap[track.id]) {
-      await unlikeSong(track.id);
+  //   if (likedMap[track.id]) {
+  //     await unlikeSong(track.id);
 
-      setLikedMap((prev) => ({
-        ...prev,
-        [track.id]: false,
-      }));
+  //     setLikedMap((prev) => ({
+  //       ...prev,
+  //       [track.id]: false,
+  //     }));
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const result = await likeSong(track);
+  //   const result = await likeSong(track);
 
-    if (result?.guest) {
-      showToast("Sign in to add songs to your Liked Songs");
-      return;
-    }
+  //   if (result?.guest) {
+  //     showToast("Sign in to add songs to your Liked Songs");
+  //     return;
+  //   }
 
-    if (result?.error) {
-      showToast("Unable to add song to Liked Songs");
-      return;
-    }
+  //   if (result?.error) {
+  //     showToast("Unable to add song to Liked Songs");
+  //     return;
+  //   }
+
+  //   setLikedMap((prev) => ({
+  //     ...prev,
+  //     [track.id]: true,
+  //   }));
+
+  //   showToast("Added to Liked Songs");
+  // };
+
+const addToLiked = async (e, track) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (likedMap[track.id]) {
+    await unlikeSong(track.id);
 
     setLikedMap((prev) => ({
       ...prev,
-      [track.id]: true,
+      [track.id]: false,
     }));
 
-    showToast("Added to Liked Songs");
-  };
+    return;
+  }
+
+  const result = await likeSong(track);
+
+  if (result?.guest) {
+    showToast("Sign in to add songs to your Liked Songs");
+    return;
+  }
+
+  if (result?.error) {
+    showToast("Unable to add song to Liked Songs");
+    return;
+  }
+
+  setLikedMap((prev) => ({
+    ...prev,
+    [track.id]: true,
+  }));
+
+  showToast("Added to Liked Songs");
+};
 
   const getPlaylistCovers = (playlist) => {
     if (!playlist.playlist_tracks) return [];
@@ -756,10 +791,8 @@ export default function CollectionPage() {
             </section>
           )}
 
-          <section className="home-section">
-            {/* {renderSectionHeader("Songs", () => nav("/all-songs"))} */}
-
-            {/* {renderSectionHeader("Songs", () => nav("/all-songs"), true)} */}
+          {/* <section className="home-section">
+         
             {renderSectionHeader("Songs", () => nav("/overall"), true)}
 
             <div className="songs-list">
@@ -789,11 +822,9 @@ export default function CollectionPage() {
                       <div className="song-list-actions">
                         <button
                           className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
-                          // onClick={(e) => addToLiked(e, t.id)}
                           onClick={(e) => addToLiked(e, t)}
                           aria-label="Like song"
                         >
-                          {/* ♥ */}
                           {likedMap[t.id] ? <FaHeart /> : <FaRegHeart />}
                         </button>
                         <button
@@ -804,14 +835,69 @@ export default function CollectionPage() {
                           }}
                           aria-label="Play song"
                         >
-                          {/* ▶ */}
                           <FaPlay />
                         </button>
                       </div>
                       </Link>
                   ))}
             </div>
-          </section>
+          </section> */}
+
+          <section className="home-section">
+  {renderSectionHeader("Songs", () => nav("/overall"), true)}
+
+  <div className="songs-list">
+    {filtered.length === 0
+      ? Array.from({ length: 3 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))
+      : filtered.slice(0, 3).map((t, index) => (
+          <Link
+            key={t.id}
+            to={`/song/${t.id}`}
+            className="song-list-card"
+            onClick={() => setNewQueue(filtered, index)}
+          >
+            <div className="song-list-left">
+              <LazyImage
+                src={t.cover_url || "/covers/default.jpg"}
+                alt={t.title}
+                className="song-list-img"
+              />
+
+              <div className="song-list-meta">
+                <h4>{t.title}</h4>
+                <p>{t.artist || "Unknown Artist"}</p>
+              </div>
+            </div>
+
+            <div className="song-list-actions">
+              <button
+                type="button"
+                className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
+                onClick={(e) => addToLiked(e, t)}
+                aria-label="Like song"
+              >
+                {likedMap[t.id] ? <FaHeart /> : <FaRegHeart />}
+              </button>
+
+              <button
+                type="button"
+                className="play-inline-btn"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setNewQueue(filtered, index);
+                }}
+                aria-label="Play song"
+              >
+                <FaPlay />
+              </button>
+            </div>
+          </Link>
+        ))}
+  </div>
+</section>
 
           <section className="home-section utility-bar">
             <div className="utility-buttons">

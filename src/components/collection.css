@@ -334,6 +334,16 @@
   justify-content: space-between;
   align-items: center;
   text-decoration: none;
+
+    -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.song-list-card:focus,
+.song-list-card:focus-visible,
+.song-list-card:active {
+  outline: none;
+  background: var(--surface);
 }
 
 .song-list-left {

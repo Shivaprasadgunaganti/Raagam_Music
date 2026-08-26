@@ -53,7 +53,7 @@ export default function AllSongsPage() {
               className="song-row"
               onClick={() => {
                 setNewQueue(tracks, index);
-                nav(`/track/${t.id}`);
+                // nav(`/track/${t.id}`);
               }}
             >
               <img
@@ -82,7 +82,7 @@ export default function AllSongsPage() {
                 <p className="song-artist">{t.artist || "Unknown Artist"}</p>
               </div>
 
-              <div className="song-arrow">›</div>
+              {/* <div className="song-arrow">›</div> */}
             </div>
           );
         })}
