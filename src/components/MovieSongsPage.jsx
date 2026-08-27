@@ -185,6 +185,9 @@ export default function MovieSongsPage() {
           <p>
             {movie.year} • {songs.length} songs
           </p>
+          <p className="sp-album-description">
+  Listen to {movie.title} Telugu movie songs and soundtrack on MyRaagam.
+</p>
           <div className="sp-album-play">
             <button
               className="sp-album-shuffle-btn"

@@ -588,7 +588,7 @@ const addToLiked = async (e, track) => {
     // <main className="homepage page-safe">
     <main className="homepage page page-safe">
 
-      <SEO
+      {/* <SEO
   title="Telugu Songs & Music | MyRaagam"
   description="Listen to Telugu songs, movie soundtracks and music online on MyRaagam. Discover Telugu movie songs, albums and more."
   url="https://www.myraagam.com/"
@@ -606,7 +606,22 @@ const addToLiked = async (e, track) => {
           url: "https://www.myraagam.com/",
           description: "Explore Telugu songs, movies and music on MyRaagam.",
         }}
-      />
+      /> */}
+
+      <SEO
+  title="Telugu Songs & Music | MyRaagam"
+  description="Listen to Telugu songs, Telugu movie songs and soundtracks online on MyRaagam. Discover movies, albums and regional music."
+  url="https://www.myraagam.com/"
+  type="website"
+  jsonLd={{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MyRaagam",
+    url: "https://www.myraagam.com/",
+    description:
+      "Listen to Telugu songs, Telugu movie songs and regional music online on MyRaagam.",
+  }}
+/>
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
