@@ -272,14 +272,14 @@ export default function EditProfilePage() {
               ?.toUpperCase()}
           </div>
 
-          <button className="avatar-edit-btn">
+          {/* <button className="avatar-edit-btn">
             <IoCreateOutline />
-          </button>
+          </button> */}
         </div>
 
-        <button className="change-photo-btn">
+        {/* <button className="change-photo-btn">
           Change Photo
-        </button>
+        </button> */}
       </section>
 
       {/* PERSONAL */}

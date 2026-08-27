@@ -878,7 +878,7 @@ const addToLiked = async (e, track) => {
                 onClick={(e) => addToLiked(e, t)}
                 aria-label="Like song"
               >
-                {likedMap[t.id] ? <FaHeart /> : <FaRegHeart />}
+                {likedMap[t.id] ? <FaHeart size={16}/> : <FaRegHeart size={16}/>}
               </button>
 
               <button

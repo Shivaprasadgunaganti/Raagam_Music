@@ -274,9 +274,10 @@ export default function MovieSongsPage() {
                 }}
               >
                 {likedMap[song.id] ? (
-                  <FaHeart color="#1db954" />
+                  <FaHeart color="var(--accent-purple)" />
+                  // <FaHeart color="#1db954" />
                 ) : (
-                  <FaRegHeart />
+                  <FaRegHeart color="var(--accent-purple)"/>
                 )}
               </button>
 

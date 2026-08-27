@@ -19,7 +19,7 @@ import ColorThief from "color-thief-browser";
 import { useLikes } from "../context/LikeContext";
 import { useToast } from "../context/ToastContext";
 import { HiMiniPlay } from "react-icons/hi2";
-import { MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+import { MdAlbum, MdOutlineQueueMusic, MdQueue } from "react-icons/md";
 import SEO from "./SEO";
 import { useAuth } from "../context/AuthContext";
 
@@ -191,9 +191,9 @@ export default function SongDetailPage() {
   //     : `Listen to ${songTitle} on MyRaagam.`;
 
   const songDescription =
-  songArtist !== "Unknown Artist"
-    ? `Listen to ${songTitle}, a Telugu song by ${songArtist}, on MyRaagam. Play the song online and discover more Telugu music.`
-    : `Listen to ${songTitle}, a Telugu song on MyRaagam. Play the song online and discover more Telugu music.`;
+    songArtist !== "Unknown Artist"
+      ? `Listen to ${songTitle}, a Telugu song by ${songArtist}, on MyRaagam. Play the song online and discover more Telugu music.`
+      : `Listen to ${songTitle}, a Telugu song on MyRaagam. Play the song online and discover more Telugu music.`;
 
   const songJsonLd = {
     "@context": "https://schema.org",
@@ -492,6 +492,17 @@ export default function SongDetailPage() {
               <HiMiniPlay /> Play Next
             </button>
 
+            {track.movie_id && (
+              <button
+                onClick={() => {
+                  setShowMenu(false);
+                  nav(`/movie/${track.movie_id}`);
+                }}
+              >
+                <MdAlbum /> Go to Album
+              </button>
+            )}
+
             <button onClick={() => nav("/queue")}>
               {" "}
               <MdOutlineQueueMusic /> View Queue
@@ -604,6 +615,16 @@ export default function SongDetailPage() {
               Add to Playlist
               {/* <span className="sheet-icon">📂</span> Add to Playlist */}
             </button>
+            {selectedSong.movie_id && (
+              <button
+                onClick={() => {
+                  setSelectedSong(null);
+                  nav(`/movie/${selectedSong.movie_id}`);
+                }}
+              >
+                <MdAlbum /> Go to Album
+              </button>
+            )}
           </div>
         </div>
       )}

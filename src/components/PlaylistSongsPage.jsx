@@ -342,14 +342,15 @@ export default function PlaylistDetailPage() {
               className="pd-play-btn"
               onClick={() => setNewQueue(songs, 0)}
             >
-              ▶
+              {/* ▶ */}
+              <FaPlay color="fff" size={15}/>
             </button>
 
             <button
               className="pd-shuffle-btn"
               onClick={() => shufflePlay(songs)}
             >
-              <FaShuffle />
+              <FaShuffle size={15}/>
             </button>
           </div>
         )}
@@ -403,9 +404,10 @@ export default function PlaylistDetailPage() {
                 }}
               >
                 {likedMap[song.id] ? (
-                  <FaHeart color="#1db954" />
+                  <FaHeart color="var(--accent-purple)" />
+                  // <FaHeart color="#1db954" />
                 ) : (
-                  <FaRegHeart />
+                  <FaRegHeart color="var(--accent-purple)"/>
                 )}
               </button>
 

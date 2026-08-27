@@ -118,10 +118,13 @@
   bottom: 12px;
   right: 24px; */
   position: static; /* or just remove position */
-  width: 54px;
-  height: 54px;
+  /* width: 54px;
+  height: 54px; */
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  background: #1db954;
+  /* background: #1db954; */
+  background: var(--accent-purple);
   color: #000;
   border: none;
   font-size: 20px;
@@ -135,7 +138,8 @@
     background 0.2s;
 }
 .pd-play-btn:hover {
-  background: #1ed760;
+  /* background: #1ed760; */
+  background:var(--accent-purple);
   transform: scale(1.06);
 }
 .pd-play-btn:active {
@@ -490,11 +494,14 @@
 }
 
 .pd-shuffle-btn {
-  width: 52px;
-  height: 52px;
+  width: 45px;
+  height: 45px;
+  /* width: 52px;
+  height: 52px; */
   border: none;
   border-radius: 50%;
-  background: #1db954;
+  background: var(--accent-purple);
+  /* background: #1db954; */
   color: #fff;
   font-size: 20px;
   cursor: pointer;

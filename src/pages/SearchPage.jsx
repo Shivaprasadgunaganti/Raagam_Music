@@ -163,6 +163,32 @@ export default function SearchPage() {
     localStorage.setItem("search_history", JSON.stringify(updated));
   };
   // console.log("PLAYLIST RAW:", playlists);
+
+
+const playRecentSong = async (songId) => {
+  try {
+    const { data, error } = await supabase
+      .from("tracks")
+      .select("*")
+      .eq("id", songId)
+      .single();
+
+    if (error) {
+      console.error("Failed to load recent song:", error);
+      return;
+    }
+
+    if (!data) return;
+
+    // Play only the clicked song
+    setNewQueue([data], 0);
+
+    setShowDropdown(false);
+  } catch (error) {
+    console.error("Error playing recent song:", error);
+  }
+};
+
   return (
     <main className="search-page page-safe">
       {/* seo */}
@@ -215,7 +241,7 @@ export default function SearchPage() {
 
                     setShowDropdown(false);
 
-                    if (item.type === "song") nav(`/track/${item.id}`);
+                    // if (item.type === "song") nav(`/track/${item.id}`);
                     if (item.type === "album") nav(`/movie/${item.id}`);
                     if (item.type === "playlist") nav(`/playlist/${item.id}`);
                   }}
@@ -276,24 +302,41 @@ export default function SearchPage() {
                   // }}
 
                   onMouseDown={() => {
-                    setShowDropdown(false);
+  if (h.type === "song") {
+    playRecentSong(h.id);
+    return;
+  }
 
-                    if (h.type === "song") {
-                      setNewQueue(
-                        filteredSongs,
-                        filteredSongs.findIndex((x) => x.id === h.id),
-                      );
-                      nav(`/track/${h.id}`);
-                    }
+  setShowDropdown(false);
 
-                    if (h.type === "album") {
-                      nav(`/movie/${h.id}`);
-                    }
+  if (h.type === "album") {
+    nav(`/movie/${h.id}`);
+  }
 
-                    if (h.type === "playlist") {
-                      nav(`/playlist/${h.id}`);
-                    }
-                  }}
+  if (h.type === "playlist") {
+    nav(`/playlist/${h.id}`);
+  }
+}}
+
+                  // onMouseDown={() => {
+                  //   setShowDropdown(false);
+
+                  //   if (h.type === "song") {
+                  //     setNewQueue(
+                  //       filteredSongs,
+                  //       filteredSongs.findIndex((x) => x.id === h.id),
+                  //     );
+                  //     nav(`/track/${h.id}`);
+                  //   }
+
+                  //   if (h.type === "album") {
+                  //     nav(`/movie/${h.id}`);
+                  //   }
+
+                  //   if (h.type === "playlist") {
+                  //     nav(`/playlist/${h.id}`);
+                  //   }
+                  // }}
                 >
                   <img
                     // src={h.cover_url || "/covers/default.jpg"}
@@ -356,7 +399,7 @@ export default function SearchPage() {
                         filteredSongs.findIndex((x) => x.id === t.id),
                       );
 
-                      nav(`/track/${t.id}`);
+                      // nav(`/track/${t.id}`);
                     }}
                   >
                     <img src={t.cover_url} alt="" />

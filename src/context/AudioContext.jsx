@@ -136,25 +136,151 @@ export function AudioProvider({ children }) {
     };
   }, [currentTrack, user]);
 
-  // FIXED: setNewQueue now also builds shuffle order if shuffle is on
-  const setNewQueue = useCallback(
-    (tracks, index) => {
-      if (!tracks?.length) return;
+  // new suggestions
+  const buildAutoQueue = useCallback(async (track) => {
+  if (!track?.id) return [track];
 
-      setQueue(tracks);
-      setCurrentIndex(index);
+  try {
+    const collected = [];
+    const seenIds = new Set([track.id]);
+
+    // 1. Same movie
+    if (track.movie_id) {
+      const { data: movieTracks, error: movieError } = await supabase
+        .from("tracks")
+        .select("*")
+        .eq("movie_id", track.movie_id)
+        .neq("id", track.id)
+        .order("created_at", { ascending: true })
+        .limit(5);
+
+      if (movieError) {
+        console.error("Failed to fetch same-movie songs:", movieError);
+      }
+
+      (movieTracks || []).forEach((song) => {
+        if (!seenIds.has(song.id)) {
+          seenIds.add(song.id);
+          collected.push(song);
+        }
+      });
+    }
+
+    // 2. Same artist
+    if (track.artist) {
+      const { data: artistTracks, error: artistError } = await supabase
+        .from("tracks")
+        .select("*")
+        .eq("artist", track.artist)
+        .neq("id", track.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (artistError) {
+        console.error("Failed to fetch same-artist songs:", artistError);
+      }
+
+      (artistTracks || []).forEach((song) => {
+        if (!seenIds.has(song.id)) {
+          seenIds.add(song.id);
+          collected.push(song);
+        }
+      });
+    }
+
+    // 3. General fallback
+    if (collected.length < 5) {
+      const { data: fallbackTracks, error: fallbackError } = await supabase
+        .from("tracks")
+        .select("*")
+        .neq("id", track.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (fallbackError) {
+        console.error("Failed to fetch fallback songs:", fallbackError);
+      }
+
+      (fallbackTracks || []).forEach((song) => {
+        if (!seenIds.has(song.id)) {
+          seenIds.add(song.id);
+          collected.push(song);
+        }
+      });
+    }
+
+    // Keep the queue reasonably small
+    return [track, ...collected.slice(0, 9)];
+  } catch (error) {
+    console.error("Failed to build automatic queue:", error);
+
+    return [track];
+  }
+}, []);
+
+  // FIXED: setNewQueue now also builds shuffle order if shuffle is on
+  // const setNewQueue = useCallback(
+  //   (tracks, index) => {
+  //     if (!tracks?.length) return;
+
+  //     setQueue(tracks);
+  //     setCurrentIndex(index);
+
+  //     if (shuffle) {
+  //       const { order, pointer } = buildShuffleOrder(tracks, index);
+  //       setShuffleOrder(order);
+  //       setShufflePointer(pointer);
+  //     } else {
+  //       setShuffleOrder([]);
+  //       setShufflePointer(0);
+  //     }
+  //   },
+  //   [shuffle, buildShuffleOrder],
+  // );
+
+const setNewQueue = useCallback(
+  async (tracks, index) => {
+    if (!tracks?.length) return;
+
+    // Single-song selection:
+    // automatically build an Up Next queue.
+    if (tracks.length === 1) {
+      const selectedTrack = tracks[0];
+
+      const autoQueue = await buildAutoQueue(selectedTrack);
+
+      setQueue(autoQueue);
+      setCurrentIndex(0);
 
       if (shuffle) {
-        const { order, pointer } = buildShuffleOrder(tracks, index);
+        const { order, pointer } = buildShuffleOrder(autoQueue, 0);
+
         setShuffleOrder(order);
         setShufflePointer(pointer);
       } else {
         setShuffleOrder([]);
         setShufflePointer(0);
       }
-    },
-    [shuffle, buildShuffleOrder],
-  );
+
+      return;
+    }
+
+    // Existing behavior for multi-song queues
+    setQueue(tracks);
+    setCurrentIndex(index);
+
+    if (shuffle) {
+      const { order, pointer } = buildShuffleOrder(tracks, index);
+
+      setShuffleOrder(order);
+      setShufflePointer(pointer);
+    } else {
+      setShuffleOrder([]);
+      setShufflePointer(0);
+    }
+  },
+  [shuffle, buildShuffleOrder, buildAutoQueue],
+);
 
   // FIXED: playAll always uses original order, no shuffle
   const playAll = useCallback((tracks) => {
@@ -290,11 +416,26 @@ export function AudioProvider({ children }) {
       }
 
       // Normal mode: go to next, and wrap to 0 at the end
-      if (current + 1 < queue.length) {
-        return current + 1;
-      }
+      // if (current + 1 < queue.length) {
+      //   return current + 1;
+      // }
 
-      return 0; // <-- THIS FIXES: now loops back to first song instead of stopping
+      // return 0; 
+// Normal mode
+if (current + 1 < queue.length) {
+  return current + 1;
+}
+
+// If there is genuinely only one song,
+// don't replay it forever.
+if (queue.length === 1) {
+  setPlaying(false);
+  return current;
+}
+
+// Multi-song queues continue from the beginning.
+return 0;
+
     });
   }, [queue, shuffle, shuffleOrder, shufflePointer, buildShuffleOrder]);
 

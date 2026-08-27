@@ -234,7 +234,8 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: rgb(50, 168, 82);
+  /* color: rgb(50, 168, 82); */
+  color: var(--accent-purple);
   font-size: 22px;
   display: flex;
   align-items: center;
