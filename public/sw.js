@@ -47,7 +47,8 @@
 //   );
 // });
 
-const CACHE_NAME = "raagam-shell-v1";
+const CACHE_NAME = "raagam-shell-v2";
+// const CACHE_NAME = "raagam-shell-v1";
 
 const APP_SHELL = [
   "/",
@@ -118,9 +119,14 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Cache First for static assets
+  // if (
+  //   /\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/i.test(url.pathname)
+  // ) {
   if (
-    /\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/i.test(url.pathname)
-  ) {
+  /\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/i.test(
+    url.pathname
+  )
+) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         if (cached) {
