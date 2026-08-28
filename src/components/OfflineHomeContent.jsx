@@ -80,7 +80,8 @@ import {
   getLikedTrackIds,
 } from "../utils/offlineCache";
 import { RiWifiOffLine } from "react-icons/ri";
-import  playlist  from "../Assets/playlist_image.png";
+// import  playlist  from "../Assets/playlist_image.png";
+import playlist_image from "../Assets/playlist_image.png"
 
 export default function OfflineHomeContent() {
   const nav = useNavigate();
@@ -240,8 +241,11 @@ export default function OfflineHomeContent() {
                 </div> */}
 
                 <div className="playlist-cover">
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10" alt={playlist.name} />
+                  <img src={playlist_image} alt={playlist.name} />
                 </div>
+                {/* <div className="playlist-cover">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10" alt={playlist.name} />
+                </div> */}
 
                 <p className="playlist-title">{playlist.name}</p>
                 <small className="album-subtitle">
