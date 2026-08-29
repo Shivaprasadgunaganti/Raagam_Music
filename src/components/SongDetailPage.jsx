@@ -75,6 +75,8 @@ export default function SongDetailPage() {
     addToQueue,
     playNextInsert,
     currentTime,
+    duration: contextDuration,   // NEW
+  seekTo: seekToTime,
   } = useAudio();
 
   const track = tracks.find((t) => String(t.id) === String(id));
@@ -210,22 +212,38 @@ export default function SongDetailPage() {
   const duration = audioRef.current?.duration || 0;
   const progressPct = duration ? (time / duration) * 100 : 0;
 
+  // function seekTo(clientX) {
+  //   const audio = audioRef.current;
+  //   // const bar = progressRef.current;
+  //   const duration = contextDuration || 0;
+
+  //   if (!audio || !bar || !audio.duration) return;
+
+  //   const rect = bar.getBoundingClientRect();
+
+  //   const percent = Math.min(
+  //     Math.max((clientX - rect.left) / rect.width, 0),
+  //     1,
+  //   );
+
+  //   audio.currentTime = percent * audio.duration;
+  //   setTime(audio.currentTime);
+  // }
+
   function seekTo(clientX) {
-    const audio = audioRef.current;
-    const bar = progressRef.current;
+  const bar = progressRef.current;
+  if (!bar || !duration) return;
 
-    if (!audio || !bar || !audio.duration) return;
+  const rect = bar.getBoundingClientRect();
+  const percent = Math.min(
+    Math.max((clientX - rect.left) / rect.width, 0),
+    1,
+  );
 
-    const rect = bar.getBoundingClientRect();
-
-    const percent = Math.min(
-      Math.max((clientX - rect.left) / rect.width, 0),
-      1,
-    );
-
-    audio.currentTime = percent * audio.duration;
-    setTime(audio.currentTime);
-  }
+  const newTime = percent * duration;
+  seekToTime(newTime);
+  setTime(newTime);
+}
 
   async function toggleLike() {
     if (!track) return;
