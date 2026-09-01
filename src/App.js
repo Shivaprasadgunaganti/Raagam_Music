@@ -116,14 +116,15 @@ function AppContent() {
           <Route path="/signup" element={<SignupPage />} />
 
           {/* Protected Routes */}
-          <Route
+          {/* <Route
             path="/"
             element={
               <ProtectedRoute>
                 <CollectionPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
+          <Route path="/" element={<CollectionPage />} />
           {/* <Route
             path="/track/:id"
             element={
