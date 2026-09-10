@@ -14,7 +14,8 @@ import OfflineGuidePopup from "./OfflineGuidePopup";
 export default function BottomNav() {
   const { currentTrack } = useAudio();
   const nav = useNavigate();
-  const { isGuest } = useAuth();
+  // const { isGuest } = useAuth();
+  const { user } = useAuth();
     const [showOfflineGuide, setShowOfflineGuide] = useState(false);
   
 
@@ -38,7 +39,7 @@ export default function BottomNav() {
         <span>Liked</span>
       </NavLink> */}
 
-        {isGuest ? (
+        {/* {isGuest ? (
           <button className="nav-item" onClick={() => setShowAuthModal(true)}>
             <FaRegHeart size={15}/>
             <span>Liked</span>
@@ -48,7 +49,22 @@ export default function BottomNav() {
             <FaRegHeart size={15}/>
             <span>Liked</span>
           </NavLink>
-        )}
+        )} */}
+
+        {user ? (
+  <NavLink to="/liked" className="nav-item">
+    <FaRegHeart size={15} />
+    <span>Liked</span>
+  </NavLink>
+) : (
+  <button
+    className="nav-item"
+    onClick={() => setShowAuthModal(true)}
+  >
+    <FaRegHeart size={15} />
+    <span>Liked</span>
+  </button>
+)}
 
         {/* <NavLink to="/account" className="nav-item">
         <MdOutlineAccountCircle />

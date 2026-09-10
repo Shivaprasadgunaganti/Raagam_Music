@@ -548,7 +548,8 @@ function AppContent() {
       {/* {!hideGlobalUI && !isLoginPage && user && <MiniPlayer />}
       {!hideGlobalUI && !isLoginPage && user && <BottomNav />} */}
       {!hideGlobalUI && !isLoginPage && (user || isGuest) && <MiniPlayer />}
-      {!hideGlobalUI && !isLoginPage && (user || isGuest) && <BottomNav />}
+      {/* {!hideGlobalUI && !isLoginPage && (user || isGuest) && <BottomNav />} */}
+      {!hideGlobalUI && !isLoginPage && <BottomNav />}
     </>
   );
 }

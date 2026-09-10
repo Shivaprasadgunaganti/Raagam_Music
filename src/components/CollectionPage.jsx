@@ -807,7 +807,7 @@
 //           )}
 
 //           {/* <section className="home-section">
-         
+
 //             {renderSectionHeader("Songs", () => nav("/overall"), true)}
 
 //             <div className="songs-list">
@@ -997,8 +997,6 @@
 //   );
 // }
 
-
-
 // src/components/CollectionPage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 // import { useNavigate } from "react-router-dom";
@@ -1052,7 +1050,11 @@ export default function CollectionPage() {
   const [movies, setMovies] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [continueTracks, setContinueTracks] = useState([]);
-  const [activeTab, setActiveTab] = useState("continue");
+  // const [activeTab, setActiveTab] = useState("continue");
+  const [activeTab, setActiveTab] = useState("trending");
+  useEffect(() => {
+  setActiveTab(user ? "continue" : "trending");
+}, [user]);
   // const [heroIndex, setHeroIndex] = useState(() =>
   //   Math.floor(Math.random() * 2),
   // );
@@ -1260,40 +1262,40 @@ export default function CollectionPage() {
   //   showToast("Added to Liked Songs");
   // };
 
-const addToLiked = async (e, track) => {
-  e.preventDefault();
-  e.stopPropagation();
+  const addToLiked = async (e, track) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  if (likedMap[track.id]) {
-    await unlikeSong(track.id);
+    if (likedMap[track.id]) {
+      await unlikeSong(track.id);
+
+      setLikedMap((prev) => ({
+        ...prev,
+        [track.id]: false,
+      }));
+
+      return;
+    }
+
+    const result = await likeSong(track);
+
+    if (result?.guest) {
+      showToast("Sign in to add songs to your Liked Songs");
+      return;
+    }
+
+    if (result?.error) {
+      showToast("Unable to add song to Liked Songs");
+      return;
+    }
 
     setLikedMap((prev) => ({
       ...prev,
-      [track.id]: false,
+      [track.id]: true,
     }));
 
-    return;
-  }
-
-  const result = await likeSong(track);
-
-  if (result?.guest) {
-    showToast("Sign in to add songs to your Liked Songs");
-    return;
-  }
-
-  if (result?.error) {
-    showToast("Unable to add song to Liked Songs");
-    return;
-  }
-
-  setLikedMap((prev) => ({
-    ...prev,
-    [track.id]: true,
-  }));
-
-  showToast("Added to Liked Songs");
-};
+    showToast("Added to Liked Songs");
+  };
 
   const getPlaylistCovers = (playlist) => {
     if (!playlist.playlist_tracks) return [];
@@ -1372,15 +1374,32 @@ const addToLiked = async (e, track) => {
     }
 
     // Slide 3 — first letter of email matched tracks
-    const emailInitial = user?.email?.[0]?.toLowerCase() || "";
-    const matchedTracks = tracks.filter((t) =>
-      t.title?.toLowerCase().startsWith(emailInitial),
-    );
-    const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
-    const slide3Title =
-      matchedTracks.length > 0
-        ? `Tracks starting with "${emailInitial.toUpperCase()}"`
-        : "Albums picked for you";
+    // const emailInitial = user?.email?.[0]?.toLowerCase() || "";
+    // const matchedTracks = tracks.filter((t) =>
+    //   t.title?.toLowerCase().startsWith(emailInitial),
+    // );
+    // const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
+    // const slide3Title =
+    //   matchedTracks.length > 0
+    //     ? `Tracks starting with "${emailInitial.toUpperCase()}"`
+    //     : "Albums picked for you";
+
+const emailInitial = user?.email?.[0]?.toLowerCase() || "";
+
+const matchedTracks = emailInitial
+  ? tracks.filter((t) =>
+      t.title?.toLowerCase().startsWith(emailInitial)
+    )
+  : [];
+
+const slide3Tracks =
+  matchedTracks.length > 0 ? matchedTracks : tracks;
+
+const slide3Title = emailInitial
+  ? matchedTracks.length > 0
+    ? `Tracks starting with "${emailInitial.toUpperCase()}"`
+    : "Albums picked for you"
+  : "Discover Telugu Music";
 
     return [
       {
@@ -1412,7 +1431,10 @@ const addToLiked = async (e, track) => {
         type: "personal",
         title: slide3Title,
         // artist: `Just for ${emailInitial.toUpperCase()}`,
-        description: "Personally picked based on your initial.",
+        // description: "Personally picked based on your initial.",
+        description: emailInitial
+  ? "Personally picked based on your initial."
+  : "Discover Telugu songs, movie soundtracks and music on MyRaagam.",
         image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
         badge: "PERSONAL",
         onClick: () => setNewQueue(slide3Tracks, 0),
@@ -1420,14 +1442,27 @@ const addToLiked = async (e, track) => {
     ];
   }, [tracks, trendingTracks, movies, user, nav, setNewQueue]);
 
-  const switchTabs = [
-    { key: "continue", label: "Continue Listening" },
-    { key: "trending", label: "Trending" },
-    { key: "madeforyou", label: "Made For You" },
-    { key: "recent", label: "Recently Played" },
-    { key: "playlists", label: "Your Playlists" },
-    // { key: "albums", label: "Albums for You" },
-  ];
+  // const switchTabs = [
+  //   { key: "continue", label: "Continue Listening" },
+  //   { key: "trending", label: "Trending" },
+  //   { key: "madeforyou", label: "Made For You" },
+  //   { key: "recent", label: "Recently Played" },
+  //   { key: "playlists", label: "Your Playlists" },
+  //   // { key: "albums", label: "Albums for You" },
+  // ];
+
+  const switchTabs = user
+  ? [
+      { key: "continue", label: "Continue Listening" },
+      { key: "trending", label: "Trending" },
+      { key: "madeforyou", label: "Made For You" },
+      { key: "recent", label: "Recently Played" },
+      { key: "playlists", label: "Your Playlists" },
+    ]
+  : [
+      { key: "trending", label: "Trending" },
+      { key: "recent", label: "Recently Added" },
+    ];
 
   const renderSectionHeader = (title, onClick, showButton = false) => (
     <div className="section-row-header">
@@ -1472,7 +1507,7 @@ const addToLiked = async (e, track) => {
               <div>
                 <p className="album-title">{track.title}</p>
               </div>
-              </Link>
+            </Link>
           );
         })}
       </div>
@@ -1588,7 +1623,6 @@ const addToLiked = async (e, track) => {
   return (
     // <main className="homepage page-safe">
     <main className="homepage page page-safe">
-
       {/* <SEO
   title="Telugu Songs & Music | MyRaagam"
   description="Listen to Telugu songs, movie soundtracks and music online on MyRaagam. Discover Telugu movie songs, albums and more."
@@ -1610,19 +1644,19 @@ const addToLiked = async (e, track) => {
       /> */}
 
       <SEO
-  title="Stream Telugu Movie Songs & Soundtracks Online | MyRaagam"
-  description="Listen to Telugu songs, Telugu movie songs and soundtracks online on MyRaagam. Discover movies, albums and regional music."
-  url="https://www.myraagam.com/"
-  type="website"
-  jsonLd={{
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "MyRaagam",
-    url: "https://www.myraagam.com/",
-    description:
-      "Listen to Telugu songs, Telugu movie songs and regional music online on MyRaagam.",
-  }}
-/>
+        title="Stream Telugu Movie Songs & Soundtracks Online | MyRaagam"
+        description="Listen to Telugu songs, Telugu movie songs and soundtracks online on MyRaagam. Discover movies, albums and regional music."
+        url="https://www.myraagam.com/"
+        type="website"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "MyRaagam",
+          url: "https://www.myraagam.com/",
+          description:
+            "Listen to Telugu songs, Telugu movie songs and regional music online on MyRaagam.",
+        }}
+      />
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
@@ -1654,8 +1688,17 @@ const addToLiked = async (e, track) => {
           <button
             className="profile-btn"
             // onClick={() => nav("/account")}
+            // onClick={() => {
+            //   if (isGuest) {
+            //     setShowAuthModal(true);
+            //     return;
+            //   }
+
+            //   nav("/account");
+            // }}
+
             onClick={() => {
-              if (isGuest) {
+              if (!user) {
                 setShowAuthModal(true);
                 return;
               }
@@ -1670,13 +1713,13 @@ const addToLiked = async (e, track) => {
         </div>
       </header>
 
-      <p className="home-intro-text">
+      {/* <p className="home-intro-text">
         MyRaagam is your home for Telugu music — stream the latest Telugu
         movie songs, classic soundtracks, and hand-picked playlists from
         your favourite composers and singers. Discover new Telugu movie
         albums, revisit old favourites, and build your own collection, all
         in one place, online and free.
-      </p>
+      </p> */}
 
       {isOnline ? (
         <>
@@ -1868,60 +1911,64 @@ const addToLiked = async (e, track) => {
           </section> */}
 
           <section className="home-section">
-  {renderSectionHeader("Songs", () => nav("/overall"), true)}
+            {renderSectionHeader("Songs", () => nav("/overall"), true)}
 
-  <div className="songs-list">
-    {filtered.length === 0
-      ? Array.from({ length: 3 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))
-      : filtered.slice(0, 3).map((t, index) => (
-          <Link
-            key={t.id}
-            to={`/track/${t.id}`}
-            className="song-list-card"
-            onClick={() => setNewQueue(filtered, index)}
-          >
-            <div className="song-list-left">
-              <LazyImage
-                src={t.cover_url || "/covers/default.jpg"}
-                alt={t.title}
-                className="song-list-img"
-              />
+            <div className="songs-list">
+              {filtered.length === 0
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <SkeletonCard key={i} />
+                  ))
+                : filtered.slice(0, 3).map((t, index) => (
+                    <Link
+                      key={t.id}
+                      to={`/track/${t.id}`}
+                      className="song-list-card"
+                      onClick={() => setNewQueue(filtered, index)}
+                    >
+                      <div className="song-list-left">
+                        <LazyImage
+                          src={t.cover_url || "/covers/default.jpg"}
+                          alt={t.title}
+                          className="song-list-img"
+                        />
 
-              <div className="song-list-meta">
-                <h4>{t.title}</h4>
-                <p>{t.artist || "Unknown Artist"}</p>
-              </div>
+                        <div className="song-list-meta">
+                          <h4>{t.title}</h4>
+                          <p>{t.artist || "Unknown Artist"}</p>
+                        </div>
+                      </div>
+
+                      <div className="song-list-actions">
+                        <button
+                          type="button"
+                          className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
+                          onClick={(e) => addToLiked(e, t)}
+                          aria-label="Like song"
+                        >
+                          {likedMap[t.id] ? (
+                            <FaHeart size={16} />
+                          ) : (
+                            <FaRegHeart size={16} />
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="play-inline-btn"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setNewQueue(filtered, index);
+                          }}
+                          aria-label="Play song"
+                        >
+                          <FaPlay />
+                        </button>
+                      </div>
+                    </Link>
+                  ))}
             </div>
-
-            <div className="song-list-actions">
-              <button
-                type="button"
-                className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
-                onClick={(e) => addToLiked(e, t)}
-                aria-label="Like song"
-              >
-                {likedMap[t.id] ? <FaHeart size={16}/> : <FaRegHeart size={16}/>}
-              </button>
-
-              <button
-                type="button"
-                className="play-inline-btn"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setNewQueue(filtered, index);
-                }}
-                aria-label="Play song"
-              >
-                <FaPlay />
-              </button>
-            </div>
-          </Link>
-        ))}
-  </div>
-</section>
+          </section>
 
           <section className="home-section utility-bar">
             <div className="utility-buttons">
@@ -1936,6 +1983,16 @@ const addToLiked = async (e, track) => {
               {/* <button onClick={() => shufflePlay(filtered)}><IoIosShuffle /> Shuffle</button> */}
             </div>
           </section>
+
+          <div>
+            <p className="home-intro-text">
+              MyRaagam is your home for Telugu music — stream the latest Telugu
+              movie songs, classic soundtracks, and hand-picked playlists from
+              your favourite composers and singers. Discover new Telugu movie
+              albums, revisit old favourites, and build your own collection, all
+              in one place, online and free.
+            </p>
+          </div>
 
           {showPlaylistModal && (
             <div

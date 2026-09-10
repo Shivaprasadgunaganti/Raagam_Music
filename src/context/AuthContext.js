@@ -118,10 +118,10 @@ export function AuthProvider({ children }) {
         // `user` is null and `isGuest` is still false (that gap was
         // causing the account button / MiniPlayer / BottomNav to
         // misbehave right after a fresh page load).
-        if (!sessionUser && localStorage.getItem("raagam_guest") !== "true") {
-          localStorage.setItem("raagam_guest", "true");
-          setIsGuest(true);
-        }
+        // if (!sessionUser && localStorage.getItem("raagam_guest") !== "true") {
+        //   localStorage.setItem("raagam_guest", "true");
+        //   setIsGuest(true);
+        // }
       } catch (err) {
         console.error(err);
       } finally {
