@@ -547,8 +547,9 @@ function AppContent() {
       {/* Hide global UI on login page OR track page */}
       {/* {!hideGlobalUI && !isLoginPage && user && <MiniPlayer />}
       {!hideGlobalUI && !isLoginPage && user && <BottomNav />} */}
-      {!hideGlobalUI && !isLoginPage && (user || isGuest) && <MiniPlayer />}
+      {/* {!hideGlobalUI && !isLoginPage && (user || isGuest) && <MiniPlayer />} */}
       {/* {!hideGlobalUI && !isLoginPage && (user || isGuest) && <BottomNav />} */}
+      {!hideGlobalUI && !isLoginPage && <MiniPlayer />}
       {!hideGlobalUI && !isLoginPage && <BottomNav />}
     </>
   );
