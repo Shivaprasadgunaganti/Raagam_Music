@@ -192,22 +192,39 @@ export default function SongDetailPage() {
   //     ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
   //     : `Listen to ${songTitle} on MyRaagam.`;
 
+  // const songDescription =
+  //   songArtist !== "Unknown Artist"
+  //     ? `Listen to ${songTitle}, a Telugu song by ${songArtist}, on MyRaagam. Play the song online and discover more Telugu music.`
+  //     : `Listen to ${songTitle}, a Telugu song on MyRaagam. Play the song online and discover more Telugu music.`;
+
   const songDescription =
-    songArtist !== "Unknown Artist"
-      ? `Listen to ${songTitle}, a Telugu song by ${songArtist}, on MyRaagam. Play the song online and discover more Telugu music.`
-      : `Listen to ${songTitle}, a Telugu song on MyRaagam. Play the song online and discover more Telugu music.`;
+  songArtist !== "Unknown Artist"
+    ? `Listen to ${songTitle} by ${songArtist} on MyRaagam. Play the song online and discover more music.`
+    : `Listen to ${songTitle} on MyRaagam. Play the song online and discover more music.`;
+
+  // const songJsonLd = {
+  //   "@context": "https://schema.org",
+  //   "@type": "MusicRecording",
+  //   name: songTitle,
+  //   url: songUrl,
+  //   image: track.cover_url || undefined,
+  //   byArtist: {
+  //     "@type": "MusicGroup",
+  //     name: songArtist,
+  //   },
+  // };
 
   const songJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "MusicRecording",
-    name: songTitle,
-    url: songUrl,
-    image: track.cover_url || undefined,
-    byArtist: {
-      "@type": "MusicGroup",
-      name: songArtist,
-    },
-  };
+  "@context": "https://schema.org",
+  "@type": "MusicRecording",
+  name: songTitle,
+  url: songUrl,
+  image: track.cover_url || undefined,
+  byArtist: {
+    "@type": "Person",
+    name: songArtist,
+  },
+};
 
   const duration = audioRef.current?.duration || 0;
   const progressPct = duration ? (time / duration) * 100 : 0;
@@ -338,7 +355,8 @@ export default function SongDetailPage() {
 
       <SEO
         // title={`${songTitle} | MyRaagam`}
-        title={`${songTitle} Telugu Song | MyRaagam`}
+        // title={`${songTitle} Telugu Song | MyRaagam`}
+        title={`${songTitle} ${songArtist !== "Unknown Artist" ? `by ${songArtist}` : ""} | MyRaagam`}
         description={songDescription}
         image={track.cover_url}
         url={songUrl}
@@ -377,9 +395,12 @@ export default function SongDetailPage() {
           <div className="song-meta">
             <div className="song-title-row">
               <div className="song-title-marquee" ref={titleRef}>
-                {/* <div className="marquee-inner">{track.title}</div> */}
                 <h1 className="marquee-inner">{track.title}</h1>
               </div>
+
+              {/* <h1 className="song-title-marquee" ref={titleRef}>
+  <span className="marquee-inner">{track.title}</span>
+</h1> */}
 
               <button className="song-like-btn" onClick={toggleLike}>
                 {liked ? <FaHeart /> : <FaRegHeart />}

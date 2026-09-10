@@ -461,17 +461,17 @@ function AppContent() {
           <Route
             path="/queue"
             element={
-              <ProtectedRoute>
+          //    <ProtectedRoute>
                 <QueuePage />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
           <Route
             path="/overall"
             element={
-              <ProtectedRoute>
+            //  <ProtectedRoute>
                 <AllSongsPage />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
 
@@ -535,9 +535,9 @@ function AppContent() {
           <Route
             path="/search"
             element={
-              <ProtectedRoute>
+            //  <ProtectedRoute>
                 <SearchPage />
-              </ProtectedRoute>
+            //  </ProtectedRoute>
             }
           />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

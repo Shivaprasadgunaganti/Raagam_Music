@@ -132,18 +132,34 @@ export default function MovieSongsPage() {
   //     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
   //     : `Explore ${movieTitle} on MyRaagam.`;
 
+  // const movieDescription =
+  // songs.length > 0
+  //   ? `Listen to ${movieTitle} Telugu movie songs on MyRaagam. Explore ${songs.length} songs from the movie and play them online.`
+  //   : `Explore ${movieTitle} Telugu movie songs and soundtrack on MyRaagam.`;
+
   const movieDescription =
   songs.length > 0
-    ? `Listen to ${movieTitle} Telugu movie songs on MyRaagam. Explore ${songs.length} songs from the movie and play them online.`
-    : `Explore ${movieTitle} Telugu movie songs and soundtrack on MyRaagam.`;
+    ? `Listen to ${movieTitle} movie songs on MyRaagam. Explore ${songs.length} songs from the soundtrack and play them online.`
+    : `Explore ${movieTitle} movie songs and soundtrack on MyRaagam.`;
+
+  // const movieJsonLd = {
+  //   "@context": "https://schema.org",
+  //   "@type": "Movie",
+  //   name: movieTitle,
+  //   url: movieUrl,
+  //   image: movie.cover_url || undefined,
+  // };
 
   const movieJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Movie",
-    name: movieTitle,
-    url: movieUrl,
-    image: movie.cover_url || undefined,
-  };
+  "@context": "https://schema.org",
+  "@type": "Movie",
+  name: movieTitle,
+  url: movieUrl,
+  image: movie.cover_url || undefined,
+  dateCreated: movie.year
+    ? `${movie.year}-01-01`
+    : undefined,
+};
 
   return (
     <main className="songspage-main">
@@ -185,8 +201,11 @@ export default function MovieSongsPage() {
           <p>
             {movie.year} • {songs.length} songs
           </p>
-          <p className="sp-album-description">
+          {/* <p className="sp-album-description">
   Listen to {movie.title} Telugu movie songs and soundtrack on MyRaagam.
+</p> */}
+<p className="sp-album-description">
+  Listen to {movie.title} movie songs and soundtrack on MyRaagam.
 </p>
           <div className="sp-album-play">
             <button
@@ -226,7 +245,8 @@ export default function MovieSongsPage() {
                 </div> */}
                 <div className="sp-song-meta">
   <div className="sp-song-title-row">
-    <p className="sp-song-title">{song.title}</p>
+    {/* <p className="sp-song-title">{song.title}</p> */}
+    <h2 className="sp-song-title">{song.title}</h2>
 
     {isActive && (
       <div className="playing-bars">

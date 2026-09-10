@@ -91,9 +91,10 @@
   padding-inline: 5px;
 }
 
-.movie-info h3 {
+.movie-info h2 {
   margin: 0;
   font-size: 16px;
+  /* font-size: 16px; */
     color: var(--text-primary);
 }
 

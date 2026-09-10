@@ -1436,7 +1436,8 @@ const slide3Title = emailInitial
   ? "Personally picked based on your initial."
   : "Discover Telugu songs, movie soundtracks and music on MyRaagam.",
         image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
-        badge: "PERSONAL",
+        badge: "FEATURED",
+        // badge: "PERSONAL",
         onClick: () => setNewQueue(slide3Tracks, 0),
       },
     ];
@@ -1645,7 +1646,7 @@ const slide3Title = emailInitial
         }}
       /> */}
 
-      <SEO
+      {/* <SEO
         title="Stream Telugu Movie Songs & Soundtracks Online | MyRaagam"
         description="Listen to Telugu songs, Telugu movie songs and soundtracks online on MyRaagam. Discover movies, albums and regional music."
         url="https://www.myraagam.com/"
@@ -1658,14 +1659,30 @@ const slide3Title = emailInitial
           description:
             "Listen to Telugu songs, Telugu movie songs and regional music online on MyRaagam.",
         }}
-      />
+      /> */}
+
+      <SEO
+  title="Stream Telugu Movie Songs & Soundtracks Online | MyRaagam"
+  description="Listen to Telugu songs, movie soundtracks and albums online on MyRaagam. Discover Telugu movie music, songs and albums and play them online."
+  url="https://www.myraagam.com/"
+  type="website"
+  jsonLd={{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MyRaagam",
+    url: "https://www.myraagam.com/",
+    description:
+      "Listen to Telugu songs, movie soundtracks and albums online on MyRaagam.",
+  }}
+/>
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
       <header className="home-header">
         <div className="home-left">
           {/* <p className="home-greeting">Hi,</p> */}
-          <h1 className="home-greeting">MyRaagam - Telugu Music</h1>
+          {/* <h1 className="home-greeting">MyRaagam - Telugu Music</h1> */}
+          <h1 className="home-greeting">MyRaagam Music</h1>
           {/* <h1 className="home-title">{username}</h1> */}
           <p className="home-title">
             <span>Hi, </span>
@@ -1715,13 +1732,14 @@ const slide3Title = emailInitial
         </div>
       </header>
 
-      {/* <p className="home-intro-text">
-        MyRaagam is your home for Telugu music — stream the latest Telugu
+      <p className="home-intro-text">
+        {/* MyRaagam is your home for Telugu music — stream the latest Telugu
         movie songs, classic soundtracks, and hand-picked playlists from
         your favourite composers and singers. Discover new Telugu movie
         albums, revisit old favourites, and build your own collection, all
-        in one place, online and free.
-      </p> */}
+        in one place, online and free. */}
+          Discover songs and albums on MyRaagam.
+      </p>
 
       {isOnline ? (
         <>
@@ -1923,7 +1941,7 @@ const slide3Title = emailInitial
                 : filtered.slice(0, 3).map((t, index) => (
                     <Link
                       key={t.id}
-                      to={`/track/${t.id}`}
+                      // to={`/track/${t.id}`}
                       className="song-list-card"
                       onClick={() => setNewQueue(filtered, index)}
                     >
@@ -1986,7 +2004,7 @@ const slide3Title = emailInitial
             </div>
           </section>
 
-          <div>
+          {/* <div>
             <p className="home-intro-text">
               MyRaagam is your home for Telugu music — stream the latest Telugu
               movie songs, classic soundtracks, and hand-picked playlists from
@@ -1994,7 +2012,7 @@ const slide3Title = emailInitial
               albums, revisit old favourites, and build your own collection, all
               in one place, online and free.
             </p>
-          </div>
+          </div> */}
 
           {showPlaylistModal && (
             <div
