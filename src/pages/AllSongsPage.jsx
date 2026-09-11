@@ -6,6 +6,7 @@ import "../components/allsongspage.css";
 import { IoArrowBack } from "react-icons/io5";
 import { useAudio } from "../context/AudioContext";
 import { getCachedTrackIds } from "../utils/offlineCache";
+import SEO from "../components/SEO";
 
 export default function AllSongsPage() {
   const { tracks, loading } = useTracks();
@@ -30,6 +31,12 @@ export default function AllSongsPage() {
 
   return (
     <main className="all-songs-page">
+      <SEO
+  title="All Songs | MyRaagam"
+  description={`Explore ${tracks.length} songs on MyRaagam. Discover Telugu songs, movie soundtracks and music and listen online.`}
+  url="https://www.myraagam.com/overall"
+  type="website"
+/>
       <div className="all-songs-hero">
         <header className="all-songs-header">
           <button className="icon" onClick={() => nav("/")}>
@@ -64,7 +71,8 @@ export default function AllSongsPage() {
 
               <div className="song-info">
                 <div className="song-title-row">
-                  <h3 className="song-title">{t.title}</h3>
+                  <h2 className="song-title">{t.title}</h2>
+                  {/* <h3 className="song-title">{t.title}</h3> */}
 
                   {isActive && (
                     <div className="playing-bars">
