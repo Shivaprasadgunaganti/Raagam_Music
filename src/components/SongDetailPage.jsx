@@ -214,7 +214,32 @@ export default function SongDetailPage() {
   //   },
   // };
 
-  const songJsonLd = {
+  function formatSchemaDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return undefined;
+  }
+
+  const totalSeconds = Math.floor(seconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  return `PT${hours ? `${hours}H` : ""}${minutes ? `${minutes}M` : ""}${remainingSeconds ? `${remainingSeconds}S` : ""}`;
+}
+
+//   const songJsonLd = {
+//   "@context": "https://schema.org",
+//   "@type": "MusicRecording",
+//   name: songTitle,
+//   url: songUrl,
+//   image: track.cover_url || undefined,
+//   byArtist: {
+//     "@type": "Person",
+//     name: songArtist,
+//   },
+// };
+
+const songJsonLd = {
   "@context": "https://schema.org",
   "@type": "MusicRecording",
   name: songTitle,
@@ -224,6 +249,8 @@ export default function SongDetailPage() {
     "@type": "Person",
     name: songArtist,
   },
+  duration: formatSchemaDuration(track.duration_seconds),
+  genre: track.genre || undefined,
 };
 
   const duration = audioRef.current?.duration || 0;
