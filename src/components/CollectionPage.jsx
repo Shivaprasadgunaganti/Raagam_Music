@@ -474,13 +474,7 @@ const slide3Title = emailInitial
     </div>
   );
 
-  // const renderTrackRail = (items, queueSource, isContinue = false) => {
-    const renderTrackRail = (
-  items,
-  queueSource,
-  isContinue = false,
-  prioritizeFirst = false,
-) => {
+  const renderTrackRail = (items, queueSource, isContinue = false) => {
     if (!items?.length) return null;
 
     return (
@@ -506,15 +500,10 @@ const slide3Title = emailInitial
               }
             >
               <div className="album-img-shell">
-                {/* <LazyImage
+                <LazyImage
                   src={track.cover_url || "/covers/default.jpg"}
                   alt={track.title}
-                /> */}
-                <LazyImage
-  src={track.cover_url || "/covers/default.jpg"}
-  alt={track.title}
-  priority={prioritizeFirst && index === 0}
-/>
+                />
               </div>
               {/* <div className="album-title">{track.title}</div> */}
               <div>
@@ -609,36 +598,17 @@ const slide3Title = emailInitial
           continueTracks.slice(0, 6),
           continueTracks,
           true,
-          true,
         );
       case "trending":
-        // return renderTrackRail(trendingTracks.slice(0, 8), trendingTracks);
-        return renderTrackRail(
-  trendingTracks.slice(0, 8),
-  trendingTracks,
-  false,
-  true,
-);
+        return renderTrackRail(trendingTracks.slice(0, 8), trendingTracks);
       case "recent":
-        // return renderTrackRail(recentList.slice(0, 8), recent);
-        return renderTrackRail(
-  recentList.slice(0, 8),
-  recent,
-  false,
-  true,
-);
+        return renderTrackRail(recentList.slice(0, 8), recent);
       case "playlists":
         return renderPlaylistsRail();
       // case "albums":
       //   return renderMoviesRail();
       case "madeforyou":
-        // return renderTrackRail(madeForYou.slice(0, 8), madeForYou);
-        return renderTrackRail(
-  madeForYou.slice(0, 8),
-  madeForYou,
-  false,
-  true,
-);
+        return renderTrackRail(madeForYou.slice(0, 8), madeForYou);
       default:
         return null;
     }
