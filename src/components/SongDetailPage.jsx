@@ -253,26 +253,22 @@ const songJsonLd = {
   genre: track.genre || undefined,
 };
 
-  const duration = audioRef.current?.duration || 0;
-  const progressPct = duration ? (time / duration) * 100 : 0;
+  // const duration = audioRef.current?.duration || 0;
+  // const progressPct = duration ? (time / duration) * 100 : 0;
 
-  // function seekTo(clientX) {
-  //   const audio = audioRef.current;
-  //   // const bar = progressRef.current;
-  //   const duration = contextDuration || 0;
+  // Prefer the active AudioContext duration.
+// If unavailable, use the duration stored in Supabase.
+// Finally, fall back to the native audio element duration.
+const dbDuration = Number(track.duration_seconds) || 0;
 
-  //   if (!audio || !bar || !audio.duration) return;
+const duration =
+  currentTrack?.id === track.id && Number(contextDuration) > 0
+    ? Number(contextDuration)
+    : dbDuration || Number(audioRef.current?.duration) || 0;
 
-  //   const rect = bar.getBoundingClientRect();
-
-  //   const percent = Math.min(
-  //     Math.max((clientX - rect.left) / rect.width, 0),
-  //     1,
-  //   );
-
-  //   audio.currentTime = percent * audio.duration;
-  //   setTime(audio.currentTime);
-  // }
+const progressPct = duration
+  ? Math.min((time / duration) * 100, 100)
+  : 0;
 
   function seekTo(clientX) {
   const bar = progressRef.current;
