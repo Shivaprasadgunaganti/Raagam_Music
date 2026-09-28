@@ -101,81 +101,29 @@ export default function MovieSongsPage() {
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
   if (!movie) return <div>Movie not found</div>;
 
-  // seo
-
-  //   const movieTitle = movie.title || "Movie";
-
-  // const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
-
-  // const movieDescription =
-  //   songs.length > 0
-  //     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
-  //     : `Explore ${movieTitle} on MyRaagam.`;
-
-  // const movieJsonLd = {
-  //   "@context": "https://schema.org",
-  //   "@type": "Movie",
-  //   name: movieTitle,
-  //   url: movieUrl,
-  //   image: movie.cover_url || undefined,
-  //   dateCreated: movie.year
-  //     ? `${movie.year}-01-01`
-  //     : undefined,
-  // };
-
   const movieTitle = movie.title || "Movie";
 
   const movieUrl = `https://www.myraagam.com/movie/${movie.id}`;
 
-  // const movieDescription =
-  //   songs.length > 0
-  //     ? `Listen to ${songs.length} songs from ${movieTitle} on MyRaagam.`
-  //     : `Explore ${movieTitle} on MyRaagam.`;
-
-  // const movieDescription =
-  // songs.length > 0
-  //   ? `Listen to ${movieTitle} Telugu movie songs on MyRaagam. Explore ${songs.length} songs from the movie and play them online.`
-  //   : `Explore ${movieTitle} Telugu movie songs and soundtrack on MyRaagam.`;
-
   const movieDescription =
-  songs.length > 0
-    ? `Listen to ${movieTitle} movie songs on MyRaagam. Explore ${songs.length} songs from the soundtrack and play them online.`
-    : `Explore ${movieTitle} movie songs and soundtrack on MyRaagam.`;
-
-  // const movieJsonLd = {
-  //   "@context": "https://schema.org",
-  //   "@type": "Movie",
-  //   name: movieTitle,
-  //   url: movieUrl,
-  //   image: movie.cover_url || undefined,
-  // };
+    songs.length > 0
+      ? `Listen to ${movieTitle} movie songs on MyRaagam. Explore ${songs.length} songs from the soundtrack and play them online.`
+      : `Explore ${movieTitle} movie songs and soundtrack on MyRaagam.`;
 
   const movieJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Movie",
-  name: movieTitle,
-  url: movieUrl,
-  image: movie.cover_url || undefined,
-  dateCreated: movie.year
-    ? `${movie.year}-01-01`
-    : undefined,
-};
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    name: movieTitle,
+    url: movieUrl,
+    image: movie.cover_url || undefined,
+    dateCreated: movie.year ? `${movie.year}-01-01` : undefined,
+  };
 
   return (
     <main className="songspage-main">
-      {/* seo */}
-      {/* <SEO
-  title={`${movieTitle} Songs | MyRaagam`}
-  description={movieDescription}
-  image={movie.cover_url}
-  url={movieUrl}
-  type="video.movie"
-  jsonLd={movieJsonLd}
-/> */}
-
       <SEO
         // title={`${movieTitle} Songs | MyRaagam`}
-          title={`${movieTitle} Telugu Movie Songs | MyRaagam`}
+        title={`${movieTitle} Telugu Movie Songs | MyRaagam`}
         description={movieDescription}
         image={movie.cover_url}
         url={movieUrl}
@@ -204,9 +152,9 @@ export default function MovieSongsPage() {
           {/* <p className="sp-album-description">
   Listen to {movie.title} Telugu movie songs and soundtrack on MyRaagam.
 </p> */}
-<p className="sp-album-description">
-  Listen to {movie.title} movie songs and soundtrack on MyRaagam.
-</p>
+          <p className="sp-album-description">
+            Listen to {movie.title} movie songs and soundtrack on MyRaagam.
+          </p>
           <div className="sp-album-play">
             <button
               className="sp-album-shuffle-btn"
@@ -235,33 +183,24 @@ export default function MovieSongsPage() {
                 className="sp-row-main"
                 onClick={() => setNewQueue(songs, index)}
               >
-                {/* <div className="sp-song-meta">
-               
-                  <p className="sp-song-title">{song.title}</p>
-                  
+                <div className="sp-song-meta">
+                  <div className="sp-song-title-row">
+                    {/* <p className="sp-song-title">{song.title}</p> */}
+                    <h2 className="sp-song-title">{song.title}</h2>
+
+                    {isActive && (
+                      <div className="playing-bars">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    )}
+                  </div>
+
                   <p className="sp-song-artist">
                     {song.artist || "Unknown Artist"}
                   </p>
-                </div> */}
-                <div className="sp-song-meta">
-  <div className="sp-song-title-row">
-    {/* <p className="sp-song-title">{song.title}</p> */}
-    <h2 className="sp-song-title">{song.title}</h2>
-
-    {isActive && (
-      <div className="playing-bars">
-        <span />
-        <span />
-        <span />
-      </div>
-    )}
-  </div>
-
-  <p className="sp-song-artist">
-    {song.artist || "Unknown Artist"}
-  </p>
-</div>
-
+                </div>
               </div>
               {/* Like/Unlike button */}
               <button
@@ -273,11 +212,6 @@ export default function MovieSongsPage() {
                     await unlikeSong(song.id);
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
                     showToast("Removed from Liked Songs");
-                    // } else {
-                    //   await likeSong(song);
-                    //   setLikedMap((prev) => ({ ...prev, [song.id]: true }));
-                    //   showToast("Added to Liked Songs");
-                    // }
                   } else {
                     const result = await likeSong(song);
 
@@ -298,9 +232,9 @@ export default function MovieSongsPage() {
               >
                 {likedMap[song.id] ? (
                   <FaHeart color="var(--accent-purple)" />
-                  // <FaHeart color="#1db954" />
                 ) : (
-                  <FaRegHeart color="var(--accent-purple)"/>
+                  // <FaHeart color="#1db954" />
+                  <FaRegHeart color="var(--accent-purple)" />
                 )}
               </button>
 
@@ -343,48 +277,6 @@ export default function MovieSongsPage() {
 
             <div className="sheet-divider" />
 
-            {/* <button
-              onClick={() => {
-                addToQueue(selectedSong);
-                setSelectedSong(null);
-                // showSnack("Added to queue");
-                showToast("Added to Queue");
-              }}
-            >
-              ➕ Add to Queue
-            </button>
-
-            <button
-              onClick={() => {
-                playNextInsert(selectedSong);
-                setSelectedSong(null);
-                // showSnack("Added to Play Next");
-                showToast("Added to Play Next");
-              }}
-            >
-              ▶ Play Next
-            </button>
-
-            <button
-              onClick={() => {
-                setSelectedSong(null);
-                nav("/queue");
-              }}
-            >
-              🎵 View Queue
-            </button>
-
-            <button
-              onClick={() => {
-                // setPickerTrackId(selectedSong.id); 
-                setPickerTrack(selectedSong);
-
-                setSelectedSong(null);
-                setShowPicker(true);
-              }}
-            >
-              📂 Add to Playlist
-            </button> */}
             <button
               onClick={() => {
                 playNextInsert(selectedSong);
@@ -424,8 +316,14 @@ export default function MovieSongsPage() {
               Add to Queue
             </button>
 
-            {/* <button
+            <button
               onClick={() => {
+                if (isGuest) {
+                  setSelectedSong(null);
+                  showToast("Sign in to create and manage your playlists");
+                  return;
+                }
+
                 setPickerTrack(selectedSong);
                 setSelectedSong(null);
                 setShowPicker(true);
@@ -435,25 +333,7 @@ export default function MovieSongsPage() {
                 <PiPlaylistFill />
               </span>{" "}
               Add to Playlist
-            </button> */}
-            <button
-  onClick={() => {
-    if (isGuest) {
-      setSelectedSong(null);
-      showToast("Sign in to create and manage your playlists");
-      return;
-    }
-
-    setPickerTrack(selectedSong);
-    setSelectedSong(null);
-    setShowPicker(true);
-  }}
->
-  <span className="sheet-icon">
-    <PiPlaylistFill />
-  </span>{" "}
-  Add to Playlist
-</button>
+            </button>
           </div>
         </div>
       )}

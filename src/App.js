@@ -21,9 +21,7 @@ const MoviesPage = lazy(() => import("./components/MoviesPage"));
 const MovieSongsPage = lazy(() => import("./components/MovieSongsPage"));
 const PlaylistsPage = lazy(() => import("./components/PlaylistsPage"));
 const LikedSongsPage = lazy(() => import("./components/LikedSongsPage"));
-const PlaylistDetailPage = lazy(() =>
-  import("./components/PlaylistSongsPage")
-);
+const PlaylistDetailPage = lazy(() => import("./components/PlaylistSongsPage"));
 const QueuePage = lazy(() => import("./pages/QueuePage"));
 const BottomNav = lazy(() => import("./components/BottomNav"));
 const AllSongsPage = lazy(() => import("./pages/AllSongsPage"));
@@ -34,57 +32,11 @@ const SignupPage = lazy(() => import("./pages/SignupPage"));
 const LoginEmailPage = lazy(() => import("./pages/LoginEmailPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const EditProfilePage = lazy(() => import("./components/EditProfilePage"));
-const OfflineSongsPage = lazy(() =>
-  import("./components/OfflineSongsPage")
-);
+const OfflineSongsPage = lazy(() => import("./components/OfflineSongsPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const FeedbackPage = lazy(() => import("./pages/FeedbackPage"));
-const PrivacyPolicyPage = lazy(() =>
-  import("./pages/PrivacyPolicyPage")
-);
-const TermsOfServicePage = lazy(() =>
-  import("./pages/TermsOfServicePage")
-);
-
-// import { AuthProvider } from "./context/AuthContext";
-// import { useAuth } from "./context/AuthContext";
-// import { useAudio } from "./context/AudioContext";
-// import ProtectedRoute from "./components/ProtectedRoute";
-
-
-// import LoginPage from "./pages/LoginPage";
-
-// import CollectionPage from "./components/CollectionPage";
-// import MiniPlayer from "./components/MiniPlayer";
-// import SongDetailPage from "./components/SongDetailPage";
-// import MoviesPage from "./components/MoviesPage";
-// import MovieSongsPage from "./components/MovieSongsPage";
-// import PlaylistsPage from "./components/PlaylistsPage";
-// import LikedSongsPage from "./components/LikedSongsPage";
-// import PlaylistDetailPage from "./components/PlaylistSongsPage";
-// import QueuePage from "./pages/QueuePage";
-// import BottomNav from "./components/BottomNav";
-// import AllSongsPage from "./pages/AllSongsPage";
-// import SearchPage from "./pages/SearchPage";
-// import "./styles.css";
-// import ProfilePage from "./components/ProfilePage";
-// import LoginPasswordPage from "./pages/LoginPasswordPage";
-// import SignupPage from "./pages/SignupPage";
-// import LoginEmailPage from "./pages/LoginEmailPage";
-// import ResetPasswordPage from "./pages/ResetPasswordPage";
-// import { useNavigate } from "react-router-dom";
-// import EditProfilePage from "./components/EditProfilePage";
-// import GuestRestrictedRoute from "./components/GuestRestrictedRoute";
-// import OfflineTest from "./components/OfflineTest";
-// import OfflineBanner from "./components/OfflineBanner";
-// import OfflineSongsPage from "./components/OfflineSongsPage";
-// import useNetworkSync from "./hooks/useNetworkSync";
-// import SettingsPage from "./pages/SettingsPage";
-// import FeedbackPage from "./pages/FeedbackPage";
-// import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-// import TermsOfServicePage from "./pages/TermsOfServicePage";
-
-/* ---------------- PROTECTED APP CONTENT ---------------- */
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 
 function AppContent() {
   const location = useLocation();
@@ -102,14 +54,6 @@ function AppContent() {
   const isPlaylistPage = location.pathname.startsWith("/playlist/");
   const isMovietPage = location.pathname.startsWith("/movie/");
 
-  // const fullScreenPage =
-  // hideGlobalUI ||
-  // isLoginPage ||
-  // isPlaylistPage ||
-  // isMovietPage ||
-  // location.pathname === "/liked" ||
-  // location.pathname === "/account";
-
   const fullScreenPage = hideGlobalUI || isLoginPage;
 
   const noFooterSpacing =
@@ -117,16 +61,10 @@ function AppContent() {
     location.pathname === "/settings" ||
     location.pathname === "/feedback" ||
     location.pathname === "/edit" ||
-  location.pathname === "/account";
+    location.pathname === "/account";
 
   useNetworkSync();
 
-  // Guest mode is now assigned synchronously in AuthContext's init(), in
-  // the same pass where `loading` becomes false — so by the time this
-  // effect (or anything else) reads `isGuest`, it's already correct.
-  // This effect just keeps its original job: if someone is truly signed
-  // out AND not a guest (e.g. they explicitly exited guest mode), clear
-  // any stale playback state.
   useEffect(() => {
     if (!loading && !user && !isGuest) {
       clearQueue();
@@ -142,11 +80,6 @@ function AppContent() {
     }
   }, []);
 
-  // NOTE: we intentionally don't block the whole app on auth `loading`
-  // anymore. Public routes like "/" shouldn't wait on a Supabase session
-  // check to paint, and the routes that do need auth (ProtectedRoute /
-  // GuestRestrictedRoute) already handle their own loading state.
-
   return (
     <>
       <OfflineBanner />
@@ -156,23 +89,23 @@ function AppContent() {
         {/* <OfflineTest/> */}
 
         <Suspense fallback={null}>
-        <Routes>
-          {/* Public Route */}
-          {/* <Route path="/login" element={<LoginPage />} /> */}
-          <Route path="/login/password" element={<LoginPasswordPage />} />
-          <Route path="/login" element={<LoginEmailPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Routes>
+            {/* Public Route */}
+            {/* <Route path="/login" element={<LoginPage />} /> */}
+            <Route path="/login/password" element={<LoginPasswordPage />} />
+            <Route path="/login" element={<LoginEmailPage />} />
+            <Route path="/signup" element={<SignupPage />} />
 
-          {/* Public homepage — no auth gate, so it's crawlable/fast for
+            {/* Public homepage — no auth gate, so it's crawlable/fast for
               first-time visitors instead of bouncing through /login.
               CollectionPage already handles guest vs logged-in state
               internally (toasts / AuthRequiredModal for gated actions). */}
-          <Route path="/" element={<CollectionPage />} />
+            <Route path="/" element={<CollectionPage />} />
 
-          {/* Protected Routes */}
-          <Route path="/track/:id" element={<SongDetailPage />} />
+            {/* Protected Routes */}
+            <Route path="/track/:id" element={<SongDetailPage />} />
 
-          {/* <Route
+            {/* <Route
             path="/movies"
             element={
               <ProtectedRoute>
@@ -189,120 +122,110 @@ function AppContent() {
             }
           /> */}
 
-          <Route path="/movies" element={<MoviesPage />} />
+            <Route path="/movies" element={<MoviesPage />} />
 
-          <Route path="/movie/:movieId" element={<MovieSongsPage />} />
+            <Route path="/movie/:movieId" element={<MovieSongsPage />} />
 
-          <Route
-            path="/playlist/:playlistId"
-            element={
-              <GuestRestrictedRoute>
-                <PlaylistDetailPage />
-              </GuestRestrictedRoute>
-            }
-          />
+            <Route
+              path="/playlist/:playlistId"
+              element={
+                <GuestRestrictedRoute>
+                  <PlaylistDetailPage />
+                </GuestRestrictedRoute>
+              }
+            />
 
-          <Route
-            path="/playlists"
-            element={
-              <GuestRestrictedRoute>
-                <PlaylistsPage />
-              </GuestRestrictedRoute>
-            }
-          />
+            <Route
+              path="/playlists"
+              element={
+                <GuestRestrictedRoute>
+                  <PlaylistsPage />
+                </GuestRestrictedRoute>
+              }
+            />
 
-          <Route
-            path="/liked"
-            element={
-              <GuestRestrictedRoute>
-                <LikedSongsPage />
-              </GuestRestrictedRoute>
-            }
-          />
-          <Route
-            path="/queue"
-            element={
-          //    <ProtectedRoute>
+            <Route
+              path="/liked"
+              element={
+                <GuestRestrictedRoute>
+                  <LikedSongsPage />
+                </GuestRestrictedRoute>
+              }
+            />
+            <Route
+              path="/queue"
+              element={
+                //    <ProtectedRoute>
                 <QueuePage />
-              // </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overall"
-            element={
-            //  <ProtectedRoute>
+                // </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overall"
+              element={
+                //  <ProtectedRoute>
                 <AllSongsPage />
-              // </ProtectedRoute>
-            }
-          />
+                // </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/account"
-            element={
-              <GuestRestrictedRoute>
-                <ProfilePage />
-              </GuestRestrictedRoute>
-            }
-          />
+            <Route
+              path="/account"
+              element={
+                <GuestRestrictedRoute>
+                  <ProfilePage />
+                </GuestRestrictedRoute>
+              }
+            />
 
-          <Route
-            path="/settings"
-            element={
-              <GuestRestrictedRoute>
-                <SettingsPage />
-              </GuestRestrictedRoute>
-            }
-          />
-<Route
-  path="/feedback"
-  element={
-    <GuestRestrictedRoute>
-      <FeedbackPage />
-    </GuestRestrictedRoute>
-  }
-/>
-  <Route
-  path="/privacy-policy"
-  element={
-    <PrivacyPolicyPage />
-  }
-/>
+            <Route
+              path="/settings"
+              element={
+                <GuestRestrictedRoute>
+                  <SettingsPage />
+                </GuestRestrictedRoute>
+              }
+            />
+            <Route
+              path="/feedback"
+              element={
+                <GuestRestrictedRoute>
+                  <FeedbackPage />
+                </GuestRestrictedRoute>
+              }
+            />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
-<Route
-  path="/terms-of-service"
-  element={
-    <TermsOfServicePage />
-  }
-/>        
+            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
 
-          <Route
-            path="/edit"
-            element={
-              <GuestRestrictedRoute>
-                <EditProfilePage />
-              </GuestRestrictedRoute>
-            }
-          />
+            <Route
+              path="/edit"
+              element={
+                <GuestRestrictedRoute>
+                  <EditProfilePage />
+                </GuestRestrictedRoute>
+              }
+            />
 
-          <Route
-            path="/offline"
-            element={
-              <ProtectedRoute>
-                <OfflineSongsPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/offline"
+              element={
+                <ProtectedRoute>
+                  <OfflineSongsPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/search"
-            element={
-            //  <ProtectedRoute>
+            <Route
+              path="/search"
+              element={
+                //  <ProtectedRoute>
                 <SearchPage />
-            //  </ProtectedRoute>
-            }
-          />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-        </Routes>
+                //  </ProtectedRoute>
+              }
+            />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Routes>
         </Suspense>
       </div>
 
@@ -328,18 +251,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-// import { saveTrack } from "./utils/offlineCache";
-
-// async function testOffline(track) {
-//   try {
-//     const response = await fetch(track.external_url);
-//     const blob = await response.blob();
-
-//     await saveTrack(track.id, blob);
-
-//     console.log("Saved:", track.title);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }

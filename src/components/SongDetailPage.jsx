@@ -75,8 +75,8 @@ export default function SongDetailPage() {
     addToQueue,
     playNextInsert,
     currentTime,
-    duration: contextDuration,   // NEW
-  seekTo: seekToTime,
+    duration: contextDuration, // NEW
+    seekTo: seekToTime,
   } = useAudio();
 
   const track = tracks.find((t) => String(t.id) === String(id));
@@ -187,103 +187,61 @@ export default function SongDetailPage() {
 
   const songUrl = `https://www.myraagam.com/track/${track.id}`;
 
-  // const songDescription =
-  //   songArtist !== "Unknown Artist"
-  //     ? `Listen to ${songTitle} by ${songArtist} on MyRaagam.`
-  //     : `Listen to ${songTitle} on MyRaagam.`;
-
-  // const songDescription =
-  //   songArtist !== "Unknown Artist"
-  //     ? `Listen to ${songTitle}, a Telugu song by ${songArtist}, on MyRaagam. Play the song online and discover more Telugu music.`
-  //     : `Listen to ${songTitle}, a Telugu song on MyRaagam. Play the song online and discover more Telugu music.`;
-
   const songDescription =
-  songArtist !== "Unknown Artist"
-    ? `Listen to ${songTitle} by ${songArtist} on MyRaagam. Play the song online and discover more music.`
-    : `Listen to ${songTitle} on MyRaagam. Play the song online and discover more music.`;
-
-  // const songJsonLd = {
-  //   "@context": "https://schema.org",
-  //   "@type": "MusicRecording",
-  //   name: songTitle,
-  //   url: songUrl,
-  //   image: track.cover_url || undefined,
-  //   byArtist: {
-  //     "@type": "MusicGroup",
-  //     name: songArtist,
-  //   },
-  // };
+    songArtist !== "Unknown Artist"
+      ? `Listen to ${songTitle} by ${songArtist} on MyRaagam. Play the song online and discover more music.`
+      : `Listen to ${songTitle} on MyRaagam. Play the song online and discover more music.`;
 
   function formatSchemaDuration(seconds) {
-  if (!Number.isFinite(seconds) || seconds <= 0) {
-    return undefined;
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return undefined;
+    }
+
+    const totalSeconds = Math.floor(seconds);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const remainingSeconds = totalSeconds % 60;
+
+    return `PT${hours ? `${hours}H` : ""}${minutes ? `${minutes}M` : ""}${remainingSeconds ? `${remainingSeconds}S` : ""}`;
   }
 
-  const totalSeconds = Math.floor(seconds);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const remainingSeconds = totalSeconds % 60;
+  const songJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MusicRecording",
+    name: songTitle,
+    url: songUrl,
+    image: track.cover_url || undefined,
+    byArtist: {
+      "@type": "Person",
+      name: songArtist,
+    },
+    duration: formatSchemaDuration(track.duration_seconds),
+    genre: track.genre || undefined,
+  };
 
-  return `PT${hours ? `${hours}H` : ""}${minutes ? `${minutes}M` : ""}${remainingSeconds ? `${remainingSeconds}S` : ""}`;
-}
+  const dbDuration = Number(track.duration_seconds) || 0;
 
-//   const songJsonLd = {
-//   "@context": "https://schema.org",
-//   "@type": "MusicRecording",
-//   name: songTitle,
-//   url: songUrl,
-//   image: track.cover_url || undefined,
-//   byArtist: {
-//     "@type": "Person",
-//     name: songArtist,
-//   },
-// };
+  const duration =
+    currentTrack?.id === track.id && Number(contextDuration) > 0
+      ? Number(contextDuration)
+      : dbDuration || Number(audioRef.current?.duration) || 0;
 
-const songJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "MusicRecording",
-  name: songTitle,
-  url: songUrl,
-  image: track.cover_url || undefined,
-  byArtist: {
-    "@type": "Person",
-    name: songArtist,
-  },
-  duration: formatSchemaDuration(track.duration_seconds),
-  genre: track.genre || undefined,
-};
-
-  // const duration = audioRef.current?.duration || 0;
-  // const progressPct = duration ? (time / duration) * 100 : 0;
-
-  // Prefer the active AudioContext duration.
-// If unavailable, use the duration stored in Supabase.
-// Finally, fall back to the native audio element duration.
-const dbDuration = Number(track.duration_seconds) || 0;
-
-const duration =
-  currentTrack?.id === track.id && Number(contextDuration) > 0
-    ? Number(contextDuration)
-    : dbDuration || Number(audioRef.current?.duration) || 0;
-
-const progressPct = duration
-  ? Math.min((time / duration) * 100, 100)
-  : 0;
+  const progressPct = duration ? Math.min((time / duration) * 100, 100) : 0;
 
   function seekTo(clientX) {
-  const bar = progressRef.current;
-  if (!bar || !duration) return;
+    const bar = progressRef.current;
+    if (!bar || !duration) return;
 
-  const rect = bar.getBoundingClientRect();
-  const percent = Math.min(
-    Math.max((clientX - rect.left) / rect.width, 0),
-    1,
-  );
+    const rect = bar.getBoundingClientRect();
+    const percent = Math.min(
+      Math.max((clientX - rect.left) / rect.width, 0),
+      1,
+    );
 
-  const newTime = percent * duration;
-  seekToTime(newTime);
-  setTime(newTime);
-}
+    const newTime = percent * duration;
+    seekToTime(newTime);
+    setTime(newTime);
+  }
 
   async function toggleLike() {
     if (!track) return;

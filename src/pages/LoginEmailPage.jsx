@@ -8,11 +8,10 @@ import { supabase } from "../supabaseClient";
 // import { RiMusic2Fill } from "react-icons/ri";
 import { RiMusic2Fill } from "react-icons/ri";
 
-
 export default function LoginEmailPage() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
-  const { user, continueAsGuest, signInWithGoogle  } = useAuth();
+  const { user, continueAsGuest, signInWithGoogle } = useAuth();
   const [errorMsg, setErrorMsg] = useState("");
 
   function handleNext(e) {
@@ -40,20 +39,11 @@ export default function LoginEmailPage() {
     }
   }, [user, navigate]);
 
-  // async function handleGoogleLogin() {
-  //   await supabase.auth.signInWithOAuth({
-  //     provider: "google",
-  //     options: {
-  //       redirectTo: window.location.origin,
-  //     },
-  //   });
-  // }
-
   // continue as guest
   function handleGuestLogin() {
-  continueAsGuest();
-  navigate("/");
-}
+    continueAsGuest();
+    navigate("/");
+  }
 
   return (
     <div className="auth-page">
@@ -127,15 +117,15 @@ export default function LoginEmailPage() {
           Continue with Google
         </button>
 
-        <button
-  className="auth-btn-guest"
-  onClick={handleGuestLogin}
-><RiMusic2Fill color="#c084fc"/>
-  Explore Raagam
-</button>
+        <button className="auth-btn-guest" onClick={handleGuestLogin}>
+          <RiMusic2Fill color="#c084fc" />
+          Explore Raagam
+        </button>
       </div>
     </div>
   );
 }
 
-{/* <div className="auth-logo-icon">♪</div> */}
+{
+  /* <div className="auth-logo-icon">♪</div> */
+}

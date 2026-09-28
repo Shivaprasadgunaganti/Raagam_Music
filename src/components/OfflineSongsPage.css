@@ -1,43 +1,8 @@
-/* ===========================
-   OFFLINE PAGE
-=========================== */
-
-/* .offline-screen {
-  min-height: 100vh;
-  padding: 24px;
-  color: #fff;
-  background: linear-gradient(
-    180deg,
-    #181818 0%,
-    #121212 55%,
-    #0f0f0f 100%
-  );
-} */
-
 .offline-screen {
   min-height: 100%;
   /* min-height: 100vh; */
   padding: 96px 24px 24px; /* extra top padding for fixed header */
-  /* color: #fff; */
-  /* background: linear-gradient(
-    180deg,
-    #181818 0%,
-    #121212 55%,
-    #0f0f0f 100%
-  ); */
 }
-
-/* ===========================
-   HEADER
-=========================== */
-
-/* .offline-topbar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  margin-bottom: 42px;
-} */
 
 .offline-topbar {
   position: fixed;
@@ -58,33 +23,18 @@
     #1db954,
     #169c46
   ); */
-  background: linear-gradient(135deg, #4b0082 0%, #6a0dad 30%, #3b0764 60%, #1a1a2e 100%);;
+  background: linear-gradient(
+    135deg,
+    #4b0082 0%,
+    #6a0dad 30%,
+    #3b0764 60%,
+    #1a1a2e 100%
+  );
 
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 
   z-index: 1000;
 }
-
-/* .offline-back-btn {
-  width: 46px;
-  height: 46px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-
-  cursor: pointer;
-
-  backdrop-filter: blur(12px);
-
-  transition: all 0.25s ease;
-} */
 
 .offline-back-btn {
   width: 44px;
@@ -172,9 +122,9 @@
   /* .offline-screen {
     padding: 18px;
   } */
-   .offline-screen {
-  padding: 88px 18px 18px;
-}
+  .offline-screen {
+    padding: 88px 18px 18px;
+  }
 
   .offline-title {
     font-size: 1.6rem;

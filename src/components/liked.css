@@ -1,18 +1,3 @@
-/* ---------- Page ---------- */
-/* .liked-page {
-  height: var(--app-height);
-  color: var(--text-primary);
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 0px;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.liked-page::-webkit-scrollbar {
-  display: none;
-} */
-
 .liked-page {
   min-height: 0;
   background: var(--bg-gradient);
@@ -276,14 +261,6 @@
   align-items: flex-end;
   padding-bottom: 140px;
 }
-
-/* .song-menu-sheet {
-  width: 100%;
-  background: #1e1e2e;
-  display: flex;
-  flex-direction: column;
-  height: fit-content;
-} */
 
 .song-menu-sheet button {
   background: none;

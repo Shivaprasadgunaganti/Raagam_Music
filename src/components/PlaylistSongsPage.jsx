@@ -53,61 +53,6 @@ export default function PlaylistDetailPage() {
   const [pickerTrack, setPickerTrack] = useState(null);
   const { showToast } = useToast();
   const { isOnline } = useOfflineMode();
-  // const { isOffline } = useOfflineMode();
-  // console.log(isOffline);
-
-  //   useEffect(() => {
-  //     async function loadPlaylist() {
-  //       setLoading(true);
-
-  //       const { data: pl } = await supabase
-  //         .from("playlists")
-  //         .select("*")
-  //         .eq("id", playlistId)
-  //         .single();
-
-  //       const { data: rows } = await supabase
-  //         .from("playlist_tracks")
-
-  //         .select(
-  //           `
-  //   id,
-  //   position,
-  //   track:tracks (
-  //     id,
-  //     title,
-  //     artist,
-  //     cover_url,
-  //     external_url,
-  //     storage_path
-  //   )
-  // `,
-  //         )
-  //         .eq("playlist_id", playlistId)
-  //         // .order("created_at");
-  //         .order("position", { ascending: true });
-  //       await clearPlaylistTracks();
-  //       await savePlaylistTracks(rows || []);
-
-  //       setPlaylist(pl);
-  //       // ✅ Filter out null tracks to fix the crash
-  //       // setSongs(rows ? rows.map((r) => r.track).filter(Boolean) : []);
-  //       setSongs(
-  //         rows
-  //           ? rows
-  //               .map((r) => ({
-  //                 ...r.track,
-  //                 pt_id: r.id, // 🔥 needed for update
-  //                 position: r.position, // 🔥 needed for swap
-  //               }))
-  //               .filter(Boolean)
-  //           : [],
-  //       );
-  //       setLoading(false);
-  //     }
-
-  //     loadPlaylist();
-  //   }, [playlistId]);
 
   const loadPlaylist = async () => {
     setLoading(true);
@@ -160,40 +105,6 @@ export default function PlaylistDetailPage() {
 
     setLoading(false);
   };
-
-  // const loadOfflinePlaylist = async () => {
-  //   setLoading(true);
-
-  //   try {
-  //     const playlist = await getPlaylistById(playlistId);
-
-  //     const rows = await getPlaylistTracksByPlaylistId(playlistId);
-
-  //     setPlaylist(playlist);
-
-  //     setSongs(
-  //       rows
-  //         .map((r) => ({
-  //           ...r.track,
-  //           pt_id: r.id,
-  //           position: r.position,
-  //         }))
-  //         .filter(Boolean)
-  //     );
-  //   } catch (err) {
-  //     console.error(err);
-  //     setPlaylist(null);
-  //     setSongs([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (!isOnline) return;
-
-  //   loadPlaylist();
-  // }, [playlistId, isOnline]);
 
   const loadOfflinePlaylist = async () => {
     setLoading(true);
@@ -300,11 +211,11 @@ export default function PlaylistDetailPage() {
   return (
     <main className="pd-page page-safe">
       {/* seo */}
-       <SEO
-      title={`${playlistTitle} | MyRaagam`}
-      description={`Personal playlist "${playlistTitle}" on MyRaagam.`}
-      robots="noindex, nofollow"
-    />
+      <SEO
+        title={`${playlistTitle} | MyRaagam`}
+        description={`Personal playlist "${playlistTitle}" on MyRaagam.`}
+        robots="noindex, nofollow"
+      />
 
       {/* HERO */}
       <div className="pd-hero">
@@ -343,14 +254,14 @@ export default function PlaylistDetailPage() {
               onClick={() => setNewQueue(songs, 0)}
             >
               {/* ▶ */}
-              <FaPlay color="fff" size={15}/>
+              <FaPlay color="fff" size={15} />
             </button>
 
             <button
               className="pd-shuffle-btn"
               onClick={() => shufflePlay(songs)}
             >
-              <FaShuffle size={15}/>
+              <FaShuffle size={15} />
             </button>
           </div>
         )}
@@ -405,9 +316,9 @@ export default function PlaylistDetailPage() {
               >
                 {likedMap[song.id] ? (
                   <FaHeart color="var(--accent-purple)" />
-                  // <FaHeart color="#1db954" />
                 ) : (
-                  <FaRegHeart color="var(--accent-purple)"/>
+                  // <FaHeart color="#1db954" />
+                  <FaRegHeart color="var(--accent-purple)" />
                 )}
               </button>
 
@@ -446,77 +357,6 @@ export default function PlaylistDetailPage() {
 
       {/* ✅ Bottom sheet */}
       {selectedSong && (
-        // <div
-        //   className="song-menu-overlay"
-        //   onClick={() => setSelectedSong(null)}
-        // >
-        //   <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>
-        //     <div className="sheet-song-info">
-        //       <img
-        //         src={selectedSong.cover_url || "/covers/default.jpg"}
-        //         alt={selectedSong.title}
-        //         className="sheet-cover"
-        //       />
-        //       <div>
-        //         <div className="sheet-title">{selectedSong.title}</div>
-        //         <div className="sheet-artist">
-        //           {selectedSong.artist || "Unknown Artist"}
-        //         </div>
-        //       </div>
-        //     </div>
-
-        //     <div className="sheet-divider" />
-
-        //     <button
-        //       onClick={() => {
-        //         addToQueue(selectedSong);
-        //         setSelectedSong(null);
-        //         // showSnack("Added to queue");
-        //         showToast("Added to Queue");
-        //       }}
-        //     >
-        //       ➕ Add to Queue
-        //     </button>
-        //     <button
-        //       onClick={() => {
-        //         playNextInsert(selectedSong);
-        //         setSelectedSong(null);
-        //         showToast("Added to Play Next");
-        //       }}
-        //     >
-        //       ▶ Play Next
-        //     </button>
-        //     <button
-        //       onClick={() => {
-        //         setSelectedSong(null);
-        //         nav("/queue");
-        //       }}
-        //     >
-        //       🎵 View Queue
-        //     </button>
-
-        //     <button
-        //       onClick={() => {
-
-        //         setPickerTrack(selectedSong);
-        //         setSelectedSong(null);
-        //         setShowPicker(true);
-        //       }}
-        //     >
-        //       📂 Add to Playlist
-        //     </button>
-        //     <button
-        //       onClick={() => {
-        //         removeSong(selectedSong.id);
-        //         setSelectedSong(null);
-        //         // showSnack("Removed from playlist");
-        //         showToast("Removed from Playlist");
-        //       }}
-        //     >
-        //       🗑️ Remove from Playlist
-        //     </button>
-        //   </div>
-        // </div>
         <div
           className="song-menu-overlay"
           onClick={() => setSelectedSong(null)}
@@ -548,7 +388,10 @@ export default function PlaylistDetailPage() {
                   showToast("Added to Play Next");
                 }}
               >
-                <span className="sheet-icon"><HiMiniPlay /></span> Play Next
+                <span className="sheet-icon">
+                  <HiMiniPlay />
+                </span>{" "}
+                Play Next
                 {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
               </button>
               <button
@@ -557,7 +400,10 @@ export default function PlaylistDetailPage() {
                   nav("/queue");
                 }}
               >
-                <span className="sheet-icon"><MdOutlineQueueMusic /></span> View Queue
+                <span className="sheet-icon">
+                  <MdOutlineQueueMusic />
+                </span>{" "}
+                View Queue
                 {/* <span className="sheet-icon">🎵</span> View Queue */}
               </button>
               <button
@@ -568,7 +414,10 @@ export default function PlaylistDetailPage() {
                 }}
               >
                 {/* <span className="sheet-icon">➕</span> Add to Queue */}
-                <span className="sheet-icon"><MdQueue /></span> Add to Queue
+                <span className="sheet-icon">
+                  <MdQueue />
+                </span>{" "}
+                Add to Queue
               </button>
 
               <button
@@ -578,7 +427,10 @@ export default function PlaylistDetailPage() {
                   setShowPicker(true);
                 }}
               >
-                <span className="sheet-icon"><PiPlaylistFill /></span> Add to Playlist
+                <span className="sheet-icon">
+                  <PiPlaylistFill />
+                </span>{" "}
+                Add to Playlist
                 {/* <span className="sheet-icon">📂</span> Add to Playlist */}
               </button>
 
@@ -592,7 +444,10 @@ export default function PlaylistDetailPage() {
                   showToast("Removed from Playlist");
                 }}
               >
-                <span className="sheet-icon"><IoTrashBin /></span> Remove from Playlist
+                <span className="sheet-icon">
+                  <IoTrashBin />
+                </span>{" "}
+                Remove from Playlist
               </button>
             </div>
           </div>

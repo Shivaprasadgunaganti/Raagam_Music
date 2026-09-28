@@ -18,37 +18,6 @@ async function refreshLikedSnapshot() {
   await clearLikedTracks();
   await saveLikedTracks(trackIds);
 }
-// export async function likeSong(trackId) {
-// export async function likeSong(track) {
-//   console.log("likeSong received:", track);
-//   console.log("cacheTrack received:", track);
-
-//   const {
-//     data: { user },
-//     error: userError,
-//   } = await supabase.auth.getUser();
-
-//   console.log("LIKE USER:", user);
-
-//   if (userError || !user) {
-//     console.error("User not logged in");
-//     return;
-//   }
-
-//   const { data, error } = await supabase.from("liked_songs").insert([
-//     {
-//       track_id: track.id,
-//       user_id: user.id,
-//     },
-//   ]);
-
-//   if (!error) {
-//     await cacheTrack(track);
-//     await refreshLikedSnapshot();
-//   }
-
-//   return { data, error };
-// }
 
 export async function likeSong(track) {
   console.log("likeSong received:", track);

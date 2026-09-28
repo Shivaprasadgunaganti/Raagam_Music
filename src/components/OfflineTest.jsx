@@ -1,43 +1,3 @@
-// import React from "react";
-// import { saveTrack } from "../utils/offlineCache";
-
-// export default function OfflineTest() {
-//   const handleTest = async () => {
-//     try {
-//       const songUrl =
-//         "https://cxgnppogmhtagctqcgdp.supabase.co/storage/v1/object/public/songs/Untitled%20folder/Cheliya%20Cheliya-SenSongsMp3.Co-target.mp3";
-
-//       const response = await fetch(songUrl);
-
-//       const blob = await response.blob();
-
-//       await saveTrack(999, blob);
-
-//       console.log("TEST SONG SAVED");
-//       alert("TEST SONG SAVED");
-//     } catch (err) {
-//       console.error(err);
-//       alert("FAILED");
-//     }
-//   };
-
-//   return (
-//     <button
-//       onClick={handleTest}
-//       style={{
-//         position: "fixed",
-//         top: 20,
-//         right: 20,
-//         zIndex: 9999,
-//       }}
-//     >
-//       Test Offline Save
-//     </button>
-//   );
-// }
-
-
-
 import React from "react";
 import { saveTrack, getTrack } from "../utils/offlineCache";
 
@@ -92,16 +52,12 @@ export default function OfflineTest() {
         right: 20,
         zIndex: 9999,
         display: "flex",
-        gap: "10px"
+        gap: "10px",
       }}
     >
-      <button onClick={handleSave}>
-        Save Song
-      </button>
+      <button onClick={handleSave}>Save Song</button>
 
-      <button onClick={handlePlay}>
-        Play Cached Song
-      </button>
+      <button onClick={handlePlay}>Play Cached Song</button>
     </div>
   );
 }

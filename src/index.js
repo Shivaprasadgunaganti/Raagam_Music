@@ -10,26 +10,16 @@ import { ThemeProvider } from "./context/ThemeContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
- 
-    {/* <ToastProvider>
-      <SyncProvider>
-        <AuthProvider>
-          <AudioProvider>
-            <App />
-          </AudioProvider>
-        </AuthProvider>
-      </SyncProvider>
-    </ToastProvider> */}
     <ThemeProvider>
-        <ToastProvider>
-      <SyncProvider>
-        <AuthProvider>
-          <AudioProvider>
-            <App />
-          </AudioProvider>
-        </AuthProvider>
-      </SyncProvider>
-    </ToastProvider>
+      <ToastProvider>
+        <SyncProvider>
+          <AuthProvider>
+            <AudioProvider>
+              <App />
+            </AudioProvider>
+          </AuthProvider>
+        </SyncProvider>
+      </ToastProvider>
     </ThemeProvider>
   </React.StrictMode>,
 );

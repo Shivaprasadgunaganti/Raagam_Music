@@ -9,39 +9,24 @@ export default function useNetworkSync() {
   const wasOffline = useRef(false);
   const { triggerSync } = useSync();
 
-//   useEffect(() => {
-//     if (!isOnline) {
-//       wasOffline.current = true;
-//       return;
-//     }
+  useEffect(() => {
+    async function handleNetworkRestore() {
+      if (!isOnline) {
+        wasOffline.current = true;
+        return;
+      }
 
-//     if (wasOffline.current) {
-//       console.log("🌐 Network restored");
+      if (wasOffline.current) {
+        console.log("🌐 Network restored");
 
-//       refreshAll();
+        await refreshAll();
 
-//       wasOffline.current = false;
-//     }
-//   }, [isOnline]);
+        triggerSync();
 
-useEffect(() => {
-  async function handleNetworkRestore() {
-    if (!isOnline) {
-      wasOffline.current = true;
-      return;
+        wasOffline.current = false;
+      }
     }
 
-    if (wasOffline.current) {
-      console.log("🌐 Network restored");
-
-      await refreshAll();
-
-      triggerSync();
-
-      wasOffline.current = false;
-    }
-  }
-
-  handleNetworkRestore();
-}, [isOnline, triggerSync]);
+    handleNetworkRestore();
+  }, [isOnline, triggerSync]);
 }

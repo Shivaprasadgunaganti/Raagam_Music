@@ -4,7 +4,13 @@ import "./bottomnav.css";
 import { GrHomeRounded } from "react-icons/gr";
 import { BiMoviePlay } from "react-icons/bi";
 import { FiSearch } from "react-icons/fi";
-import { MdDownloadForOffline, MdOfflineBolt, MdOutlineAccountCircle, MdOutlineDownloadForOffline, MdOutlineFileDownload } from "react-icons/md";
+import {
+  MdDownloadForOffline,
+  MdOfflineBolt,
+  MdOutlineAccountCircle,
+  MdOutlineDownloadForOffline,
+  MdOutlineFileDownload,
+} from "react-icons/md";
 import { FaRegHeart } from "react-icons/fa";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -16,8 +22,7 @@ export default function BottomNav() {
   const nav = useNavigate();
   // const { isGuest } = useAuth();
   const { user } = useAuth();
-    const [showOfflineGuide, setShowOfflineGuide] = useState(false);
-  
+  const [showOfflineGuide, setShowOfflineGuide] = useState(false);
 
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -25,77 +30,45 @@ export default function BottomNav() {
     <>
       <nav className="bottom-nav">
         <NavLink to="/" end className="nav-item">
-          <GrHomeRounded  size={15}/>
+          <GrHomeRounded size={15} />
           <span>Home</span>
         </NavLink>
 
         <NavLink to="/search" className="nav-item">
-          <FiSearch size={15}/>
+          <FiSearch size={15} />
           <span>Search</span>
         </NavLink>
 
-        {/* <NavLink to="/liked" className="nav-item">
-        <FaRegHeart />
-        <span>Liked</span>
-      </NavLink> */}
-
-        {/* {isGuest ? (
-          <button className="nav-item" onClick={() => setShowAuthModal(true)}>
-            <FaRegHeart size={15}/>
-            <span>Liked</span>
-          </button>
-        ) : (
+        {user ? (
           <NavLink to="/liked" className="nav-item">
-            <FaRegHeart size={15}/>
+            <FaRegHeart size={15} />
             <span>Liked</span>
           </NavLink>
-        )} */}
-
-        {user ? (
-  <NavLink to="/liked" className="nav-item">
-    <FaRegHeart size={15} />
-    <span>Liked</span>
-  </NavLink>
-) : (
-  <button
-    className="nav-item"
-    onClick={() => setShowAuthModal(true)}
-  >
-    <FaRegHeart size={15} />
-    <span>Liked</span>
-  </button>
-)}
+        ) : (
+          <button className="nav-item" onClick={() => setShowAuthModal(true)}>
+            <FaRegHeart size={15} />
+            <span>Liked</span>
+          </button>
+        )}
 
         {/* <NavLink to="/account" className="nav-item">
         <MdOutlineAccountCircle />
         <span>Library</span>
       </NavLink> */}
 
-       <button
-  // className="home-offline-btn"
-  className="nav-item"
-  onClick={() => setShowOfflineGuide(true)}
-  aria-label="Offline Music"
-  title="Offline Music"
->
-  {/* <MdOfflineBolt /> */}
-  {/* <MdOutlineDownloadForOffline size={25}/> */}
-  {/* <MdDownloadForOffline/> */}
-  <MdOutlineFileDownload size={16}/>
-    <span>Offline</span>
-</button>
-
-        {/* {isGuest ? (
-          <button className="nav-item" onClick={() => setShowAuthModal(true)}>
-            <MdOutlineAccountCircle size={15}/>
-            <span>Library</span>
-          </button>
-        ) : (
-          <NavLink to="/account" className="nav-item">
-            <MdOutlineAccountCircle size={17}/>
-            <span>Library</span>
-          </NavLink>
-        )} */}
+        <button
+          // className="home-offline-btn"
+          className="nav-item"
+          onClick={() => setShowOfflineGuide(true)}
+          aria-label="Offline Music"
+          title="Offline Music"
+        >
+          {/* <MdOfflineBolt /> */}
+          {/* <MdOutlineDownloadForOffline size={25}/> */}
+          {/* <MdDownloadForOffline/> */}
+          <MdOutlineFileDownload size={16} />
+          <span>Offline</span>
+        </button>
       </nav>
       <AuthRequiredModal
         isOpen={showAuthModal}
@@ -103,9 +76,7 @@ export default function BottomNav() {
       />
 
       {showOfflineGuide && (
-        <OfflineGuidePopup
-          onClose={() => setShowOfflineGuide(false)}
-        />
+        <OfflineGuidePopup onClose={() => setShowOfflineGuide(false)} />
       )}
     </>
   );

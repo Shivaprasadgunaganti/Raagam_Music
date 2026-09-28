@@ -42,8 +42,8 @@ export default function ProfilePage() {
 
   // const username = user?.email?.split("@")[0] || "Listener";
   const username = profileLoading
-  ? ""
-  : displayName || user?.email?.split("@")[0] || "Listener";
+    ? ""
+    : displayName || user?.email?.split("@")[0] || "Listener";
   // const username = displayName || user?.email?.split("@")[0] || "Listener";
 
   const [likedCount, setLikedCount] = useState(0);
@@ -83,32 +83,32 @@ export default function ProfilePage() {
     nav("/login", { replace: true });
   }
 
-// load profile
+  // load profile
 
-useEffect(() => {
-  async function loadProfile() {
-    if (!user?.id) {
+  useEffect(() => {
+    async function loadProfile() {
+      if (!user?.id) {
+        setProfileLoading(false);
+        return;
+      }
+
+      setProfileLoading(true);
+
+      const { data, error } = await supabase
+        .from("profiles_data")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setDisplayName(data.display_name || "");
+      }
+
       setProfileLoading(false);
-      return;
     }
 
-    setProfileLoading(true);
-
-    const { data, error } = await supabase
-      .from("profiles_data")
-      .select("display_name")
-      .eq("id", user.id)
-      .single();
-
-    if (!error && data) {
-      setDisplayName(data.display_name || "");
-    }
-
-    setProfileLoading(false);
-  }
-
-  loadProfile();
-}, [user]);
+    loadProfile();
+  }, [user]);
 
   useEffect(() => {
     async function loadLikedCount() {
@@ -150,24 +150,6 @@ useEffect(() => {
 
     loadMoviesCount();
   }, []);
-
-  // useEffect(() => {
-  //   async function loadProfile() {
-  //     if (!user?.id) return;
-
-  //     const { data, error } = await supabase
-  //       .from("profiles_data")
-  //       .select("display_name")
-  //       .eq("id", user.id)
-  //       .single();
-
-  //     if (!error && data) {
-  //       setDisplayName(data.display_name || "");
-  //     }
-  //   }
-
-  //   loadProfile();
-  // }, [user]);
 
   useEffect(() => {
     async function loadCacheStats() {

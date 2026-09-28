@@ -70,61 +70,6 @@ export default function SearchPage() {
       .filter(Boolean);
   }
 
-  /* ---------------- FETCH ---------------- */
-  // useEffect(() => {
-  //   if (!debounced) {
-  //     setTracks([]);
-  //     setMovies([]);
-  //     setPlaylists([]);
-  //     return;
-  //   }
-
-  //   async function searchAll() {
-  //     setLoading(true);
-
-  //     try {
-  //       const searchTerm = `%${debounced}%`;
-
-  //       const { data: songData } = await supabase
-  //         .from("tracks")
-  //         .select("*")
-  //         .or(`title.ilike.${searchTerm},artist.ilike.${searchTerm}`);
-
-  //       const { data: movieData } = await supabase
-  //         .from("movies")
-  //         .select("*")
-  //         .ilike("title", searchTerm);
-
-  //       const { data: playlistData } = await supabase
-  //         .from("playlists")
-  //         .select(
-  //           `
-  //   id,
-  //   name,
-  //   playlist_tracks (
-  //     track_id,
-  //     tracks (
-  //       cover_url
-  //     )
-  //   )
-  // `,
-  //         )
-  //         .ilike("name", searchTerm);
-
-  //       console.log(playlistData, "playlistdata");
-
-  //       setTracks(songData || []);
-  //       setMovies(movieData || []);
-  //       setPlaylists(playlistData || []);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-
-  //   searchAll();
-  // }, [debounced]);
-
-
   useEffect(() => {
     if (!debounced) {
       setTracks([]);
@@ -154,10 +99,10 @@ export default function SearchPage() {
             //   )}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUzMw`
             // );
             const searchRes = await fetch(
-  `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${encodeURIComponent(
-    debounced
-  )}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUzMw`
-);
+              `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${encodeURIComponent(
+                debounced,
+              )}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUzMw`,
+            );
             const searchData = await searchRes.json();
             const videoIds = (searchData.items || [])
               .map((item) => item.id.videoId)
@@ -166,12 +111,12 @@ export default function SearchPage() {
             let durationsById = {};
             if (videoIds) {
               const detailsRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUxxx`
+                `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUxxx`,
               );
               const detailsData = await detailsRes.json();
               (detailsData.items || []).forEach((item) => {
                 durationsById[item.id] = parseDurationToSeconds(
-                  item.contentDetails.duration
+                  item.contentDetails.duration,
                 );
               });
             }
@@ -188,16 +133,17 @@ export default function SearchPage() {
             // }));
 
             const candidates = (searchData.items || []).map((item) => ({
-  videoId: item.id.videoId,
-  title: cleanSongTitle(item.snippet.title),
-  rawTitle: item.snippet.title,
-  thumbnail:
-    item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
-  channelTitle: item.snippet.channelTitle,
-  durationSeconds: durationsById[item.id.videoId] || 0,
-  artist: "Unknown",
-  movie_id: null,
-}));
+              videoId: item.id.videoId,
+              title: cleanSongTitle(item.snippet.title),
+              rawTitle: item.snippet.title,
+              thumbnail:
+                item.snippet.thumbnails?.high?.url ||
+                item.snippet.thumbnails?.default?.url,
+              channelTitle: item.snippet.channelTitle,
+              durationSeconds: durationsById[item.id.videoId] || 0,
+              artist: "Unknown",
+              movie_id: null,
+            }));
 
             console.log("YouTube candidates (cleaned):", candidates);
             setYoutubeResults(candidates);
@@ -285,82 +231,76 @@ export default function SearchPage() {
   };
   // console.log("PLAYLIST RAW:", playlists);
 
+  const playRecentSong = async (songId) => {
+    try {
+      const { data, error } = await supabase
+        .from("tracks")
+        .select("*")
+        .eq("id", songId)
+        .single();
 
-const playRecentSong = async (songId) => {
-  try {
-    const { data, error } = await supabase
-      .from("tracks")
-      .select("*")
-      .eq("id", songId)
-      .single();
+      if (error) {
+        console.error("Failed to load recent song:", error);
+        return;
+      }
 
-    if (error) {
-      console.error("Failed to load recent song:", error);
-      return;
+      if (!data) return;
+
+      // Play only the clicked song
+      setNewQueue([data], 0);
+
+      setShowDropdown(false);
+    } catch (error) {
+      console.error("Error playing recent song:", error);
     }
+  };
 
-    if (!data) return;
-
-    // Play only the clicked song
-    setNewQueue([data], 0);
-
-    setShowDropdown(false);
-  } catch (error) {
-    console.error("Error playing recent song:", error);
+  function parseDurationToSeconds(isoDuration) {
+    const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+    const hours = parseInt(match[1] || "0", 10);
+    const minutes = parseInt(match[2] || "0", 10);
+    const seconds = parseInt(match[3] || "0", 10);
+    return hours * 3600 + minutes * 60 + seconds;
   }
-};
 
-function parseDurationToSeconds(isoDuration) {
-  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return 0;
-  const hours = parseInt(match[1] || "0", 10);
-  const minutes = parseInt(match[2] || "0", 10);
-  const seconds = parseInt(match[3] || "0", 10);
-  return hours * 3600 + minutes * 60 + seconds;
-}
+  async function handlePlayYoutubeCandidate(candidate) {
+    try {
+      // Guard: has this exact video already been saved (by anyone)?
+      const { data: existing } = await supabase
+        .from("tracks")
+        .select("*")
+        .eq("youtube_video_id", candidate.videoId)
+        .maybeSingle();
 
-// function handlePlayYoutubeCandidate(candidate) {
-//   // Step 6 will replace this with: insert into Supabase, get back track_id, then setNewQueue([track], 0)
-//   console.log("User tapped a YouTube result, ready to save + play:", candidate);
-// }
+      if (existing) {
+        setNewQueue([existing], 0);
+        return;
+      }
 
-async function handlePlayYoutubeCandidate(candidate) {
-  try {
-    // Guard: has this exact video already been saved (by anyone)?
-    const { data: existing } = await supabase
-      .from("tracks")
-      .select("*")
-      .eq("youtube_video_id", candidate.videoId)
-      .maybeSingle();
+      const { data: savedTrack, error } = await supabase
+        .from("tracks")
+        .insert({
+          title: candidate.title,
+          artist: candidate.artist || "Unknown",
+          movie_id: candidate.movie_id || null,
+          cover_url: candidate.thumbnail,
+          youtube_video_id: candidate.videoId,
+          duration_seconds: candidate.durationSeconds || null,
+        })
+        .select()
+        .single();
 
-    if (existing) {
-      setNewQueue([existing], 0);
-      return;
+      if (error) {
+        console.error("Failed to save YouTube track:", error.message);
+        return;
+      }
+
+      setNewQueue([savedTrack], 0);
+    } catch (err) {
+      console.error("Unexpected error saving YouTube track:", err);
     }
-
-    const { data: savedTrack, error } = await supabase
-      .from("tracks")
-      .insert({
-        title: candidate.title,
-        artist: candidate.artist || "Unknown",
-        movie_id: candidate.movie_id || null,
-        cover_url: candidate.thumbnail,
-        youtube_video_id: candidate.videoId,
-        duration_seconds: candidate.durationSeconds || null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Failed to save YouTube track:", error.message);
-      return;
-    }
-
-    setNewQueue([savedTrack], 0);
-  } catch (err) {
-    console.error("Unexpected error saving YouTube track:", err);
   }
-}
 
   return (
     <main className="search-page page-safe">
@@ -475,21 +415,21 @@ async function handlePlayYoutubeCandidate(candidate) {
                   // }}
 
                   onMouseDown={() => {
-  if (h.type === "song") {
-    playRecentSong(h.id);
-    return;
-  }
+                    if (h.type === "song") {
+                      playRecentSong(h.id);
+                      return;
+                    }
 
-  setShowDropdown(false);
+                    setShowDropdown(false);
 
-  if (h.type === "album") {
-    nav(`/movie/${h.id}`);
-  }
+                    if (h.type === "album") {
+                      nav(`/movie/${h.id}`);
+                    }
 
-  if (h.type === "playlist") {
-    nav(`/playlist/${h.id}`);
-  }
-}}
+                    if (h.type === "playlist") {
+                      nav(`/playlist/${h.id}`);
+                    }
+                  }}
 
                   // onMouseDown={() => {
                   //   setShowDropdown(false);
@@ -662,46 +602,6 @@ async function handlePlayYoutubeCandidate(candidate) {
             )}
         </>
       )}
-
-   {/* {youtubeResults.length > 0 && (
-  <div className="youtube-results-section">
-    <h3>From YouTube</h3>
-    {youtubeResults.map((candidate) => (
-      <div
-        key={candidate.videoId}
-        className="youtube-result-item"
-        onClick={() => handlePlayYoutubeCandidate(candidate)}
-      >
-        <img src={candidate.thumbnail} alt={candidate.title} />
-        <div>
-          <p>{candidate.title}</p>
-          <span>{candidate.channelTitle}</span>
-        </div>
-      </div>
-    ))}
-  </div>
-)} */}
-
-{youtubeResults.length > 0 && (
-  <div className="albums-section">
-    {/* <h3 className="section-title">From YouTube</h3> */}
-    {youtubeResults.map((candidate) => (
-      <div
-        key={candidate.videoId}
-        className="search-item"
-        onClick={() => handlePlayYoutubeCandidate(candidate)}
-      >
-        <img src={candidate.thumbnail} alt={candidate.title} />
-        <div>
-          <div className="title">{candidate.title}</div>
-          <div className="sub">{candidate.channelTitle}</div>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-
-
     </main>
   );
 }

@@ -96,13 +96,6 @@ export default function OfflineGuidePopup({ onClose }) {
 
         {/* Footer */}
         <div className="offline-guide-footer">
-          {/* <button
-            className="offline-guide-button"
-            onClick={handleOpenOffline}
-          >
-            View Offline Music
-          </button> */}
-
           <button className="offline-guide-button" onClick={handleOpenOffline}>
             {user && !isGuest
               ? "View Offline Music"

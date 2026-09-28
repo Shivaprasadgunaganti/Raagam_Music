@@ -137,13 +137,6 @@ export default function LikedSongsPage() {
     }
   }, [isOnline]);
 
-  // useEffect(() => {
-  //   // async function loadLikedSongs() {
-
-  //   // loadLikedSongs();
-  //   // loadOnlineLikedSongs();
-  // }, []);
-
   useEffect(() => {
     const handleScroll = () => {
       setShowStickyHeader(window.scrollY > 120);
@@ -265,8 +258,8 @@ export default function LikedSongsPage() {
                   </div>
                 </div>
               </div>
-              {/* Like/Unlike button */}
-              {/* <button
+
+              <button
                 className="liked-heart-btn"
                 onClick={async (e) => {
                   e.stopPropagation();
@@ -276,50 +269,27 @@ export default function LikedSongsPage() {
                     setLikedMap((prev) => ({ ...prev, [song.id]: false }));
                     showToast("Removed from Liked Songs");
                   } else {
-                    // await likeSong(song.id);
-                    await likeSong(song);
-                    setLikedMap((prev) => ({ ...prev, [song.id]: true }));
-                    showToast("Added to Liked Songs");
+                    const result = await likeSong(song);
+
+                    if (result?.guest) {
+                      showToast("Sign in to add songs to your Liked Songs");
+                      return;
+                    }
+
+                    if (!result?.error) {
+                      setLikedMap((prev) => ({ ...prev, [song.id]: true }));
+                      showToast("Added to Liked Songs");
+                    }
                   }
                 }}
               >
                 {likedMap[song.id] ? (
-                  <FaHeart color="#1db954" />
+                  <FaHeart color="var(--accent-purple)" />
                 ) : (
-                  <FaRegHeart />
+                  // <FaHeart color="#1db954"  />
+                  <FaRegHeart color="var(--accent-purple)" />
                 )}
-              </button> */}
-<button
-  className="liked-heart-btn"
-  onClick={async (e) => {
-    e.stopPropagation();
-
-    if (likedMap[song.id]) {
-      await unlikeSong(song.id);
-      setLikedMap((prev) => ({ ...prev, [song.id]: false }));
-      showToast("Removed from Liked Songs");
-    } else {
-      const result = await likeSong(song);
-
-      if (result?.guest) {
-        showToast("Sign in to add songs to your Liked Songs");
-        return;
-      }
-
-      if (!result?.error) {
-        setLikedMap((prev) => ({ ...prev, [song.id]: true }));
-        showToast("Added to Liked Songs");
-      }
-    }
-  }}
->
-  {likedMap[song.id] ? (
-    <FaHeart color="var(--accent-purple)"  />
-    // <FaHeart color="#1db954"  />
-  ) : (
-    <FaRegHeart color="var(--accent-purple)"/>
-  )}
-</button>
+              </button>
 
               <button
                 className="liked-row-menu"
@@ -365,48 +335,6 @@ export default function LikedSongsPage() {
 
             <div className="sheet-divider" />
 
-            {/* <button
-              onClick={() => {
-                addToQueue(selectedSong);
-                setSelectedSong(null);
-                // showSnack("Added to queue");
-                showToast("Added to Queue");
-              }}
-            >
-              ➕ Add to Queue
-            </button>
-
-            <button
-              onClick={() => {
-                playNextInsert(selectedSong);
-                setSelectedSong(null);
-                // showSnack("Added to Play Next");
-                showToast("Added to Play Next");
-              }}
-            >
-              ▶ Play Next
-            </button>
-
-            <button
-              onClick={() => {
-                setSelectedSong(null);
-                nav("/queue");
-              }}
-            >
-              🎵 View Queue
-            </button>
-
-            <button
-              onClick={() => {
-                // setPickerTrackId(selectedSong.id);
-                setPickerTrack(selectedSong);
-
-                setSelectedSong(null);
-                setShowPicker(true);
-              }}
-            >
-              📂 Add to Playlist
-            </button> */}
             <button
               onClick={() => {
                 playNextInsert(selectedSong);

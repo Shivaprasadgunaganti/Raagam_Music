@@ -1,20 +1,10 @@
-/* profile.css */
-
-/* .library-page {
-  padding: 22px 18px 120px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  padding-bottom: 0px;
-} */
-
 .library-page {
   padding-top: 22px;
   padding-right: 18px;
   padding-left: 18px;
   /* padding-bottom: 90px !important; */
-    padding-bottom: var(--footer-offset) !important;
+  padding-bottom: var(--footer-offset) !important;
   box-sizing: border-box;
-
 
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -66,7 +56,7 @@ border-radius: 20%;
   background: var(--surface);
 
   /* color: white; */
-   color: var(--text-primary) !important;
+  color: var(--text-primary) !important;
 
   display: flex;
   align-items: center;
@@ -99,11 +89,7 @@ border-radius: 20%;
 
   border-radius: 50%;
 
-    background: linear-gradient(
-    135deg,
-    var(--accent-purple),
-    var(--accent-pink)
-  );
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
 
   display: flex;
   align-items: center;
@@ -132,12 +118,11 @@ border-radius: 20%;
   background: transparent;
 
   /* color: #1db954; */
-    color: var(--accent-purple);
+  color: var(--accent-purple);
 
   font-size: 15px;
   font-weight: 700;
-    cursor: pointer;
-
+  cursor: pointer;
 }
 
 /* FILTERS */
@@ -182,7 +167,7 @@ border-radius: 20%;
 .library-filters button.active {
   background: #1db954;
   /* color: black; */
-  color: var(--bg-primary)
+  color: var(--bg-primary);
 }
 
 .library-filters button:active {
@@ -221,7 +206,7 @@ border-radius: 20%;
 
 .library-row:hover {
   /* background: rgba(255, 255, 255, 0.07); */
-  background: var(--surface)
+  background: var(--surface);
 }
 
 .library-row-left {
@@ -295,14 +280,14 @@ border-radius: 20%;
   /* background: white; */
   background: var(--text-primary);
   /* color: black; */
-  color: var(--bg-primary)
+  color: var(--bg-primary);
 }
 
 .shuffle-btn {
   /* background: #1db954; */
   background: #9929ea;
   /* color: black; */
-  color: var(--bg-primary)
+  color: var(--bg-primary);
 }
 
 .create-playlist-btn:active,
@@ -426,51 +411,6 @@ border-radius: 20%;
     flex-direction: column;
   }
 }
-
-/* popup */
-/* .popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.popup-box {
-  width: 80%;
-  max-width: 380px;
-
-  background: #1db954;
-  padding: 20px;
-  border-radius: 12px;
-  color: white;
-}
-
-.popup-box input {
-  width: 95%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-}
-
-.popup-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.popup-actions button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-} */
-
 
 /* Popup Overlay */
 .popup-overlay {

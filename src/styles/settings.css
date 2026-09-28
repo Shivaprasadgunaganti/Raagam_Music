@@ -71,21 +71,7 @@
   padding: 18px 18px 8px;
 }
 
-/* ---------- Row ---------- */
 
-/* .settings-row {
-  height: 62px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 18px;
-  transition: .25s;
-  cursor: pointer;
-}
-
-.settings-row:hover {
-  background: var(--surface-hover);
-} */
 
 .settings-row {
   height: 62px;

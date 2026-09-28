@@ -54,8 +54,8 @@ export default function CollectionPage() {
   // const [activeTab, setActiveTab] = useState("continue");
   const [activeTab, setActiveTab] = useState("trending");
   useEffect(() => {
-  setActiveTab(user ? "continue" : "trending");
-}, [user]);
+    setActiveTab(user ? "continue" : "trending");
+  }, [user]);
   // const [heroIndex, setHeroIndex] = useState(() =>
   //   Math.floor(Math.random() * 2),
   // );
@@ -229,40 +229,6 @@ export default function CollectionPage() {
     setNewQueue([track], 0);
   };
 
-  // const addToLiked = async (e, track) => {
-  //   e.stopPropagation();
-
-  //   if (likedMap[track.id]) {
-  //     await unlikeSong(track.id);
-
-  //     setLikedMap((prev) => ({
-  //       ...prev,
-  //       [track.id]: false,
-  //     }));
-
-  //     return;
-  //   }
-
-  //   const result = await likeSong(track);
-
-  //   if (result?.guest) {
-  //     showToast("Sign in to add songs to your Liked Songs");
-  //     return;
-  //   }
-
-  //   if (result?.error) {
-  //     showToast("Unable to add song to Liked Songs");
-  //     return;
-  //   }
-
-  //   setLikedMap((prev) => ({
-  //     ...prev,
-  //     [track.id]: true,
-  //   }));
-
-  //   showToast("Added to Liked Songs");
-  // };
-
   const addToLiked = async (e, track) => {
     e.preventDefault();
     e.stopPropagation();
@@ -374,33 +340,19 @@ export default function CollectionPage() {
       timeMood = "Late Night Chill";
     }
 
-    // Slide 3 — first letter of email matched tracks
-    // const emailInitial = user?.email?.[0]?.toLowerCase() || "";
-    // const matchedTracks = tracks.filter((t) =>
-    //   t.title?.toLowerCase().startsWith(emailInitial),
-    // );
-    // const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
-    // const slide3Title =
-    //   matchedTracks.length > 0
-    //     ? `Tracks starting with "${emailInitial.toUpperCase()}"`
-    //     : "Albums picked for you";
+    const emailInitial = user?.email?.[0]?.toLowerCase() || "";
 
-const emailInitial = user?.email?.[0]?.toLowerCase() || "";
+    const matchedTracks = emailInitial
+      ? tracks.filter((t) => t.title?.toLowerCase().startsWith(emailInitial))
+      : [];
 
-const matchedTracks = emailInitial
-  ? tracks.filter((t) =>
-      t.title?.toLowerCase().startsWith(emailInitial)
-    )
-  : [];
+    const slide3Tracks = matchedTracks.length > 0 ? matchedTracks : tracks;
 
-const slide3Tracks =
-  matchedTracks.length > 0 ? matchedTracks : tracks;
-
-const slide3Title = emailInitial
-  ? matchedTracks.length > 0
-    ? `Tracks starting with "${emailInitial.toUpperCase()}"`
-    : "Albums picked for you"
-  : "Discover Telugu Music";
+    const slide3Title = emailInitial
+      ? matchedTracks.length > 0
+        ? `Tracks starting with "${emailInitial.toUpperCase()}"`
+        : "Albums picked for you"
+      : "Discover Telugu Music";
 
     return [
       {
@@ -434,8 +386,8 @@ const slide3Title = emailInitial
         // artist: `Just for ${emailInitial.toUpperCase()}`,
         // description: "Personally picked based on your initial.",
         description: emailInitial
-  ? "Personally picked based on your initial."
-  : "Discover Telugu songs, movie soundtracks and music on MyRaagam.",
+          ? "Personally picked based on your initial."
+          : "Discover Telugu songs, movie soundtracks and music on MyRaagam.",
         image: slide3Tracks[0]?.cover_url || "/covers/default.jpg",
         badge: "FEATURED",
         // badge: "PERSONAL",
@@ -444,27 +396,18 @@ const slide3Title = emailInitial
     ];
   }, [tracks, trendingTracks, movies, user, nav, setNewQueue]);
 
-  // const switchTabs = [
-  //   { key: "continue", label: "Continue Listening" },
-  //   { key: "trending", label: "Trending" },
-  //   { key: "madeforyou", label: "Made For You" },
-  //   { key: "recent", label: "Recently Played" },
-  //   { key: "playlists", label: "Your Playlists" },
-  //   // { key: "albums", label: "Albums for You" },
-  // ];
-
   const switchTabs = user
-  ? [
-      { key: "continue", label: "Continue Listening" },
-      { key: "trending", label: "Trending" },
-      { key: "madeforyou", label: "Made For You" },
-      { key: "recent", label: "Recently Played" },
-      { key: "playlists", label: "Your Playlists" },
-    ]
-  : [
-      { key: "trending", label: "Trending" },
-      { key: "recent", label: "Recently Added" },
-    ];
+    ? [
+        { key: "continue", label: "Continue Listening" },
+        { key: "trending", label: "Trending" },
+        { key: "madeforyou", label: "Made For You" },
+        { key: "recent", label: "Recently Played" },
+        { key: "playlists", label: "Your Playlists" },
+      ]
+    : [
+        { key: "trending", label: "Trending" },
+        { key: "recent", label: "Recently Added" },
+      ];
 
   const renderSectionHeader = (title, onClick, showButton = false) => (
     <div className="section-row-header">
@@ -622,34 +565,12 @@ const slide3Title = emailInitial
     );
   }
 
- 
-
   return (
     // <main className="homepage page-safe">
     <main className="homepage page page-safe">
-      {/* <SEO
-  title="Telugu Songs & Music | MyRaagam"
-  description="Listen to Telugu songs, movie soundtracks and music online on MyRaagam. Discover Telugu movie songs, albums and more."
-  url="https://www.myraagam.com/"
-  type="website"
-/>
       <SEO
-        title="MyRaagam - Telugu Music & Songs"
-        description="Explore Telugu songs, movies and music on MyRaagam."
-        url="https://www.myraagam.com/"
-        type="website"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "MyRaagam",
-          url: "https://www.myraagam.com/",
-          description: "Explore Telugu songs, movies and music on MyRaagam.",
-        }}
-      /> */}
-
-      {/* <SEO
         title="Stream Telugu Movie Songs & Soundtracks Online | MyRaagam"
-        description="Listen to Telugu songs, Telugu movie songs and soundtracks online on MyRaagam. Discover movies, albums and regional music."
+        description="Listen to Telugu songs, movie soundtracks and albums online on MyRaagam. Discover Telugu movie music, songs and albums and play them online."
         url="https://www.myraagam.com/"
         type="website"
         jsonLd={{
@@ -658,24 +579,9 @@ const slide3Title = emailInitial
           name: "MyRaagam",
           url: "https://www.myraagam.com/",
           description:
-            "Listen to Telugu songs, Telugu movie songs and regional music online on MyRaagam.",
+            "Listen to Telugu songs, movie soundtracks and albums online on MyRaagam.",
         }}
-      /> */}
-
-      <SEO
-  title="Stream Telugu Movie Songs & Soundtracks Online | MyRaagam"
-  description="Listen to Telugu songs, movie soundtracks and albums online on MyRaagam. Discover Telugu movie music, songs and albums and play them online."
-  url="https://www.myraagam.com/"
-  type="website"
-  jsonLd={{
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "MyRaagam",
-    url: "https://www.myraagam.com/",
-    description:
-      "Listen to Telugu songs, movie soundtracks and albums online on MyRaagam.",
-  }}
-/>
+      />
       <div className="home-bg-orb home-bg-orb-1" />
       <div className="home-bg-orb home-bg-orb-2" />
 
@@ -707,16 +613,6 @@ const slide3Title = emailInitial
 
           <button
             className="profile-btn"
-            // onClick={() => nav("/account")}
-            // onClick={() => {
-            //   if (isGuest) {
-            //     setShowAuthModal(true);
-            //     return;
-            //   }
-
-            //   nav("/account");
-            // }}
-
             onClick={() => {
               if (!user) {
                 setShowAuthModal(true);
@@ -733,14 +629,7 @@ const slide3Title = emailInitial
         </div>
       </header>
 
-      <p className="home-intro-text">
-        {/* MyRaagam is your home for Telugu music — stream the latest Telugu
-        movie songs, classic soundtracks, and hand-picked playlists from
-        your favourite composers and singers. Discover new Telugu movie
-        albums, revisit old favourites, and build your own collection, all
-        in one place, online and free. */}
-          Discover songs and albums on MyRaagam.
-      </p>
+      <p className="home-intro-text">Discover songs and albums on MyRaagam.</p>
 
       {isOnline ? (
         <>
@@ -879,58 +768,6 @@ const slide3Title = emailInitial
             </section>
           )}
 
-          {/* <section className="home-section">
-         
-            {renderSectionHeader("Songs", () => nav("/overall"), true)}
-
-            <div className="songs-list">
-              {filtered.length === 0
-                ? Array.from({ length: 3 }).map((_, i) => (
-                    <SkeletonCard key={i} />
-                  ))
-                : filtered.slice(0, 3).map((t, index) => (
-                    // <Card
-                    <Link
-                      key={t.id}
-                      className="song-list-card"
-                      onClick={() => setNewQueue(filtered, index)}
-                    >
-                      <div className="song-list-left">
-                        <LazyImage
-                          src={t.cover_url || "/covers/default.jpg"}
-                          alt={t.title}
-                          className="song-list-img"
-                        />
-                        <div className="song-list-meta">
-                          <h4>{t.title}</h4>
-                          <p>{t.artist || "Unknown Artist"}</p>
-                        </div>
-                      </div>
-
-                      <div className="song-list-actions">
-                        <button
-                          className={`like-btn ${likedMap[t.id] ? "liked" : ""}`}
-                          onClick={(e) => addToLiked(e, t)}
-                          aria-label="Like song"
-                        >
-                          {likedMap[t.id] ? <FaHeart /> : <FaRegHeart />}
-                        </button>
-                        <button
-                          className="play-inline-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setNewQueue(filtered, index);
-                          }}
-                          aria-label="Play song"
-                        >
-                          <FaPlay />
-                        </button>
-                      </div>
-                      </Link>
-                  ))}
-            </div>
-          </section> */}
-
           <section className="home-section">
             {renderSectionHeader("Songs", () => nav("/overall"), true)}
 
@@ -1004,16 +841,6 @@ const slide3Title = emailInitial
               {/* <button onClick={() => shufflePlay(filtered)}><IoIosShuffle /> Shuffle</button> */}
             </div>
           </section>
-
-          {/* <div>
-            <p className="home-intro-text">
-              MyRaagam is your home for Telugu music — stream the latest Telugu
-              movie songs, classic soundtracks, and hand-picked playlists from
-              your favourite composers and singers. Discover new Telugu movie
-              albums, revisit old favourites, and build your own collection, all
-              in one place, online and free.
-            </p>
-          </div> */}
 
           {showPlaylistModal && (
             <div

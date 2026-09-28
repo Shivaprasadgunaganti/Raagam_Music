@@ -18,7 +18,6 @@ import {
 import { useToast } from "../context/ToastContext";
 import SEO from "./SEO";
 
-
 export default function PlaylistsPage() {
   const nav = useNavigate();
   const { user } = useAuth();
@@ -32,15 +31,6 @@ export default function PlaylistsPage() {
   const [renameText, setRenameText] = useState("");
   const { showToast } = useToast();
 
-  // ✅ Helper to get covers
-  // const getPlaylistCovers = (playlist) => {
-  //   if (!playlist.playlist_tracks) return [];
-
-  //   return playlist.playlist_tracks
-  //     .slice(0, 4)
-  //     .map((pt) => pt.tracks?.cover_url)
-  //     .filter(Boolean);
-  // };
   const getPlaylistCovers = (playlist) => {
     if (!playlist.playlist_tracks) return [];
 
@@ -48,8 +38,6 @@ export default function PlaylistsPage() {
       .slice(0, 4)
       .map((pt) => pt.track?.cover_url)
       .filter(Boolean);
-
-      
   };
 
   const loadOnlinePlaylists = async () => {
@@ -138,41 +126,6 @@ export default function PlaylistsPage() {
       loadOfflinePlaylists();
     }
   }, [user, isOnline]);
-
-  // ✅ Load playlists with tracks
-  // useEffect(() => {
-  //   const loadPlaylists = async () => {
-  //     if (!user) return;
-
-  //     setLoading(true);
-
-  //     const { data, error } = await supabase
-  //       .from("playlists")
-  //       .select(
-  //         `
-  //         id,
-  //         name,
-  //         description,
-  //         playlist_tracks (
-  //           track_id,
-  //           tracks (cover_url)
-  //         )
-  //       `,
-  //       )
-  //       .eq("user_id", user.id)
-  //       .order("created_at", { ascending: false });
-
-  //     if (error) {
-  //       console.error(error);
-  //     } else {
-  //       setPlaylists(data || []);
-  //     }
-
-  //     setLoading(false);
-  //   };
-
-  //   loadPlaylists();
-  // }, [user]);
 
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
 
@@ -291,12 +244,12 @@ export default function PlaylistsPage() {
 
   return (
     <main className="playlists-page">
-{/* seo */}
- <SEO
-      title="Your Playlists | MyRaagam"
-      description="Manage your personal playlists on MyRaagam."
-      robots="noindex, nofollow"
-    />
+      {/* seo */}
+      <SEO
+        title="Your Playlists | MyRaagam"
+        description="Manage your personal playlists on MyRaagam."
+        robots="noindex, nofollow"
+      />
 
       <h1>Your Playlists</h1>
 
@@ -341,7 +294,7 @@ export default function PlaylistsPage() {
                   >
                     <FiMoreVertical />
                   </button> */}
-                 <div
+                  <div
                     className="playlist-menu-btn"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -350,7 +303,6 @@ export default function PlaylistsPage() {
                     }}
                   >
                     <FiMoreVertical />
-                  
                   </div>
 
                   {activeMenu === pl.id && (
@@ -465,6 +417,5 @@ export default function PlaylistsPage() {
         </div>
       )}
     </main>
-
   );
 }
