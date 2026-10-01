@@ -3,6 +3,7 @@
 import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { initAnalytics } from "./utils/analytics";
+import MobileExperiencePopup from "./components/MobileExperiencePopup";
 
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
@@ -54,6 +55,8 @@ function AppContent() {
   const isPlaylistPage = location.pathname.startsWith("/playlist/");
   const isMovietPage = location.pathname.startsWith("/movie/");
 
+  const isHomePage = location.pathname === "/";
+
   const fullScreenPage = hideGlobalUI || isLoginPage;
 
   const noFooterSpacing =
@@ -83,6 +86,7 @@ function AppContent() {
   return (
     <>
       <OfflineBanner />
+      {isHomePage && <MobileExperiencePopup />}
 
       {/* <div className={`app-content ${fullScreenPage ? "no-footer" : ""}`}> */}
       <div className={`app-content ${noFooterSpacing ? "no-footer" : ""}`}>
@@ -96,10 +100,7 @@ function AppContent() {
             <Route path="/login" element={<LoginEmailPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
-            {/* Public homepage — no auth gate, so it's crawlable/fast for
-              first-time visitors instead of bouncing through /login.
-              CollectionPage already handles guest vs logged-in state
-              internally (toasts / AuthRequiredModal for gated actions). */}
+      
             <Route path="/" element={<CollectionPage />} />
 
             {/* Protected Routes */}
