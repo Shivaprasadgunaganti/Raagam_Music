@@ -44,6 +44,7 @@ export function AudioProvider({ children }) {
   const { user } = useAuth();
   const STORAGE_KEY = user ? `audio_state_${user.id}` : null;
   const audioRef = useRef(new Audio());
+  const loadRequestRef = useRef(0);
   const { addRecent } = useRecent();
   const [resumeTime, setResumeTime] = useState(0);
 
@@ -490,92 +491,228 @@ export function AudioProvider({ children }) {
     setPlaying(false);
   }, []);
 
-  // CHANGED: loadTrack now branches at the top on source type.
-  // Everything below "---- existing native-audio logic ----" is
-  // completely unchanged from before, for all of your existing 300 tracks.
-  useEffect(() => {
-    const loadTrack = async () => {
-      if (!currentTrack) return;
+  
+  // useEffect(() => {
+  //   const loadTrack = async () => {
+  //     if (!currentTrack) return;
 
-      // --- NEW: YouTube-sourced track path ---------------------------
-      if (currentTrack.youtube_video_id) {
-        // Make sure native audio isn't also playing underneath
-        audioRef.current.pause();
+  //     // --- NEW: YouTube-sourced track path ---------------------------
+  //     if (currentTrack.youtube_video_id) {
+  //       // Make sure native audio isn't also playing underneath
+  //       audioRef.current.pause();
 
-        const yt = ytPlayerRef.current || (await ytReadyPromiseRef.current);
-        if (!yt) return;
+  //       const yt = ytPlayerRef.current || (await ytReadyPromiseRef.current);
+  //       if (!yt) return;
+
+  //       yt.loadVideoById(currentTrack.youtube_video_id);
+  //       setPlaying(true);
+  //       addRecent(currentTrack);
+  //       // Deliberately no cacheTrack()/offline caching for YouTube tracks.
+
+  //       if (resumeTime > 0) {
+  //         // give the player a moment to actually load before seeking
+  //         setTimeout(() => {
+  //           try {
+  //             yt.seekTo(resumeTime, true);
+  //           } catch {
+  //             // ignore if not ready yet
+  //           }
+  //         }, 500);
+  //         setResumeTime(0);
+  //       }
+
+  //       saveProgress(currentTrack.id, 0, 0);
+  //       return;
+  //     }
+  //     // ------------------------------------------------------------------
+
+  //     // ---- existing native-audio logic (unchanged) ----
+  //     const audio = audioRef.current;
+
+  //     // NEW: stop any YouTube playback first, in case the previous track was one
+  //     if (ytPlayerRef.current?.stopVideo) {
+  //       try {
+  //         ytPlayerRef.current.stopVideo();
+  //       } catch {
+  //         // ignore
+  //       }
+  //     }
+
+  //     try {
+  //       const cachedBlob = await getTrack(currentTrack.id);
+
+  //       if (cachedBlob) {
+  //         const blobUrl = URL.createObjectURL(cachedBlob);
+  //         audio.src = blobUrl;
+  //       } else {
+  //         audio.src =
+  //           currentTrack.external_url || currentTrack.storage_path || "";
+  //       }
+
+  //       await audio.play();
+
+  //       setPlaying(true);
+
+  //       addRecent(currentTrack);
+
+  //       cacheTrack(currentTrack);
+
+  //       if (resumeTime > 0) {
+  //         audio.currentTime = resumeTime;
+  //         setResumeTime(0);
+  //       }
+
+  //       saveProgress(currentTrack.id, 0, audio.duration);
+  //     } catch (err) {
+  //       if (err.name === "AbortError") {
+  //         return;
+  //       }
+
+  //       console.error(err);
+  //       setPlaying(false);
+  //     }
+  //   };
+
+  //   loadTrack();
+  // }, [currentTrack]);
+
+
+useEffect(() => {
+  const requestId = ++loadRequestRef.current;
+  let cancelled = false;
+
+  const isCurrentRequest = () =>
+    !cancelled && loadRequestRef.current === requestId;
+
+  const loadTrack = async () => {
+    if (!currentTrack) return;
+
+    const audio = audioRef.current;
+
+    // Stop the previous native track before loading another one.
+    audio.pause();
+
+    // YouTube branch: preserve the existing support.
+    if (currentTrack.youtube_video_id) {
+      try {
+        const yt =
+          ytPlayerRef.current || (await ytReadyPromiseRef.current);
+
+        if (!isCurrentRequest() || !yt) return;
 
         yt.loadVideoById(currentTrack.youtube_video_id);
+
+        if (!isCurrentRequest()) return;
+
         setPlaying(true);
         addRecent(currentTrack);
-        // Deliberately no cacheTrack()/offline caching for YouTube tracks.
 
         if (resumeTime > 0) {
-          // give the player a moment to actually load before seeking
+          const timeToResume = resumeTime;
+          setResumeTime(0);
+
           setTimeout(() => {
+            if (!isCurrentRequest()) return;
+
             try {
-              yt.seekTo(resumeTime, true);
-            } catch {
-              // ignore if not ready yet
+              yt.seekTo(timeToResume, true);
+            } catch (err) {
+              console.warn("Unable to restore playback position:", err);
             }
           }, 500);
-          setResumeTime(0);
         }
 
         saveProgress(currentTrack.id, 0, 0);
-        return;
+      } catch (err) {
+        if (!isCurrentRequest()) return;
+
+        console.error("Unable to load YouTube track:", err);
+        setPlaying(false);
       }
-      // ------------------------------------------------------------------
 
-      // ---- existing native-audio logic (unchanged) ----
-      const audio = audioRef.current;
+      return;
+    }
 
-      // NEW: stop any YouTube playback first, in case the previous track was one
+    // Native audio: cache lookup can finish asynchronously.
+    try {
       if (ytPlayerRef.current?.stopVideo) {
         try {
           ytPlayerRef.current.stopVideo();
         } catch {
-          // ignore
+          // Ignore an unavailable YouTube player.
         }
       }
 
-      try {
-        const cachedBlob = await getTrack(currentTrack.id);
+      const cachedBlob = await getTrack(currentTrack.id);
 
-        if (cachedBlob) {
-          const blobUrl = URL.createObjectURL(cachedBlob);
-          audio.src = blobUrl;
+      // Never let an older request replace the newly selected track.
+      if (!isCurrentRequest()) return;
+
+      if (cachedBlob) {
+        audio.src = URL.createObjectURL(cachedBlob);
+      } else {
+        audio.src =
+          currentTrack.external_url ||
+          currentTrack.storage_path ||
+          "";
+      }
+
+      if (!audio.src) {
+        throw new Error("No playable audio source found.");
+      }
+
+      audio.load();
+
+      await audio.play();
+
+      // The selected track may have changed while play() was pending.
+      if (!isCurrentRequest()) return;
+
+      setPlaying(true);
+      addRecent(currentTrack);
+      cacheTrack(currentTrack);
+
+      if (resumeTime > 0) {
+        const timeToResume = resumeTime;
+        setResumeTime(0);
+
+        // Wait until metadata is available before seeking.
+        if (audio.readyState >= 1) {
+          audio.currentTime = timeToResume;
         } else {
-          audio.src =
-            currentTrack.external_url || currentTrack.storage_path || "";
+          const onMetadata = () => {
+            if (isCurrentRequest()) {
+              audio.currentTime = Math.min(
+                timeToResume,
+                audio.duration || timeToResume,
+              );
+            }
+          };
+
+          audio.addEventListener("loadedmetadata", onMetadata, {
+            once: true,
+          });
         }
-
-        await audio.play();
-
-        setPlaying(true);
-
-        addRecent(currentTrack);
-
-        cacheTrack(currentTrack);
-
-        if (resumeTime > 0) {
-          audio.currentTime = resumeTime;
-          setResumeTime(0);
-        }
-
-        saveProgress(currentTrack.id, 0, audio.duration);
-      } catch (err) {
-        if (err.name === "AbortError") {
-          return;
-        }
-
-        console.error(err);
-        setPlaying(false);
       }
-    };
 
-    loadTrack();
-  }, [currentTrack]);
+      saveProgress(currentTrack.id, 0, audio.duration);
+    } catch (err) {
+      if (!isCurrentRequest()) return;
+      if (err.name === "AbortError") return;
+
+      console.error("Audio playback failed:", err);
+      setPlaying(false);
+    }
+  };
+
+  loadTrack();
+
+  return () => {
+    cancelled = true;
+  };
+}, [currentTrack]);
+
+
 
   useEffect(() => {
     const audio = audioRef.current;
