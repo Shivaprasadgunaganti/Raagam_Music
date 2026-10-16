@@ -21,7 +21,8 @@ export default function OfflineBanner() {
         zIndex: 9999,
       }}
     >
-      ✨ Offline Mode — Your music stays with you{" "}
+      ✨ Offline Mode - Your music stays with you{" "}
+      {/* ✨ Offline Mode — Your music stays with you{" "} */}
     </div>
   );
 }
