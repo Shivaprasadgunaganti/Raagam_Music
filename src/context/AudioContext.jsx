@@ -1,3 +1,1451 @@
+// // progress bar
+// import React, {
+//   createContext,
+//   useContext,
+//   useEffect,
+//   useRef,
+//   useState,
+//   useCallback,
+//   useMemo,
+// } from "react";
+// import useRecent from "../hooks/useRecent";
+// import { useAuth } from "./AuthContext";
+// import { supabase } from "../supabaseClient";
+// import { cacheTrack } from "../utils/cacheTrack";
+// import { getTrack } from "../utils/offlineCache";
+
+// const AudioContext = createContext(null);
+
+// // --- NEW: YouTube IFrame API loader -----------------------------------
+// // Loads the YouTube IFrame API script once and resolves with window.YT
+// // when it's ready. Safe to call multiple times; only loads the script once.
+// function loadYouTubeIframeAPI() {
+//   return new Promise((resolve) => {
+//     if (window.YT && window.YT.Player) {
+//       resolve(window.YT);
+//       return;
+//     }
+//     const existingCallback = window.onYouTubeIframeAPIReady;
+//     window.onYouTubeIframeAPIReady = () => {
+//       if (existingCallback) existingCallback();
+//       resolve(window.YT);
+//     };
+//     if (!document.getElementById("youtube-iframe-api-script")) {
+//       const tag = document.createElement("script");
+//       tag.id = "youtube-iframe-api-script";
+//       tag.src = "https://www.youtube.com/iframe_api";
+//       document.body.appendChild(tag);
+//     }
+//   });
+// }
+// // ------------------------------------------------------------------------
+
+// export function AudioProvider({ children }) {
+//   const { user } = useAuth();
+//   const STORAGE_KEY = user ? `audio_state_${user.id}` : null;
+//   const audioRef = useRef(new Audio());
+//   const loadRequestRef = useRef(0);
+//   const { addRecent } = useRecent();
+//   const [resumeTime, setResumeTime] = useState(0);
+
+//   // Player states
+//   const [queue, setQueue] = useState([]);
+//   const [currentIndex, setCurrentIndex] = useState(-1);
+//   const [playing, setPlaying] = useState(false);
+//   const [loopOne, setLoopOne] = useState(false);
+//   const [shuffle, setShuffle] = useState(false);
+//   const [currentTime, setCurrentTime] = useState(0);
+//   const [duration, setDuration] = useState(0);
+
+//   // NEW: States for shuffle order (prevents repeats within one loop)
+//   const [shuffleOrder, setShuffleOrder] = useState([]);
+//   const [shufflePointer, setShufflePointer] = useState(0);
+
+//   // --- NEW: YouTube player refs -----------------------------------------
+//   const ytPlayerRef = useRef(null);
+//   const ytReadyPromiseRef = useRef(null);
+//   const loopOneRef = useRef(loopOne);
+//   const playNextRef = useRef(() => {});
+//   // ------------------------------------------------------------------------
+
+//   const saveProgress = async (trackId, position, duration) => {
+//     if (!user || !trackId) return;
+//     if (position < 5) return;
+
+//     await supabase.from("continue_listening").upsert(
+//       {
+//         user_id: user.id,
+//         track_id: trackId,
+//         last_position: Math.floor(position),
+//         duration: Math.floor(duration || 0),
+//         updated_at: new Date(),
+//       },
+//       {
+//         onConflict: "user_id,track_id",
+//       },
+//     );
+//   };
+
+//   const currentTrack =
+//     currentIndex >= 0 && currentIndex < queue.length
+//       ? queue[currentIndex]
+//       : null;
+
+//   // NEW: is the currently loaded track a YouTube-sourced track?
+//   const isYoutubeTrack = !!currentTrack?.youtube_video_id;
+
+//   // NEW: unified getters so progress-saving / UI code doesn't need to
+//   // know which underlying player is active.
+//   const getPlaybackTime = useCallback(() => {
+//     if (isYoutubeTrack && ytPlayerRef.current?.getCurrentTime) {
+//       return ytPlayerRef.current.getCurrentTime() || 0;
+//     }
+//     return audioRef.current.currentTime || 0;
+//   }, [isYoutubeTrack]);
+
+//   const getPlaybackDuration = useCallback(() => {
+//     if (isYoutubeTrack && ytPlayerRef.current?.getDuration) {
+//       return ytPlayerRef.current.getDuration() || 0;
+//     }
+//     return audioRef.current.duration || 0;
+//   }, [isYoutubeTrack]);
+
+//   // NEW: Fisher-Yates shuffle helper - creates one full order without repeats
+//   const buildShuffleOrder = useCallback((tracks, startIndex = 0) => {
+//     if (!tracks?.length) return { order: [], pointer: 0 };
+
+//     const indices = tracks.map((_, i) => i);
+//     const remaining = indices.filter((i) => i !== startIndex);
+
+//     // Fisher-Yates shuffle
+//     for (let i = remaining.length - 1; i > 0; i--) {
+//       const j = Math.floor(Math.random() * (i + 1));
+//       [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+//     }
+
+//     const order = [startIndex, ...remaining];
+//     return { order, pointer: 0 };
+//   }, []);
+
+//   // --- NEW: keep refs in sync so the YT event handler (created once on
+//   // mount) always sees the latest loopOne / playNext without re-creating
+//   // the player. -------------------------------------------------------
+//   useEffect(() => {
+//     loopOneRef.current = loopOne;
+//   }, [loopOne]);
+
+//   // --- NEW: create the hidden YouTube player once on mount --------------
+//   // IMPORTANT: the container div is created with plain DOM APIs and
+//   // appended directly to document.body, OUTSIDE of React's rendering.
+//   // The YouTube IFrame API replaces this div with a real <iframe> internally;
+//   // if React also tried to render/reconcile this same node, the two would
+//   // fight over it and throw "insertBefore" / "not a child of this node"
+//   // errors. Keeping it fully outside JSX avoids that entirely.
+//   useEffect(() => {
+//     const container = document.createElement("div");
+//     container.id = "yt-audio-player-container";
+//     container.style.position = "absolute";
+//     container.style.top = "-9999px";
+//     container.style.left = "-9999px";
+//     // 200x200 rather than 0x0/1x1 -- very small player sizes are known to
+//     // cause flaky internal behavior (duration/quality calc glitches) in
+//     // the YouTube IFrame API.
+//     container.style.width = "200px";
+//     container.style.height = "200px";
+//     document.body.appendChild(container);
+
+//     ytReadyPromiseRef.current = new Promise((resolve) => {
+//       loadYouTubeIframeAPI().then((YT) => {
+//         const player = new YT.Player(container, {
+//           height: "200",
+//           width: "200",
+//           playerVars: { controls: 0, disablekb: 1 },
+//           events: {
+//             onReady: () => {
+//               ytPlayerRef.current = player;
+//               resolve(player);
+//             },
+//             onStateChange: (event) => {
+//               if (event.data === window.YT.PlayerState.ENDED) {
+//                 if (loopOneRef.current) {
+//                   player.seekTo(0, true);
+//                   player.playVideo();
+//                 } else {
+//                   playNextRef.current();
+//                 }
+//               }
+//             },
+//           },
+//         });
+//       });
+//     });
+
+//     return () => {
+//       if (ytPlayerRef.current?.destroy) {
+//         try {
+//           ytPlayerRef.current.destroy();
+//         } catch {
+//           // ignore
+//         }
+//       }
+//       if (container.parentNode) {
+//         container.parentNode.removeChild(container);
+//       }
+//     };
+//   }, []);
+//   // ------------------------------------------------------------------------
+
+//   useEffect(() => {
+//     if (!STORAGE_KEY) return;
+
+//     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+//     if (!saved) return;
+
+//     const {
+//       queue,
+//       currentIndex,
+//       currentTime,
+//       wasPlaying,
+//       loopOne,
+//       shuffle,
+//       shuffleOrder,
+//       shufflePointer,
+//     } = saved;
+
+//     if (!queue?.length) return;
+
+//     setQueue(queue);
+//     setCurrentIndex(currentIndex);
+//     setLoopOne(loopOne);
+//     setShuffle(!!shuffle);
+//     setShuffleOrder(shuffleOrder || []);
+//     setShufflePointer(shufflePointer || 0);
+
+//     const audio = audioRef.current;
+
+//     setTimeout(() => {
+//       // NEW: only resume native audio's currentTime here; YouTube tracks
+//       // resume via resumeTime in the loadTrack effect below instead,
+//       // since the YT player may not be ready yet at this point.
+//       const track = queue[currentIndex];
+//       if (track && !track.youtube_video_id) {
+//         audio.currentTime = currentTime || 0;
+
+//         if (wasPlaying) {
+//           audio.play().catch(() => {});
+//           setPlaying(true);
+//         }
+//       } else if (track && wasPlaying) {
+//         setPlaying(true);
+//       }
+//     }, 0);
+//   }, [STORAGE_KEY]);
+
+//   useEffect(() => {
+//     if (!currentTrack) return;
+
+//     const interval = setInterval(() => {
+//       // CHANGED: use the unified getter instead of reading audioRef directly,
+//       // so progress saves correctly for YouTube tracks too.
+//       const isPlayingNow = isYoutubeTrack
+//         ? ytPlayerRef.current?.getPlayerState?.() ===
+//           window.YT?.PlayerState?.PLAYING
+//         : !audioRef.current.paused;
+
+//       if (isPlayingNow) {
+//         saveProgress(currentTrack.id, getPlaybackTime(), getPlaybackDuration());
+//       }
+//     }, 10000);
+
+//     return () => {
+//       clearInterval(interval);
+
+//       if (currentTrack) {
+//         saveProgress(currentTrack.id, getPlaybackTime(), getPlaybackDuration());
+//       }
+//     };
+//   }, [currentTrack, user, isYoutubeTrack]);
+
+//   // FIXED: setNewQueue now also builds shuffle order if shuffle is on
+//   const setNewQueue = useCallback(
+//     (tracks, index) => {
+//       if (!tracks?.length) return;
+
+//       setQueue(tracks);
+//       setCurrentIndex(index);
+
+//       if (shuffle) {
+//         const { order, pointer } = buildShuffleOrder(tracks, index);
+//         setShuffleOrder(order);
+//         setShufflePointer(pointer);
+//       } else {
+//         setShuffleOrder([]);
+//         setShufflePointer(0);
+//       }
+//     },
+//     [shuffle, buildShuffleOrder],
+//   );
+
+//   // FIXED: playAll always uses original order, no shuffle
+//   const playAll = useCallback((tracks) => {
+//     if (!tracks?.length) return;
+
+//     setQueue(tracks);
+//     setCurrentIndex(0);
+//     setShuffle(false);
+//     setShuffleOrder([]);
+//     setShufflePointer(0);
+//   }, []);
+
+//   const shufflePlay = useCallback(
+//     (tracks) => {
+//       if (!tracks?.length) return;
+
+//       setQueue(tracks);
+//       setShuffle(true);
+
+//       const startIndex = Math.floor(Math.random() * tracks.length);
+
+//       const { order, pointer } = buildShuffleOrder(tracks, startIndex);
+
+//       setShuffleOrder(order);
+//       setShufflePointer(pointer);
+
+//       setCurrentIndex(order[pointer]);
+//     },
+//     [buildShuffleOrder],
+//   );
+
+//   const addToQueue = useCallback((track) => {
+//     if (!track) return;
+
+//     setQueue((prev) => {
+//       if (prev.some((t) => t.id === track.id)) return prev;
+//       return [...prev, track];
+//     });
+//   }, []);
+
+//   const playNextInsert = useCallback(
+//     (track) => {
+//       if (!track) return;
+
+//       setQueue((prev) => {
+//         if (!prev.length) {
+//           setCurrentIndex(0);
+//           return [track];
+//         }
+
+//         const newQueue = [...prev];
+//         newQueue.splice(currentIndex + 1, 0, track);
+//         return newQueue;
+//       });
+//     },
+//     [currentIndex],
+//   );
+
+//   // CHANGED: togglePlay now branches on source type
+//   const togglePlay = useCallback(() => {
+//     if (isYoutubeTrack) {
+//       const yt = ytPlayerRef.current;
+//       if (!yt || !window.YT) return;
+
+//       const state = yt.getPlayerState();
+//       if (state === window.YT.PlayerState.PLAYING) {
+//         yt.pauseVideo();
+//         setPlaying(false);
+//       } else {
+//         yt.playVideo();
+//         setPlaying(true);
+//       }
+//       return;
+//     }
+
+//     const audio = audioRef.current;
+//     if (!audio.src) return;
+
+//     if (audio.paused) {
+//       audio.play().then(() => setPlaying(true));
+//     } else {
+//       audio.pause();
+//       setPlaying(false);
+//     }
+//   }, [isYoutubeTrack]);
+
+//   // FIXED: playNext no longer picks random song, uses pre-built shuffle order
+//   const playNext = useCallback(() => {
+//     if (!queue.length) return;
+
+//     setCurrentIndex((current) => {
+//       if (shuffle) {
+//         // If no shuffle order exists yet, create one
+//         if (!shuffleOrder.length) {
+//           const { order, pointer } = buildShuffleOrder(
+//             queue,
+//             current >= 0 ? current : 0,
+//           );
+//           setShuffleOrder(order);
+//           setShufflePointer(pointer);
+//           return order[pointer];
+//         }
+
+//         const nextPointer = shufflePointer + 1;
+
+//         // If we haven't finished the loop yet, go to next song in shuffle order
+//         if (nextPointer < shuffleOrder.length) {
+//           setShufflePointer(nextPointer);
+//           return shuffleOrder[nextPointer];
+//         }
+
+//         // If we finished the loop, create a fresh shuffle order for the next cycle
+//         let nextStart = Math.floor(Math.random() * queue.length);
+
+//         // avoid immediate repeat of the just-finished last song
+//         const lastPlayed = shuffleOrder[shuffleOrder.length - 1];
+//         if (queue.length > 1) {
+//           while (nextStart === lastPlayed) {
+//             nextStart = Math.floor(Math.random() * queue.length);
+//           }
+//         }
+
+//         const { order, pointer } = buildShuffleOrder(queue, nextStart);
+//         setShuffleOrder(order);
+//         setShufflePointer(pointer);
+//         return order[pointer];
+//       }
+
+//       // Normal mode: go to next, and wrap to 0 at the end
+//       if (current + 1 < queue.length) {
+//         return current + 1;
+//       }
+
+//       return 0;
+//     });
+//   }, [queue, shuffle, shuffleOrder, shufflePointer, buildShuffleOrder]);
+
+//   // NEW: keep a ref to the latest playNext for the YT onStateChange handler
+//   useEffect(() => {
+//     playNextRef.current = playNext;
+//   }, [playNext]);
+
+//   // FIXED: playPrev also uses shuffle order when shuffle is on
+//   const playPrev = useCallback(() => {
+//     if (!queue.length) return;
+
+//     setCurrentIndex((current) => {
+//       if (shuffle) {
+//         if (!shuffleOrder.length) return current;
+
+//         const prevPointer = shufflePointer - 1;
+
+//         if (prevPointer >= 0) {
+//           setShufflePointer(prevPointer);
+//           return shuffleOrder[prevPointer];
+//         }
+
+//         return shuffleOrder[0];
+//       }
+
+//       // Normal mode: go to previous, wrap to last song at beginning
+//       return current > 0 ? current - 1 : queue.length - 1;
+//     });
+//   }, [queue, shuffle, shuffleOrder, shufflePointer]);
+
+//   const reorderQueue = useCallback((newQueue) => {
+//     setQueue(newQueue);
+//   }, []);
+
+//   const removeFromQueue = useCallback(
+//     (trackId) => {
+//       setQueue((prev) => {
+//         const updated = prev.filter((t) => t.id !== trackId);
+
+//         const removedIndex = prev.findIndex((t) => t.id === trackId);
+
+//         if (removedIndex < currentIndex) {
+//           setCurrentIndex((i) => i - 1);
+//         }
+
+//         return updated;
+//       });
+//     },
+//     [currentIndex],
+//   );
+
+//   // FIXED: clearQueue also clears shuffle states
+//   const clearQueue = useCallback(() => {
+//     setQueue([]);
+//     setCurrentIndex(-1);
+//     setShuffleOrder([]);
+//     setShufflePointer(0);
+//     audioRef.current.pause();
+//     audioRef.current.src = "";
+//     // NEW: stop YouTube playback too, if a YT track was playing
+//     if (ytPlayerRef.current?.stopVideo) {
+//       try {
+//         ytPlayerRef.current.stopVideo();
+//       } catch {
+//         // player may not be ready; safe to ignore
+//       }
+//     }
+//     setPlaying(false);
+//   }, []);
+
+  
+//   // useEffect(() => {
+//   //   const loadTrack = async () => {
+//   //     if (!currentTrack) return;
+
+//   //     // --- NEW: YouTube-sourced track path ---------------------------
+//   //     if (currentTrack.youtube_video_id) {
+//   //       // Make sure native audio isn't also playing underneath
+//   //       audioRef.current.pause();
+
+//   //       const yt = ytPlayerRef.current || (await ytReadyPromiseRef.current);
+//   //       if (!yt) return;
+
+//   //       yt.loadVideoById(currentTrack.youtube_video_id);
+//   //       setPlaying(true);
+//   //       addRecent(currentTrack);
+//   //       // Deliberately no cacheTrack()/offline caching for YouTube tracks.
+
+//   //       if (resumeTime > 0) {
+//   //         // give the player a moment to actually load before seeking
+//   //         setTimeout(() => {
+//   //           try {
+//   //             yt.seekTo(resumeTime, true);
+//   //           } catch {
+//   //             // ignore if not ready yet
+//   //           }
+//   //         }, 500);
+//   //         setResumeTime(0);
+//   //       }
+
+//   //       saveProgress(currentTrack.id, 0, 0);
+//   //       return;
+//   //     }
+//   //     // ------------------------------------------------------------------
+
+//   //     // ---- existing native-audio logic (unchanged) ----
+//   //     const audio = audioRef.current;
+
+//   //     // NEW: stop any YouTube playback first, in case the previous track was one
+//   //     if (ytPlayerRef.current?.stopVideo) {
+//   //       try {
+//   //         ytPlayerRef.current.stopVideo();
+//   //       } catch {
+//   //         // ignore
+//   //       }
+//   //     }
+
+//   //     try {
+//   //       const cachedBlob = await getTrack(currentTrack.id);
+
+//   //       if (cachedBlob) {
+//   //         const blobUrl = URL.createObjectURL(cachedBlob);
+//   //         audio.src = blobUrl;
+//   //       } else {
+//   //         audio.src =
+//   //           currentTrack.external_url || currentTrack.storage_path || "";
+//   //       }
+
+//   //       await audio.play();
+
+//   //       setPlaying(true);
+
+//   //       addRecent(currentTrack);
+
+//   //       cacheTrack(currentTrack);
+
+//   //       if (resumeTime > 0) {
+//   //         audio.currentTime = resumeTime;
+//   //         setResumeTime(0);
+//   //       }
+
+//   //       saveProgress(currentTrack.id, 0, audio.duration);
+//   //     } catch (err) {
+//   //       if (err.name === "AbortError") {
+//   //         return;
+//   //       }
+
+//   //       console.error(err);
+//   //       setPlaying(false);
+//   //     }
+//   //   };
+
+//   //   loadTrack();
+//   // }, [currentTrack]);
+
+
+// useEffect(() => {
+//   const requestId = ++loadRequestRef.current;
+//   let cancelled = false;
+
+//   const isCurrentRequest = () =>
+//     !cancelled && loadRequestRef.current === requestId;
+
+//   const loadTrack = async () => {
+//     if (!currentTrack) return;
+
+//     const audio = audioRef.current;
+
+//     // Stop the previous native track before loading another one.
+//     audio.pause();
+
+//     // YouTube branch: preserve the existing support.
+//     if (currentTrack.youtube_video_id) {
+//       try {
+//         const yt =
+//           ytPlayerRef.current || (await ytReadyPromiseRef.current);
+
+//         if (!isCurrentRequest() || !yt) return;
+
+//         yt.loadVideoById(currentTrack.youtube_video_id);
+
+//         if (!isCurrentRequest()) return;
+
+//         setPlaying(true);
+//         addRecent(currentTrack);
+
+//         if (resumeTime > 0) {
+//           const timeToResume = resumeTime;
+//           setResumeTime(0);
+
+//           setTimeout(() => {
+//             if (!isCurrentRequest()) return;
+
+//             try {
+//               yt.seekTo(timeToResume, true);
+//             } catch (err) {
+//               console.warn("Unable to restore playback position:", err);
+//             }
+//           }, 500);
+//         }
+
+//         saveProgress(currentTrack.id, 0, 0);
+//       } catch (err) {
+//         if (!isCurrentRequest()) return;
+
+//         console.error("Unable to load YouTube track:", err);
+//         setPlaying(false);
+//       }
+
+//       return;
+//     }
+
+//     // Native audio: cache lookup can finish asynchronously.
+//     try {
+//       if (ytPlayerRef.current?.stopVideo) {
+//         try {
+//           ytPlayerRef.current.stopVideo();
+//         } catch {
+//           // Ignore an unavailable YouTube player.
+//         }
+//       }
+
+//       const cachedBlob = await getTrack(currentTrack.id);
+
+//       // Never let an older request replace the newly selected track.
+//       if (!isCurrentRequest()) return;
+
+//       if (cachedBlob) {
+//         audio.src = URL.createObjectURL(cachedBlob);
+//       } else {
+//         audio.src =
+//           currentTrack.external_url ||
+//           currentTrack.storage_path ||
+//           "";
+//       }
+
+//       if (!audio.src) {
+//         throw new Error("No playable audio source found.");
+//       }
+
+//       audio.load();
+
+//       await audio.play();
+
+//       // The selected track may have changed while play() was pending.
+//       if (!isCurrentRequest()) return;
+
+//       setPlaying(true);
+//       addRecent(currentTrack);
+//       cacheTrack(currentTrack);
+
+//       if (resumeTime > 0) {
+//         const timeToResume = resumeTime;
+//         setResumeTime(0);
+
+//         // Wait until metadata is available before seeking.
+//         if (audio.readyState >= 1) {
+//           audio.currentTime = timeToResume;
+//         } else {
+//           const onMetadata = () => {
+//             if (isCurrentRequest()) {
+//               audio.currentTime = Math.min(
+//                 timeToResume,
+//                 audio.duration || timeToResume,
+//               );
+//             }
+//           };
+
+//           audio.addEventListener("loadedmetadata", onMetadata, {
+//             once: true,
+//           });
+//         }
+//       }
+
+//       saveProgress(currentTrack.id, 0, audio.duration);
+//     } catch (err) {
+//       if (!isCurrentRequest()) return;
+//       if (err.name === "AbortError") return;
+
+//       console.error("Audio playback failed:", err);
+//       setPlaying(false);
+//     }
+//   };
+
+//   loadTrack();
+
+//   return () => {
+//     cancelled = true;
+//   };
+// }, [currentTrack]);
+
+
+
+//   useEffect(() => {
+//     const audio = audioRef.current;
+
+//     const onTime = () => {
+//       setCurrentTime(audio.currentTime);
+//     };
+
+//     const onLoaded = () => setDuration(audio.duration || 0);
+
+//     const onEnded = () => {
+//       if (loopOne) {
+//         audio.currentTime = 0;
+//         audio.play();
+//       } else {
+//         playNext();
+//       }
+//     };
+
+//     audio.addEventListener("timeupdate", onTime);
+//     audio.addEventListener("loadedmetadata", onLoaded);
+//     audio.addEventListener("ended", onEnded);
+
+//     return () => {
+//       audio.removeEventListener("timeupdate", onTime);
+//       audio.removeEventListener("loadedmetadata", onLoaded);
+//       audio.removeEventListener("ended", onEnded);
+//     };
+//   }, [loopOne, shuffle, playNext]);
+
+//   // --- NEW: poll currentTime/duration for YouTube tracks, since the
+//   // IFrame API has no timeupdate event like <audio> does. ---------------
+//   useEffect(() => {
+//     if (!isYoutubeTrack) return;
+
+//     const interval = setInterval(() => {
+//       const yt = ytPlayerRef.current;
+//       if (
+//         !yt ||
+//         typeof yt.getCurrentTime !== "function" ||
+//         typeof yt.getDuration !== "function"
+//       ) {
+//         return;
+//       }
+//       setCurrentTime(yt.getCurrentTime() || 0);
+//       setDuration(yt.getDuration() || 0);
+//     }, 500);
+
+//     return () => clearInterval(interval);
+//   }, [isYoutubeTrack, currentTrack]);
+//   // ------------------------------------------------------------------------
+
+//   useEffect(() => {
+//     if (!STORAGE_KEY) return;
+
+//     localStorage.setItem(
+//       STORAGE_KEY,
+//       JSON.stringify({
+//         queue,
+//         currentIndex,
+//         currentTime,
+//         wasPlaying: playing,
+//         loopOne,
+//         shuffle,
+//         shuffleOrder,
+//         shufflePointer,
+//       }),
+//     );
+//   }, [
+//     queue,
+//     currentIndex,
+//     currentTime,
+//     playing,
+//     loopOne,
+//     shuffle,
+//     shuffleOrder,
+//     shufflePointer,
+//     STORAGE_KEY,
+//   ]);
+
+//   // CHANGED: seekTo now branches on source type
+//   const seekTo = (sec) => {
+//     if (isYoutubeTrack) {
+//       const yt = ytPlayerRef.current;
+//       if (!yt) return;
+//       yt.seekTo(Math.max(0, sec), true);
+//       return;
+//     }
+
+//     const audio = audioRef.current;
+//     if (!audio) return;
+//     audio.currentTime = Math.max(0, Math.min(sec, audio.duration || 0));
+//   };
+
+//   const value = useMemo(
+//     () => ({
+//       audioRef,
+//       queue,
+//       currentTrack,
+//       currentIndex,
+//       playing,
+//       loopOne,
+//       shuffle,
+//       currentTime,
+//       duration,
+//       setNewQueue,
+//       setResumeTime,
+//       playAll,
+//       shufflePlay,
+//       addToQueue,
+//       playNextInsert,
+//       playNext,
+//       playPrev,
+//       togglePlay,
+//       setLoopOne,
+//       setShuffle,
+//       seekTo,
+//       removeFromQueue,
+//       clearQueue,
+//       reorderQueue,
+//       shuffleOrder,
+//       shufflePointer,
+//       isYoutubeTrack, // NEW: exposed in case UI wants to show a YouTube badge/icon
+//     }),
+//     [
+//       queue,
+//       currentTrack,
+//       currentIndex,
+//       playing,
+//       loopOne,
+//       shuffle,
+//       currentTime,
+//       duration,
+//       shuffleOrder,
+//       shufflePointer,
+//       isYoutubeTrack,
+//     ],
+//   );
+
+//   // NOTE: the YouTube player's container div is created and managed with
+//   // plain DOM APIs in the effect above -- it is intentionally NOT rendered
+//   // here via JSX, to avoid React and the YouTube IFrame API fighting over
+//   // the same DOM node (see comment above).
+//   return (
+//     <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
+//   );
+// }
+
+// export function useAudio() {
+//   return useContext(AudioContext);
+// }
+
+
+
+
+// 
+// progress bar
+// import React, {
+//   createContext,
+//   useContext,
+//   useEffect,
+//   useRef,
+//   useState,
+//   useCallback,
+//   useMemo,
+// } from "react";
+// import useRecent from "../hooks/useRecent";
+// import { useAuth } from "./AuthContext";
+// import { supabase } from "../supabaseClient";
+// import { cacheTrack } from "../utils/cacheTrack";
+// import { getTrack } from "../utils/offlineCache";
+
+// const AudioContext = createContext(null);
+
+// // Tracks saved from the old YouTube integration have no audio source of
+// // their own. They can't be played anymore, so they are dropped when a
+// // saved queue is restored from localStorage.
+// const isLegacyYoutubeOnly = (t) =>
+//   !!t?.youtube_video_id && !t?.external_url && !t?.storage_path;
+
+// export function AudioProvider({ children }) {
+//   const { user } = useAuth();
+//   const STORAGE_KEY = user ? `audio_state_${user.id}` : null;
+//   const audioRef = useRef(new Audio());
+//   const loadRequestRef = useRef(0);
+//   const { addRecent } = useRecent();
+//   const [resumeTime, setResumeTime] = useState(0);
+
+//   // Player states
+//   const [queue, setQueue] = useState([]);
+//   const [currentIndex, setCurrentIndex] = useState(-1);
+//   const [playing, setPlaying] = useState(false);
+//   const [loopOne, setLoopOne] = useState(false);
+//   const [shuffle, setShuffle] = useState(false);
+//   const [currentTime, setCurrentTime] = useState(0);
+//   const [duration, setDuration] = useState(0);
+
+//   // NEW: States for shuffle order (prevents repeats within one loop)
+//   const [shuffleOrder, setShuffleOrder] = useState([]);
+//   const [shufflePointer, setShufflePointer] = useState(0);
+
+//   const saveProgress = async (trackId, position, duration) => {
+//     if (!user || !trackId) return;
+//     if (position < 5) return;
+
+//     await supabase.from("continue_listening").upsert(
+//       {
+//         user_id: user.id,
+//         track_id: trackId,
+//         last_position: Math.floor(position),
+//         duration: Math.floor(duration || 0),
+//         updated_at: new Date(),
+//       },
+//       {
+//         onConflict: "user_id,track_id",
+//       },
+//     );
+//   };
+
+//   const currentTrack =
+//     currentIndex >= 0 && currentIndex < queue.length
+//       ? queue[currentIndex]
+//       : null;
+
+//   // NEW: Fisher-Yates shuffle helper - creates one full order without repeats
+//   const buildShuffleOrder = useCallback((tracks, startIndex = 0) => {
+//     if (!tracks?.length) return { order: [], pointer: 0 };
+
+//     const indices = tracks.map((_, i) => i);
+//     const remaining = indices.filter((i) => i !== startIndex);
+
+//     // Fisher-Yates shuffle
+//     for (let i = remaining.length - 1; i > 0; i--) {
+//       const j = Math.floor(Math.random() * (i + 1));
+//       [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+//     }
+
+//     const order = [startIndex, ...remaining];
+//     return { order, pointer: 0 };
+//   }, []);
+
+//   useEffect(() => {
+//     if (!STORAGE_KEY) return;
+
+//     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+//     if (!saved) return;
+
+//     let {
+//       queue: savedQueue,
+//       currentIndex: savedIndex,
+//       currentTime,
+//       wasPlaying,
+//       loopOne,
+//       shuffle,
+//       shuffleOrder,
+//       shufflePointer,
+//     } = saved;
+
+//     if (!savedQueue?.length) return;
+
+//     // Drop leftover YouTube-only tracks and remap the current index.
+//     const queue = savedQueue.filter((t) => !isLegacyYoutubeOnly(t));
+//     if (!queue.length) return;
+
+//     const removedCount = savedQueue.length - queue.length;
+//     let currentIndex = savedIndex;
+
+//     if (removedCount > 0) {
+//       const keptBefore = savedQueue
+//         .slice(0, Math.max(savedIndex, 0))
+//         .filter((t) => !isLegacyYoutubeOnly(t)).length;
+//       const currentWasKept =
+//         savedQueue[savedIndex] && !isLegacyYoutubeOnly(savedQueue[savedIndex]);
+
+//       currentIndex = Math.min(keptBefore, queue.length - 1);
+//       // The saved shuffle order refers to old indices, so reset it.
+//       shuffleOrder = [];
+//       shufflePointer = 0;
+//       if (!currentWasKept) {
+//         currentTime = 0;
+//         wasPlaying = false;
+//       }
+//     }
+
+//     setQueue(queue);
+//     setCurrentIndex(currentIndex);
+//     setLoopOne(loopOne);
+//     setShuffle(!!shuffle);
+//     setShuffleOrder(shuffleOrder || []);
+//     setShufflePointer(shufflePointer || 0);
+
+//     const audio = audioRef.current;
+
+//     setTimeout(() => {
+//       const track = queue[currentIndex];
+//       if (track) {
+//         audio.currentTime = currentTime || 0;
+
+//         if (wasPlaying) {
+//           audio.play().catch(() => {});
+//           setPlaying(true);
+//         }
+//       }
+//     }, 0);
+//   }, [STORAGE_KEY]);
+
+//   useEffect(() => {
+//     if (!currentTrack) return;
+
+//     const interval = setInterval(() => {
+//       if (!audioRef.current.paused) {
+//         saveProgress(
+//           currentTrack.id,
+//           audioRef.current.currentTime || 0,
+//           audioRef.current.duration || 0,
+//         );
+//       }
+//     }, 10000);
+
+//     return () => {
+//       clearInterval(interval);
+
+//       if (currentTrack) {
+//         saveProgress(
+//           currentTrack.id,
+//           audioRef.current.currentTime || 0,
+//           audioRef.current.duration || 0,
+//         );
+//       }
+//     };
+//   }, [currentTrack, user]);
+
+//   // FIXED: setNewQueue now also builds shuffle order if shuffle is on
+//   const setNewQueue = useCallback(
+//     (tracks, index) => {
+//       if (!tracks?.length) return;
+
+//       setQueue(tracks);
+//       setCurrentIndex(index);
+
+//       if (shuffle) {
+//         const { order, pointer } = buildShuffleOrder(tracks, index);
+//         setShuffleOrder(order);
+//         setShufflePointer(pointer);
+//       } else {
+//         setShuffleOrder([]);
+//         setShufflePointer(0);
+//       }
+//     },
+//     [shuffle, buildShuffleOrder],
+//   );
+
+//   // FIXED: playAll always uses original order, no shuffle
+//   const playAll = useCallback((tracks) => {
+//     if (!tracks?.length) return;
+
+//     setQueue(tracks);
+//     setCurrentIndex(0);
+//     setShuffle(false);
+//     setShuffleOrder([]);
+//     setShufflePointer(0);
+//   }, []);
+
+//   const shufflePlay = useCallback(
+//     (tracks) => {
+//       if (!tracks?.length) return;
+
+//       setQueue(tracks);
+//       setShuffle(true);
+
+//       const startIndex = Math.floor(Math.random() * tracks.length);
+
+//       const { order, pointer } = buildShuffleOrder(tracks, startIndex);
+
+//       setShuffleOrder(order);
+//       setShufflePointer(pointer);
+
+//       setCurrentIndex(order[pointer]);
+//     },
+//     [buildShuffleOrder],
+//   );
+
+//   const addToQueue = useCallback((track) => {
+//     if (!track) return;
+
+//     setQueue((prev) => {
+//       if (prev.some((t) => t.id === track.id)) return prev;
+//       return [...prev, track];
+//     });
+//   }, []);
+
+//   const playNextInsert = useCallback(
+//     (track) => {
+//       if (!track) return;
+
+//       setQueue((prev) => {
+//         if (!prev.length) {
+//           setCurrentIndex(0);
+//           return [track];
+//         }
+
+//         const newQueue = [...prev];
+//         newQueue.splice(currentIndex + 1, 0, track);
+//         return newQueue;
+//       });
+//     },
+//     [currentIndex],
+//   );
+
+//   const togglePlay = useCallback(() => {
+//     const audio = audioRef.current;
+//     if (!audio.src) return;
+
+//     if (audio.paused) {
+//       audio.play().then(() => setPlaying(true));
+//     } else {
+//       audio.pause();
+//       setPlaying(false);
+//     }
+//   }, []);
+
+//   // FIXED: playNext no longer picks random song, uses pre-built shuffle order
+//   const playNext = useCallback(() => {
+//     if (!queue.length) return;
+
+//     setCurrentIndex((current) => {
+//       if (shuffle) {
+//         // If no shuffle order exists yet, create one
+//         if (!shuffleOrder.length) {
+//           const { order, pointer } = buildShuffleOrder(
+//             queue,
+//             current >= 0 ? current : 0,
+//           );
+//           setShuffleOrder(order);
+//           setShufflePointer(pointer);
+//           return order[pointer];
+//         }
+
+//         const nextPointer = shufflePointer + 1;
+
+//         // If we haven't finished the loop yet, go to next song in shuffle order
+//         if (nextPointer < shuffleOrder.length) {
+//           setShufflePointer(nextPointer);
+//           return shuffleOrder[nextPointer];
+//         }
+
+//         // If we finished the loop, create a fresh shuffle order for the next cycle
+//         let nextStart = Math.floor(Math.random() * queue.length);
+
+//         // avoid immediate repeat of the just-finished last song
+//         const lastPlayed = shuffleOrder[shuffleOrder.length - 1];
+//         if (queue.length > 1) {
+//           while (nextStart === lastPlayed) {
+//             nextStart = Math.floor(Math.random() * queue.length);
+//           }
+//         }
+
+//         const { order, pointer } = buildShuffleOrder(queue, nextStart);
+//         setShuffleOrder(order);
+//         setShufflePointer(pointer);
+//         return order[pointer];
+//       }
+
+//       // Normal mode: go to next, and wrap to 0 at the end
+//       if (current + 1 < queue.length) {
+//         return current + 1;
+//       }
+
+//       return 0;
+//     });
+//   }, [queue, shuffle, shuffleOrder, shufflePointer, buildShuffleOrder]);
+
+//   // FIXED: playPrev also uses shuffle order when shuffle is on
+//   const playPrev = useCallback(() => {
+//     if (!queue.length) return;
+
+//     setCurrentIndex((current) => {
+//       if (shuffle) {
+//         if (!shuffleOrder.length) return current;
+
+//         const prevPointer = shufflePointer - 1;
+
+//         if (prevPointer >= 0) {
+//           setShufflePointer(prevPointer);
+//           return shuffleOrder[prevPointer];
+//         }
+
+//         return shuffleOrder[0];
+//       }
+
+//       // Normal mode: go to previous, wrap to last song at beginning
+//       return current > 0 ? current - 1 : queue.length - 1;
+//     });
+//   }, [queue, shuffle, shuffleOrder, shufflePointer]);
+
+//   const reorderQueue = useCallback((newQueue) => {
+//     setQueue(newQueue);
+//   }, []);
+
+//   const removeFromQueue = useCallback(
+//     (trackId) => {
+//       setQueue((prev) => {
+//         const updated = prev.filter((t) => t.id !== trackId);
+
+//         const removedIndex = prev.findIndex((t) => t.id === trackId);
+
+//         if (removedIndex < currentIndex) {
+//           setCurrentIndex((i) => i - 1);
+//         }
+
+//         return updated;
+//       });
+//     },
+//     [currentIndex],
+//   );
+
+//   // FIXED: clearQueue also clears shuffle states
+//   const clearQueue = useCallback(() => {
+//     setQueue([]);
+//     setCurrentIndex(-1);
+//     setShuffleOrder([]);
+//     setShufflePointer(0);
+//     audioRef.current.pause();
+//     audioRef.current.src = "";
+//     setPlaying(false);
+//   }, []);
+
+//   useEffect(() => {
+//     const requestId = ++loadRequestRef.current;
+//     let cancelled = false;
+
+//     const isCurrentRequest = () =>
+//       !cancelled && loadRequestRef.current === requestId;
+
+//     const loadTrack = async () => {
+//       if (!currentTrack) return;
+
+//       const audio = audioRef.current;
+
+//       // Stop the previous native track before loading another one.
+//       audio.pause();
+
+//       // Native audio: cache lookup can finish asynchronously.
+//       try {
+//         const cachedBlob = await getTrack(currentTrack.id);
+
+//         // Never let an older request replace the newly selected track.
+//         if (!isCurrentRequest()) return;
+
+//         if (cachedBlob) {
+//           audio.src = URL.createObjectURL(cachedBlob);
+//         } else {
+//           audio.src =
+//             currentTrack.external_url ||
+//             currentTrack.storage_path ||
+//             "";
+//         }
+
+//         if (!audio.src) {
+//           throw new Error("No playable audio source found.");
+//         }
+
+//         audio.load();
+
+//         await audio.play();
+
+//         // The selected track may have changed while play() was pending.
+//         if (!isCurrentRequest()) return;
+
+//         setPlaying(true);
+//         addRecent(currentTrack);
+//         cacheTrack(currentTrack);
+
+//         if (resumeTime > 0) {
+//           const timeToResume = resumeTime;
+//           setResumeTime(0);
+
+//           // Wait until metadata is available before seeking.
+//           if (audio.readyState >= 1) {
+//             audio.currentTime = timeToResume;
+//           } else {
+//             const onMetadata = () => {
+//               if (isCurrentRequest()) {
+//                 audio.currentTime = Math.min(
+//                   timeToResume,
+//                   audio.duration || timeToResume,
+//                 );
+//               }
+//             };
+
+//             audio.addEventListener("loadedmetadata", onMetadata, {
+//               once: true,
+//             });
+//           }
+//         }
+
+//         saveProgress(currentTrack.id, 0, audio.duration);
+//       } catch (err) {
+//         if (!isCurrentRequest()) return;
+//         if (err.name === "AbortError") return;
+
+//         console.error("Audio playback failed:", err);
+//         setPlaying(false);
+//       }
+//     };
+
+//     loadTrack();
+
+//     return () => {
+//       cancelled = true;
+//     };
+//   }, [currentTrack]);
+
+//   useEffect(() => {
+//     const audio = audioRef.current;
+
+//     const onTime = () => {
+//       setCurrentTime(audio.currentTime);
+//     };
+
+//     const onLoaded = () => setDuration(audio.duration || 0);
+
+//     const onEnded = () => {
+//       if (loopOne) {
+//         audio.currentTime = 0;
+//         audio.play();
+//       } else {
+//         playNext();
+//       }
+//     };
+
+//     audio.addEventListener("timeupdate", onTime);
+//     audio.addEventListener("loadedmetadata", onLoaded);
+//     audio.addEventListener("ended", onEnded);
+
+//     return () => {
+//       audio.removeEventListener("timeupdate", onTime);
+//       audio.removeEventListener("loadedmetadata", onLoaded);
+//       audio.removeEventListener("ended", onEnded);
+//     };
+//   }, [loopOne, shuffle, playNext]);
+
+//   useEffect(() => {
+//     if (!STORAGE_KEY) return;
+
+//     localStorage.setItem(
+//       STORAGE_KEY,
+//       JSON.stringify({
+//         queue,
+//         currentIndex,
+//         currentTime,
+//         wasPlaying: playing,
+//         loopOne,
+//         shuffle,
+//         shuffleOrder,
+//         shufflePointer,
+//       }),
+//     );
+//   }, [
+//     queue,
+//     currentIndex,
+//     currentTime,
+//     playing,
+//     loopOne,
+//     shuffle,
+//     shuffleOrder,
+//     shufflePointer,
+//     STORAGE_KEY,
+//   ]);
+
+//   const seekTo = (sec) => {
+//     const audio = audioRef.current;
+//     if (!audio) return;
+//     audio.currentTime = Math.max(0, Math.min(sec, audio.duration || 0));
+//   };
+
+//   const value = useMemo(
+//     () => ({
+//       audioRef,
+//       queue,
+//       currentTrack,
+//       currentIndex,
+//       playing,
+//       loopOne,
+//       shuffle,
+//       currentTime,
+//       duration,
+//       setNewQueue,
+//       setResumeTime,
+//       playAll,
+//       shufflePlay,
+//       addToQueue,
+//       playNextInsert,
+//       playNext,
+//       playPrev,
+//       togglePlay,
+//       setLoopOne,
+//       setShuffle,
+//       seekTo,
+//       removeFromQueue,
+//       clearQueue,
+//       reorderQueue,
+//       shuffleOrder,
+//       shufflePointer,
+//     }),
+//     [
+//       queue,
+//       currentTrack,
+//       currentIndex,
+//       playing,
+//       loopOne,
+//       shuffle,
+//       currentTime,
+//       duration,
+//       shuffleOrder,
+//       shufflePointer,
+//     ],
+//   );
+
+//   return (
+//     <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
+//   );
+// }
+
+// export function useAudio() {
+//   return useContext(AudioContext);
+// }
+
+
+
+// 
+
 // progress bar
 import React, {
   createContext,
@@ -16,35 +1464,19 @@ import { getTrack } from "../utils/offlineCache";
 
 const AudioContext = createContext(null);
 
-// --- NEW: YouTube IFrame API loader -----------------------------------
-// Loads the YouTube IFrame API script once and resolves with window.YT
-// when it's ready. Safe to call multiple times; only loads the script once.
-function loadYouTubeIframeAPI() {
-  return new Promise((resolve) => {
-    if (window.YT && window.YT.Player) {
-      resolve(window.YT);
-      return;
-    }
-    const existingCallback = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      if (existingCallback) existingCallback();
-      resolve(window.YT);
-    };
-    if (!document.getElementById("youtube-iframe-api-script")) {
-      const tag = document.createElement("script");
-      tag.id = "youtube-iframe-api-script";
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.body.appendChild(tag);
-    }
-  });
-}
-// ------------------------------------------------------------------------
+// Tracks saved from the old YouTube integration have no audio source of
+// their own. They can't be played anymore, so they are dropped when a
+// saved queue is restored from localStorage.
+const isLegacyYoutubeOnly = (t) =>
+  !!t?.youtube_video_id && !t?.external_url && !t?.storage_path;
 
 export function AudioProvider({ children }) {
   const { user } = useAuth();
   const STORAGE_KEY = user ? `audio_state_${user.id}` : null;
   const audioRef = useRef(new Audio());
   const loadRequestRef = useRef(0);
+  const playNextRef = useRef(() => {});
+  const failedSkipsRef = useRef(0);
   const { addRecent } = useRecent();
   const [resumeTime, setResumeTime] = useState(0);
 
@@ -60,13 +1492,6 @@ export function AudioProvider({ children }) {
   // NEW: States for shuffle order (prevents repeats within one loop)
   const [shuffleOrder, setShuffleOrder] = useState([]);
   const [shufflePointer, setShufflePointer] = useState(0);
-
-  // --- NEW: YouTube player refs -----------------------------------------
-  const ytPlayerRef = useRef(null);
-  const ytReadyPromiseRef = useRef(null);
-  const loopOneRef = useRef(loopOne);
-  const playNextRef = useRef(() => {});
-  // ------------------------------------------------------------------------
 
   const saveProgress = async (trackId, position, duration) => {
     if (!user || !trackId) return;
@@ -91,25 +1516,6 @@ export function AudioProvider({ children }) {
       ? queue[currentIndex]
       : null;
 
-  // NEW: is the currently loaded track a YouTube-sourced track?
-  const isYoutubeTrack = !!currentTrack?.youtube_video_id;
-
-  // NEW: unified getters so progress-saving / UI code doesn't need to
-  // know which underlying player is active.
-  const getPlaybackTime = useCallback(() => {
-    if (isYoutubeTrack && ytPlayerRef.current?.getCurrentTime) {
-      return ytPlayerRef.current.getCurrentTime() || 0;
-    }
-    return audioRef.current.currentTime || 0;
-  }, [isYoutubeTrack]);
-
-  const getPlaybackDuration = useCallback(() => {
-    if (isYoutubeTrack && ytPlayerRef.current?.getDuration) {
-      return ytPlayerRef.current.getDuration() || 0;
-    }
-    return audioRef.current.duration || 0;
-  }, [isYoutubeTrack]);
-
   // NEW: Fisher-Yates shuffle helper - creates one full order without repeats
   const buildShuffleOrder = useCallback((tracks, startIndex = 0) => {
     if (!tracks?.length) return { order: [], pointer: 0 };
@@ -127,74 +1533,6 @@ export function AudioProvider({ children }) {
     return { order, pointer: 0 };
   }, []);
 
-  // --- NEW: keep refs in sync so the YT event handler (created once on
-  // mount) always sees the latest loopOne / playNext without re-creating
-  // the player. -------------------------------------------------------
-  useEffect(() => {
-    loopOneRef.current = loopOne;
-  }, [loopOne]);
-
-  // --- NEW: create the hidden YouTube player once on mount --------------
-  // IMPORTANT: the container div is created with plain DOM APIs and
-  // appended directly to document.body, OUTSIDE of React's rendering.
-  // The YouTube IFrame API replaces this div with a real <iframe> internally;
-  // if React also tried to render/reconcile this same node, the two would
-  // fight over it and throw "insertBefore" / "not a child of this node"
-  // errors. Keeping it fully outside JSX avoids that entirely.
-  useEffect(() => {
-    const container = document.createElement("div");
-    container.id = "yt-audio-player-container";
-    container.style.position = "absolute";
-    container.style.top = "-9999px";
-    container.style.left = "-9999px";
-    // 200x200 rather than 0x0/1x1 -- very small player sizes are known to
-    // cause flaky internal behavior (duration/quality calc glitches) in
-    // the YouTube IFrame API.
-    container.style.width = "200px";
-    container.style.height = "200px";
-    document.body.appendChild(container);
-
-    ytReadyPromiseRef.current = new Promise((resolve) => {
-      loadYouTubeIframeAPI().then((YT) => {
-        const player = new YT.Player(container, {
-          height: "200",
-          width: "200",
-          playerVars: { controls: 0, disablekb: 1 },
-          events: {
-            onReady: () => {
-              ytPlayerRef.current = player;
-              resolve(player);
-            },
-            onStateChange: (event) => {
-              if (event.data === window.YT.PlayerState.ENDED) {
-                if (loopOneRef.current) {
-                  player.seekTo(0, true);
-                  player.playVideo();
-                } else {
-                  playNextRef.current();
-                }
-              }
-            },
-          },
-        });
-      });
-    });
-
-    return () => {
-      if (ytPlayerRef.current?.destroy) {
-        try {
-          ytPlayerRef.current.destroy();
-        } catch {
-          // ignore
-        }
-      }
-      if (container.parentNode) {
-        container.parentNode.removeChild(container);
-      }
-    };
-  }, []);
-  // ------------------------------------------------------------------------
-
   useEffect(() => {
     if (!STORAGE_KEY) return;
 
@@ -202,9 +1540,9 @@ export function AudioProvider({ children }) {
 
     if (!saved) return;
 
-    const {
-      queue,
-      currentIndex,
+    let {
+      queue: savedQueue,
+      currentIndex: savedIndex,
       currentTime,
       wasPlaying,
       loopOne,
@@ -213,7 +1551,31 @@ export function AudioProvider({ children }) {
       shufflePointer,
     } = saved;
 
-    if (!queue?.length) return;
+    if (!savedQueue?.length) return;
+
+    // Drop leftover YouTube-only tracks and remap the current index.
+    const queue = savedQueue.filter((t) => !isLegacyYoutubeOnly(t));
+    if (!queue.length) return;
+
+    const removedCount = savedQueue.length - queue.length;
+    let currentIndex = savedIndex;
+
+    if (removedCount > 0) {
+      const keptBefore = savedQueue
+        .slice(0, Math.max(savedIndex, 0))
+        .filter((t) => !isLegacyYoutubeOnly(t)).length;
+      const currentWasKept =
+        savedQueue[savedIndex] && !isLegacyYoutubeOnly(savedQueue[savedIndex]);
+
+      currentIndex = Math.min(keptBefore, queue.length - 1);
+      // The saved shuffle order refers to old indices, so reset it.
+      shuffleOrder = [];
+      shufflePointer = 0;
+      if (!currentWasKept) {
+        currentTime = 0;
+        wasPlaying = false;
+      }
+    }
 
     setQueue(queue);
     setCurrentIndex(currentIndex);
@@ -225,19 +1587,14 @@ export function AudioProvider({ children }) {
     const audio = audioRef.current;
 
     setTimeout(() => {
-      // NEW: only resume native audio's currentTime here; YouTube tracks
-      // resume via resumeTime in the loadTrack effect below instead,
-      // since the YT player may not be ready yet at this point.
       const track = queue[currentIndex];
-      if (track && !track.youtube_video_id) {
+      if (track) {
         audio.currentTime = currentTime || 0;
 
         if (wasPlaying) {
           audio.play().catch(() => {});
           setPlaying(true);
         }
-      } else if (track && wasPlaying) {
-        setPlaying(true);
       }
     }, 0);
   }, [STORAGE_KEY]);
@@ -246,15 +1603,12 @@ export function AudioProvider({ children }) {
     if (!currentTrack) return;
 
     const interval = setInterval(() => {
-      // CHANGED: use the unified getter instead of reading audioRef directly,
-      // so progress saves correctly for YouTube tracks too.
-      const isPlayingNow = isYoutubeTrack
-        ? ytPlayerRef.current?.getPlayerState?.() ===
-          window.YT?.PlayerState?.PLAYING
-        : !audioRef.current.paused;
-
-      if (isPlayingNow) {
-        saveProgress(currentTrack.id, getPlaybackTime(), getPlaybackDuration());
+      if (!audioRef.current.paused) {
+        saveProgress(
+          currentTrack.id,
+          audioRef.current.currentTime || 0,
+          audioRef.current.duration || 0,
+        );
       }
     }, 10000);
 
@@ -262,10 +1616,14 @@ export function AudioProvider({ children }) {
       clearInterval(interval);
 
       if (currentTrack) {
-        saveProgress(currentTrack.id, getPlaybackTime(), getPlaybackDuration());
+        saveProgress(
+          currentTrack.id,
+          audioRef.current.currentTime || 0,
+          audioRef.current.duration || 0,
+        );
       }
     };
-  }, [currentTrack, user, isYoutubeTrack]);
+  }, [currentTrack, user]);
 
   // FIXED: setNewQueue now also builds shuffle order if shuffle is on
   const setNewQueue = useCallback(
@@ -344,23 +1702,7 @@ export function AudioProvider({ children }) {
     [currentIndex],
   );
 
-  // CHANGED: togglePlay now branches on source type
   const togglePlay = useCallback(() => {
-    if (isYoutubeTrack) {
-      const yt = ytPlayerRef.current;
-      if (!yt || !window.YT) return;
-
-      const state = yt.getPlayerState();
-      if (state === window.YT.PlayerState.PLAYING) {
-        yt.pauseVideo();
-        setPlaying(false);
-      } else {
-        yt.playVideo();
-        setPlaying(true);
-      }
-      return;
-    }
-
     const audio = audioRef.current;
     if (!audio.src) return;
 
@@ -370,7 +1712,7 @@ export function AudioProvider({ children }) {
       audio.pause();
       setPlaying(false);
     }
-  }, [isYoutubeTrack]);
+  }, []);
 
   // FIXED: playNext no longer picks random song, uses pre-built shuffle order
   const playNext = useCallback(() => {
@@ -423,7 +1765,7 @@ export function AudioProvider({ children }) {
     });
   }, [queue, shuffle, shuffleOrder, shufflePointer, buildShuffleOrder]);
 
-  // NEW: keep a ref to the latest playNext for the YT onStateChange handler
+  // Keep a ref to the latest playNext so the load effect can skip a broken track.
   useEffect(() => {
     playNextRef.current = playNext;
   }, [playNext]);
@@ -480,239 +1822,105 @@ export function AudioProvider({ children }) {
     setShufflePointer(0);
     audioRef.current.pause();
     audioRef.current.src = "";
-    // NEW: stop YouTube playback too, if a YT track was playing
-    if (ytPlayerRef.current?.stopVideo) {
-      try {
-        ytPlayerRef.current.stopVideo();
-      } catch {
-        // player may not be ready; safe to ignore
-      }
-    }
     setPlaying(false);
   }, []);
 
-  
-  // useEffect(() => {
-  //   const loadTrack = async () => {
-  //     if (!currentTrack) return;
+  useEffect(() => {
+    const requestId = ++loadRequestRef.current;
+    let cancelled = false;
 
-  //     // --- NEW: YouTube-sourced track path ---------------------------
-  //     if (currentTrack.youtube_video_id) {
-  //       // Make sure native audio isn't also playing underneath
-  //       audioRef.current.pause();
+    const isCurrentRequest = () =>
+      !cancelled && loadRequestRef.current === requestId;
 
-  //       const yt = ytPlayerRef.current || (await ytReadyPromiseRef.current);
-  //       if (!yt) return;
+    const loadTrack = async () => {
+      if (!currentTrack) return;
 
-  //       yt.loadVideoById(currentTrack.youtube_video_id);
-  //       setPlaying(true);
-  //       addRecent(currentTrack);
-  //       // Deliberately no cacheTrack()/offline caching for YouTube tracks.
+      const audio = audioRef.current;
 
-  //       if (resumeTime > 0) {
-  //         // give the player a moment to actually load before seeking
-  //         setTimeout(() => {
-  //           try {
-  //             yt.seekTo(resumeTime, true);
-  //           } catch {
-  //             // ignore if not ready yet
-  //           }
-  //         }, 500);
-  //         setResumeTime(0);
-  //       }
+      // Stop the previous native track before loading another one.
+      audio.pause();
 
-  //       saveProgress(currentTrack.id, 0, 0);
-  //       return;
-  //     }
-  //     // ------------------------------------------------------------------
-
-  //     // ---- existing native-audio logic (unchanged) ----
-  //     const audio = audioRef.current;
-
-  //     // NEW: stop any YouTube playback first, in case the previous track was one
-  //     if (ytPlayerRef.current?.stopVideo) {
-  //       try {
-  //         ytPlayerRef.current.stopVideo();
-  //       } catch {
-  //         // ignore
-  //       }
-  //     }
-
-  //     try {
-  //       const cachedBlob = await getTrack(currentTrack.id);
-
-  //       if (cachedBlob) {
-  //         const blobUrl = URL.createObjectURL(cachedBlob);
-  //         audio.src = blobUrl;
-  //       } else {
-  //         audio.src =
-  //           currentTrack.external_url || currentTrack.storage_path || "";
-  //       }
-
-  //       await audio.play();
-
-  //       setPlaying(true);
-
-  //       addRecent(currentTrack);
-
-  //       cacheTrack(currentTrack);
-
-  //       if (resumeTime > 0) {
-  //         audio.currentTime = resumeTime;
-  //         setResumeTime(0);
-  //       }
-
-  //       saveProgress(currentTrack.id, 0, audio.duration);
-  //     } catch (err) {
-  //       if (err.name === "AbortError") {
-  //         return;
-  //       }
-
-  //       console.error(err);
-  //       setPlaying(false);
-  //     }
-  //   };
-
-  //   loadTrack();
-  // }, [currentTrack]);
-
-
-useEffect(() => {
-  const requestId = ++loadRequestRef.current;
-  let cancelled = false;
-
-  const isCurrentRequest = () =>
-    !cancelled && loadRequestRef.current === requestId;
-
-  const loadTrack = async () => {
-    if (!currentTrack) return;
-
-    const audio = audioRef.current;
-
-    // Stop the previous native track before loading another one.
-    audio.pause();
-
-    // YouTube branch: preserve the existing support.
-    if (currentTrack.youtube_video_id) {
+      // Native audio: cache lookup can finish asynchronously.
       try {
-        const yt =
-          ytPlayerRef.current || (await ytReadyPromiseRef.current);
+        const cachedBlob = await getTrack(currentTrack.id);
 
-        if (!isCurrentRequest() || !yt) return;
-
-        yt.loadVideoById(currentTrack.youtube_video_id);
-
+        // Never let an older request replace the newly selected track.
         if (!isCurrentRequest()) return;
 
+        if (cachedBlob) {
+          audio.src = URL.createObjectURL(cachedBlob);
+        } else {
+          audio.src =
+            currentTrack.external_url ||
+            currentTrack.storage_path ||
+            "";
+        }
+
+        if (!audio.src) {
+          throw new Error("No playable audio source found.");
+        }
+
+        // Setting src already starts loading; no extra audio.load() needed.
+        await audio.play();
+
+        // The selected track may have changed while play() was pending.
+        if (!isCurrentRequest()) return;
+
+        failedSkipsRef.current = 0;
         setPlaying(true);
         addRecent(currentTrack);
+        cacheTrack(currentTrack);
 
         if (resumeTime > 0) {
           const timeToResume = resumeTime;
           setResumeTime(0);
 
-          setTimeout(() => {
-            if (!isCurrentRequest()) return;
+          // Wait until metadata is available before seeking.
+          if (audio.readyState >= 1) {
+            audio.currentTime = timeToResume;
+          } else {
+            const onMetadata = () => {
+              if (isCurrentRequest()) {
+                audio.currentTime = Math.min(
+                  timeToResume,
+                  audio.duration || timeToResume,
+                );
+              }
+            };
 
-            try {
-              yt.seekTo(timeToResume, true);
-            } catch (err) {
-              console.warn("Unable to restore playback position:", err);
-            }
-          }, 500);
+            audio.addEventListener("loadedmetadata", onMetadata, {
+              once: true,
+            });
+          }
         }
 
-        saveProgress(currentTrack.id, 0, 0);
+        saveProgress(currentTrack.id, 0, audio.duration);
       } catch (err) {
         if (!isCurrentRequest()) return;
+        if (err.name === "AbortError") return;
 
-        console.error("Unable to load YouTube track:", err);
+        console.error("Audio playback failed:", err.name, err.message, currentTrack);
         setPlaying(false);
-      }
 
-      return;
-    }
-
-    // Native audio: cache lookup can finish asynchronously.
-    try {
-      if (ytPlayerRef.current?.stopVideo) {
-        try {
-          ytPlayerRef.current.stopVideo();
-        } catch {
-          // Ignore an unavailable YouTube player.
+        // Autoplay blocks are not a bad track, so don't skip on those.
+        // For a genuinely broken track, move on instead of killing the queue,
+        // but never loop more times than there are songs.
+        if (
+          err.name !== "NotAllowedError" &&
+          failedSkipsRef.current < queue.length - 1
+        ) {
+          failedSkipsRef.current += 1;
+          playNextRef.current();
         }
       }
+    };
 
-      const cachedBlob = await getTrack(currentTrack.id);
+    loadTrack();
 
-      // Never let an older request replace the newly selected track.
-      if (!isCurrentRequest()) return;
-
-      if (cachedBlob) {
-        audio.src = URL.createObjectURL(cachedBlob);
-      } else {
-        audio.src =
-          currentTrack.external_url ||
-          currentTrack.storage_path ||
-          "";
-      }
-
-      if (!audio.src) {
-        throw new Error("No playable audio source found.");
-      }
-
-      audio.load();
-
-      await audio.play();
-
-      // The selected track may have changed while play() was pending.
-      if (!isCurrentRequest()) return;
-
-      setPlaying(true);
-      addRecent(currentTrack);
-      cacheTrack(currentTrack);
-
-      if (resumeTime > 0) {
-        const timeToResume = resumeTime;
-        setResumeTime(0);
-
-        // Wait until metadata is available before seeking.
-        if (audio.readyState >= 1) {
-          audio.currentTime = timeToResume;
-        } else {
-          const onMetadata = () => {
-            if (isCurrentRequest()) {
-              audio.currentTime = Math.min(
-                timeToResume,
-                audio.duration || timeToResume,
-              );
-            }
-          };
-
-          audio.addEventListener("loadedmetadata", onMetadata, {
-            once: true,
-          });
-        }
-      }
-
-      saveProgress(currentTrack.id, 0, audio.duration);
-    } catch (err) {
-      if (!isCurrentRequest()) return;
-      if (err.name === "AbortError") return;
-
-      console.error("Audio playback failed:", err);
-      setPlaying(false);
-    }
-  };
-
-  loadTrack();
-
-  return () => {
-    cancelled = true;
-  };
-}, [currentTrack]);
-
-
+    return () => {
+      cancelled = true;
+    };
+  }, [currentTrack]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -743,28 +1951,6 @@ useEffect(() => {
     };
   }, [loopOne, shuffle, playNext]);
 
-  // --- NEW: poll currentTime/duration for YouTube tracks, since the
-  // IFrame API has no timeupdate event like <audio> does. ---------------
-  useEffect(() => {
-    if (!isYoutubeTrack) return;
-
-    const interval = setInterval(() => {
-      const yt = ytPlayerRef.current;
-      if (
-        !yt ||
-        typeof yt.getCurrentTime !== "function" ||
-        typeof yt.getDuration !== "function"
-      ) {
-        return;
-      }
-      setCurrentTime(yt.getCurrentTime() || 0);
-      setDuration(yt.getDuration() || 0);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [isYoutubeTrack, currentTrack]);
-  // ------------------------------------------------------------------------
-
   useEffect(() => {
     if (!STORAGE_KEY) return;
 
@@ -793,15 +1979,7 @@ useEffect(() => {
     STORAGE_KEY,
   ]);
 
-  // CHANGED: seekTo now branches on source type
   const seekTo = (sec) => {
-    if (isYoutubeTrack) {
-      const yt = ytPlayerRef.current;
-      if (!yt) return;
-      yt.seekTo(Math.max(0, sec), true);
-      return;
-    }
-
     const audio = audioRef.current;
     if (!audio) return;
     audio.currentTime = Math.max(0, Math.min(sec, audio.duration || 0));
@@ -835,7 +2013,6 @@ useEffect(() => {
       reorderQueue,
       shuffleOrder,
       shufflePointer,
-      isYoutubeTrack, // NEW: exposed in case UI wants to show a YouTube badge/icon
     }),
     [
       queue,
@@ -848,14 +2025,9 @@ useEffect(() => {
       duration,
       shuffleOrder,
       shufflePointer,
-      isYoutubeTrack,
     ],
   );
 
-  // NOTE: the YouTube player's container div is created and managed with
-  // plain DOM APIs in the effect above -- it is intentionally NOT rendered
-  // here via JSX, to avoid React and the YouTube IFrame API fighting over
-  // the same DOM node (see comment above).
   return (
     <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
   );
