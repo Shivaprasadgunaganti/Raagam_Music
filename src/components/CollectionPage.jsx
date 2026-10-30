@@ -1366,7 +1366,7 @@ export default function CollectionPage() {
               <div className="album-img-shell">
                 <LazyImage
                   src={track.cover_url || "/covers/default.jpg"}
-                  alt={track.title}
+                  alt={track.title} priority={index < 4}
                 />
               </div>
               {/* <div className="album-title">{track.title}</div> */}
@@ -1601,7 +1601,8 @@ export default function CollectionPage() {
 
                             <h2>{slide.title}</h2>
 
-                            <h4>{slide.artist}</h4>
+                            {/* <h4>{slide.artist}</h4> */}
+                            {slide.artist && <h4>{slide.artist}</h4>}
 
                             <p>{slide.description}</p>
 
@@ -1711,7 +1712,7 @@ export default function CollectionPage() {
                         <LazyImage
                           src={t.cover_url || "/covers/default.jpg"}
                           alt={t.title}
-                          className="song-list-img"
+                          className="song-list-img" priority={index < 3}
                         />
 
                         <div className="song-list-meta">

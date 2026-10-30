@@ -44,7 +44,8 @@ export default function MobileExperiencePopup() {
           📱
         </div>
 
-        <h2 id="mobile-experience-title">Better on Mobile</h2>
+        {/* <h2 id="mobile-experience-title">Better on Mobile</h2> */}
+        <p id="mobile-experience-title" className="mobile-experience-heading">Better on Mobile</p>
 
         <p>
           MyRaagam is designed for mobile devices. For the best experience,

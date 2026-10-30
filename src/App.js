@@ -261,7 +261,7 @@
 // import React, { useEffect } from "react";
 import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { initAnalytics } from "./utils/analytics";
+// import { initAnalytics } from "./utils/analytics";
 import MobileExperiencePopup from "./components/MobileExperiencePopup";
 
 import { AuthProvider } from "./context/AuthContext";
@@ -275,6 +275,7 @@ import OfflineBanner from "./components/OfflineBanner";
 import useNetworkSync from "./hooks/useNetworkSync";
 import SEO from "./components/SEO";
 import LegacyTrackRedirect from "./components/LegacyTrackRedirect";
+import CollectionPage from "./components/CollectionPage";
 
 function NotFoundPage() {
   return (
@@ -292,7 +293,7 @@ function NotFoundPage() {
   );
 }
 
-const CollectionPage = lazy(() => import("./components/CollectionPage"));
+// const CollectionPage = lazy(() => import("./components/CollectionPage"));
 const MiniPlayer = lazy(() => import("./components/MiniPlayer"));
 const SongDetailPage = lazy(() => import("./components/SongDetailPage"));
 const MoviesPage = lazy(() => import("./components/MoviesPage"));
@@ -321,10 +322,10 @@ function AppContent() {
   const navigate = useNavigate();
   const { user, loading, isGuest } = useAuth();
 
-  useEffect(() => {
-    initAnalytics();
-  }, []);
-  const { clearQueue } = useAudio();
+  // useEffect(() => {
+  //   initAnalytics();
+  // }, []);
+  // const { clearQueue } = useAudio();
 
   const hideGlobalUI =
     location.pathname.startsWith("/song/") ||

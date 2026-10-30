@@ -47,7 +47,8 @@
   font-size: 30px;
 }
 
-.mobile-experience-popup h2 {
+/* .mobile-experience-popup h2 { */
+.mobile-experience-popup .mobile-experience-heading {
   margin: 0 0 10px;
 
   font-size: 22px;

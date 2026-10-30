@@ -1,6 +1,7 @@
 import ReactGA from "react-ga4";
 
-const GA_MEASUREMENT_ID = "G-BJN5XG7G03";
+// const GA_MEASUREMENT_ID = "G-BJN5XG7G03";
+const GA_MEASUREMENT_ID = "G-BJN5XC7G03";
 
 let initialized = false;
 

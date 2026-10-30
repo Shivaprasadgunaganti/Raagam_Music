@@ -1181,7 +1181,8 @@
   }
 
   .song-art-wrapper {
-    max-width: 420px;
+    max-width: 320px;
+    /* max-width: 420px; */
     margin: var(--sd-space-4) auto var(--sd-space-7);
   }
 
@@ -1245,7 +1246,8 @@
   }
 
   .song-art-wrapper {
-    max-width: 380px;
+    max-width: 280px;
+    /* max-width: 380px; */
     margin: 0 auto var(--sd-space-8);
     flex-shrink: 0;
   }
@@ -1326,7 +1328,8 @@
   }
 
   .song-art-wrapper {
-    max-width: 460px;
+    max-width: 360px;
+    /* max-width: 460px; */
   }
 
   .marquee-inner {
