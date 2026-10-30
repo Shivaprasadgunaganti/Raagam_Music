@@ -868,14 +868,14 @@ export default function SongDetailPage() {
   // (track.movie_id holds the movie name in your data.)
   const seo = trackSeo(track, track.movie_id);
 
-  const relatedSongs = tracks
-    .filter(
-      (t) =>
-        track.movie_id &&
-        String(t.movie_id) === String(track.movie_id) &&
-        String(t.id) !== String(track.id),
-    )
-    .slice(0, 10);
+  // const relatedSongs = tracks
+  //   .filter(
+  //     (t) =>
+  //       track.movie_id &&
+  //       String(t.movie_id) === String(track.movie_id) &&
+  //       String(t.id) !== String(track.id),
+  //   )
+  //   .slice(0, 10);
 
   const dbDuration = Number(track.duration_seconds) || 0;
 
@@ -1140,7 +1140,7 @@ export default function SongDetailPage() {
       </div>
 
       {/* Crawlable text + internal links (the player above has none) */}
-      <section className="song-seo-info">
+      {/* <section className="song-seo-info">
         <p>
           {track.title}
           {track.artist ? ` by ${track.artist}` : ""} is a Telugu song
@@ -1167,7 +1167,7 @@ export default function SongDetailPage() {
             </ul>
           </>
         )}
-      </section>
+      </section> */}
 
       {showPicker && (
         <PlaylistPicker

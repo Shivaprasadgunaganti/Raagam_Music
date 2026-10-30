@@ -1346,7 +1346,7 @@
 }
 
 /* crawlable text block under the player (SEO) */
-.song-seo-info {
+/* .song-seo-info {
   padding: 16px 20px 28px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 13px;
@@ -1364,4 +1364,4 @@
 .song-seo-info a {
   color: inherit;
   text-decoration: underline;
-}
+} */
