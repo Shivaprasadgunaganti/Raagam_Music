@@ -325,7 +325,7 @@ function AppContent() {
   // useEffect(() => {
   //   initAnalytics();
   // }, []);
-  // const { clearQueue } = useAudio();
+  const { clearQueue } = useAudio();
 
   const hideGlobalUI =
     location.pathname.startsWith("/song/") ||
