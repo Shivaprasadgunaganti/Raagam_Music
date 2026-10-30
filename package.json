@@ -30,8 +30,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "generate:sitemap": "node scripts/generate-sitemap.js",
-    "build": "npm run generate:sitemap && react-scripts build",
+    "prerender": "node scripts/prerender.js",
+    "build": "react-scripts build && node scripts/prerender.js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

@@ -1,6 +1,665 @@
+// import React, { useRef, useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import useTracks from "../hooks/useTracks";
+// import { useAudio } from "../context/AudioContext";
+// import "./details.css";
+// import { BiShuffle } from "react-icons/bi";
+// import { PiPlaylistFill, PiRepeatOnce } from "react-icons/pi";
+// import PlaylistPicker from "./PlaylistPicker";
+// import { likeSong, unlikeSong, isSongLiked } from "../utils/likeHelpers";
+// import { FaRegHeart, FaStepBackward, FaStepForward } from "react-icons/fa";
+// // import { FaHeart } from "react-icons/fa6";
+// import { FaHeart, FaPlay, FaShuffle } from "react-icons/fa6";
+// import { CiPause1 } from "react-icons/ci";
+// import { IoIosPause, IoIosShuffle } from "react-icons/io";
+// import { RxHamburgerMenu } from "react-icons/rx";
+// import { SlOptionsVertical } from "react-icons/sl";
+// import { IoArrowBack } from "react-icons/io5";
+// import ColorThief from "color-thief-browser";
+// import { useLikes } from "../context/LikeContext";
+// import { useToast } from "../context/ToastContext";
+// import { HiMiniPlay } from "react-icons/hi2";
+// import { MdAlbum, MdOutlineQueueMusic, MdQueue } from "react-icons/md";
+// import SEO from "./SEO";
+// import { useAuth } from "../context/AuthContext";
+
+// function formatTime(sec = 0) {
+//   if (!Number.isFinite(sec) || sec <= 0) return "00:00";
+//   const m = Math.floor(sec / 60)
+//     .toString()
+//     .padStart(2, "0");
+//   const s = Math.floor(sec % 60)
+//     .toString()
+//     .padStart(2, "0");
+//   return `${m}:${s}`;
+// }
+
+// export default function SongDetailPage() {
+//   const { id } = useParams();
+//   const nav = useNavigate();
+//   const { tracks = [], loading } = useTracks();
+
+//   const progressRef = useRef(null);
+//   const titleRef = useRef(null);
+//   const artistRef = useRef(null);
+//   const albumRef = useRef(null);
+//   const isSeeking = useRef(false);
+//   const [showPicker, setShowPicker] = useState(false);
+//   const [liked, setLiked] = useState(false);
+//   const [time, setTime] = useState(0);
+//   const [showMenu, setShowMenu] = useState(false);
+//   const [bgColor, setBgColor] = useState("#0e3a47");
+//   // const [snack, setSnack] = useState("");
+//   const { showToast } = useToast();
+//   const touchStartY = useRef(0);
+//   const touchEndY = useRef(0);
+//   const isSwipingDown = useRef(false);
+//   const pageRef = useRef(null);
+//   const { user, isGuest } = useAuth();
+//   const [pickerTrack, setPickerTrack] = useState(null);
+//   const [selectedSong, setSelectedSong] = useState(null);
+
+//   // ✅ FIRST get from context
+//   const {
+//     currentTrack,
+//     playing,
+//     togglePlay,
+//     playNext,
+//     playPrev,
+//     setNewQueue,
+//     loopOne,
+//     shuffle,
+//     setLoopOne,
+//     setShuffle,
+//     audioRef,
+//     addToQueue,
+//     playNextInsert,
+//     currentTime,
+//     duration: contextDuration, // NEW
+//     seekTo: seekToTime,
+//   } = useAudio();
+
+//   const track = tracks.find((t) => String(t.id) === String(id));
+
+//   const index = tracks.findIndex((t) => String(t.id) === String(id));
+
+//   // for screen height
+//   useEffect(() => {
+//     const setAppHeight = () => {
+//       document.documentElement.style.setProperty(
+//         "--app-height",
+//         `${window.innerHeight}px`,
+//       );
+//     };
+//     setAppHeight();
+//     window.addEventListener("resize", setAppHeight);
+//     window.visualViewport?.addEventListener("resize", setAppHeight);
+//     return () => {
+//       window.removeEventListener("resize", setAppHeight);
+//       window.visualViewport?.removeEventListener("resize", setAppHeight);
+//     };
+//   }, []);
+
+//   useEffect(() => {
+//     const audio = audioRef.current;
+//     if (!audio) return;
+
+//     const onTimeUpdate = () => {
+//       setTime(audio.currentTime || 0);
+//     };
+
+//     audio.addEventListener("timeupdate", onTimeUpdate);
+//     return () => audio.removeEventListener("timeupdate", onTimeUpdate);
+//   }, [audioRef]);
+
+//   /*---------------content overflow -------- */
+//   useEffect(() => {
+//     function checkOverflow(ref) {
+//       if (!ref.current) return;
+
+//       const el = ref.current;
+//       const inner = el.querySelector(".marquee-inner");
+
+//       if (inner.scrollWidth > el.clientWidth) {
+//         el.classList.add("scroll");
+//       } else {
+//         el.classList.remove("scroll");
+//       }
+//     }
+
+//     checkOverflow(titleRef);
+//     checkOverflow(artistRef);
+//     checkOverflow(albumRef);
+//   }, [track]);
+
+//   /* ---------------- dynamic bg color ----------- */
+
+//   useEffect(() => {
+//     if (!track?.cover_url) return;
+
+//     const img = new Image();
+//     img.crossOrigin = "Anonymous";
+//     img.src = track.cover_url;
+
+//     img.onload = () => {
+//       const colorThief = new ColorThief();
+//       const rgb = colorThief.getColor(img);
+
+//       const r = Math.min(rgb[0], 180);
+//       const g = Math.min(rgb[1], 180);
+//       const b = Math.min(rgb[2], 180);
+
+//       setBgColor(`rgb(${r}, ${g}, ${b})`);
+//     };
+//   }, [track]);
+
+//   /* ---------------- LIKE STATE ---------------- */
+//   useEffect(() => {
+//     if (!track) return;
+//     isSongLiked(track.id).then(setLiked);
+//   }, [track]);
+
+//   useEffect(() => {
+//     setTime(currentTime || 0);
+//   }, [currentTime]);
+
+//   useEffect(() => {
+//     if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
+//       nav(`/track/${currentTrack.id}`, { replace: true });
+//     }
+//   }, [currentTrack, id, nav]);
+
+//   /* ---------------- GUARDS ---------------- */
+//   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
+
+//   if (!track) {
+//     return (
+//       <div style={{ padding: 20 }}>
+//         Track not found. <button onClick={() => nav(-1)}>Back</button>
+//       </div>
+//     );
+//   }
+
+//   // seo
+//   const songTitle = track.title || "Song";
+
+//   const songArtist = track.artist || "Unknown Artist";
+
+//   const songUrl = `https://www.myraagam.com/track/${track.id}`;
+
+//   const songDescription =
+//     songArtist !== "Unknown Artist"
+//       ? `Listen to ${songTitle} by ${songArtist} on MyRaagam. Play the song online and discover more music.`
+//       : `Listen to ${songTitle} on MyRaagam. Play the song online and discover more music.`;
+
+//   function formatSchemaDuration(seconds) {
+//     if (!Number.isFinite(seconds) || seconds <= 0) {
+//       return undefined;
+//     }
+
+//     const totalSeconds = Math.floor(seconds);
+//     const hours = Math.floor(totalSeconds / 3600);
+//     const minutes = Math.floor((totalSeconds % 3600) / 60);
+//     const remainingSeconds = totalSeconds % 60;
+
+//     return `PT${hours ? `${hours}H` : ""}${minutes ? `${minutes}M` : ""}${remainingSeconds ? `${remainingSeconds}S` : ""}`;
+//   }
+
+//   const songJsonLd = {
+//     "@context": "https://schema.org",
+//     "@type": "MusicRecording",
+//     name: songTitle,
+//     url: songUrl,
+//     image: track.cover_url || undefined,
+//     byArtist: {
+//       "@type": "Person",
+//       name: songArtist,
+//     },
+//     duration: formatSchemaDuration(track.duration_seconds),
+//     genre: track.genre || undefined,
+//   };
+
+//   const dbDuration = Number(track.duration_seconds) || 0;
+
+//   const duration =
+//     currentTrack?.id === track.id && Number(contextDuration) > 0
+//       ? Number(contextDuration)
+//       : dbDuration || Number(audioRef.current?.duration) || 0;
+
+//   const progressPct = duration ? Math.min((time / duration) * 100, 100) : 0;
+
+//   function seekTo(clientX) {
+//     const bar = progressRef.current;
+//     if (!bar || !duration) return;
+
+//     const rect = bar.getBoundingClientRect();
+//     const percent = Math.min(
+//       Math.max((clientX - rect.left) / rect.width, 0),
+//       1,
+//     );
+
+//     const newTime = percent * duration;
+//     seekToTime(newTime);
+//     setTime(newTime);
+//   }
+
+//   async function toggleLike() {
+//     if (!track) return;
+
+//     if (liked) {
+//       await unlikeSong(track.id);
+//       setLiked(false);
+//       showToast("Removed from Liked Songs");
+//     } else {
+//       const result = await likeSong(track);
+
+//       if (result?.guest) {
+//         showToast("Sign in to add songs to your Liked Songs");
+//         return;
+//       }
+
+//       if (result?.error) {
+//         showToast("Unable to add song to Liked Songs");
+//         return;
+//       }
+
+//       setLiked(true);
+//       showToast("Added to Liked Songs");
+//     }
+//   }
+
+//   const handleTouchStart = (e) => {
+//     const startY = e.touches[0].clientY;
+
+//     // Only allow from top header
+//     if (startY < 120) {
+//       touchStartY.current = startY;
+//     } else {
+//       touchStartY.current = null;
+//     }
+//   };
+
+//   const handleTouchMove = (e) => {
+//     if (touchStartY.current === null) return;
+
+//     touchEndY.current = e.touches[0].clientY;
+
+//     const diff = touchEndY.current - touchStartY.current;
+
+//     if (diff > 0) {
+//       // 🔥 Move screen with finger
+//       if (pageRef.current) {
+//         pageRef.current.style.transform = `translateY(${diff}px)`;
+//       }
+//     }
+//   };
+
+//   const handleTouchEnd = () => {
+//     if (touchStartY.current === null) return;
+
+//     const diff = touchEndY.current - touchStartY.current;
+
+//     if (pageRef.current) {
+//       pageRef.current.style.transition = "transform 0.25s ease";
+//     }
+
+//     if (diff > 120) {
+//       // Close
+//       nav(-1);
+//     } else {
+//       // Snap back
+//       if (pageRef.current) {
+//         pageRef.current.style.transform = "translateY(0)";
+//       }
+//     }
+
+//     // cleanup
+//     setTimeout(() => {
+//       if (pageRef.current) {
+//         pageRef.current.style.transition = "";
+//       }
+//     }, 300);
+//   };
+
+//   return (
+//     <main
+//       ref={pageRef}
+//       className="page-safe details-page-main slide-up"
+//       style={{
+//         "--background-color": bgColor,
+//       }}
+//       onTouchStart={handleTouchStart}
+//       onTouchMove={handleTouchMove}
+//       onTouchEnd={handleTouchEnd}
+//     >
+//       {/* seo */}
+
+//       <SEO
+//         // title={`${songTitle} | MyRaagam`}
+//         // title={`${songTitle} Telugu Song | MyRaagam`}
+//         title={`${songTitle} ${songArtist !== "Unknown Artist" ? `by ${songArtist}` : ""} | MyRaagam`}
+//         description={songDescription}
+//         image={track.cover_url}
+//         url={songUrl}
+//         type="music.song"
+//         jsonLd={songJsonLd}
+//       />
+
+//       <div className="song-detail-header">
+//         {/* <button className="back-btn" onClick={() => nav("/")}> */}
+//         <button className="back-btn" onClick={() => nav(-1)}>
+//           <IoArrowBack />
+//         </button>
+
+//         {/* <h3>Song details</h3> */}
+//         <span className="song-details">Song details</span>
+
+//         <span className="menu-dots" onClick={() => setShowMenu((v) => !v)}>
+//           <SlOptionsVertical />
+//         </span>
+//       </div>
+
+//       <div className="song-detail-card">
+//         <div className="song-art-wrapper">
+//           <div
+//             className="song-art"
+//             role="presentation"
+//             style={{
+//               backgroundImage: `url(${
+//                 track.cover_url || "/covers/default.jpg"
+//               })`,
+//             }}
+//           ></div>
+//         </div>
+
+//         <div className="song-bottom">
+//           <div className="song-meta">
+//             <div className="song-title-row">
+//               <div className="song-title-marquee" ref={titleRef}>
+//                 <h1 className="marquee-inner">{track.title}</h1>
+//               </div>
+
+//               {/* <h1 className="song-title-marquee" ref={titleRef}>
+//   <span className="marquee-inner">{track.title}</span>
+// </h1> */}
+
+//               <button className="song-like-btn" onClick={toggleLike}>
+//                 {liked ? <FaHeart /> : <FaRegHeart />}
+//               </button>
+//             </div>
+
+//             <div className="song-artist-marquee" ref={artistRef}>
+//               <div className="marquee-inner small">
+//                 {track.artist || "Unknown Artist"}
+//               </div>
+//             </div>
+//           </div>
+
+//           <div className="song-time-row">
+//             <span>{formatTime(time)}</span>
+//             <span>{formatTime(duration)}</span>
+//           </div>
+
+//           <div
+//             className="song-progress"
+//             ref={progressRef}
+//             onMouseDown={(e) => {
+//               isSeeking.current = true;
+//               seekTo(e.clientX);
+//             }}
+//             onMouseMove={(e) => {
+//               if (isSeeking.current) {
+//                 seekTo(e.clientX);
+//               }
+//             }}
+//             onMouseUp={() => {
+//               isSeeking.current = false;
+//             }}
+//             onMouseLeave={() => {
+//               isSeeking.current = false;
+//             }}
+//             onTouchStart={(e) => {
+//               isSeeking.current = true;
+//               seekTo(e.touches[0].clientX);
+//             }}
+//             onTouchMove={(e) => {
+//               if (isSeeking.current) {
+//                 seekTo(e.touches[0].clientX);
+//               }
+//             }}
+//             onTouchEnd={() => {
+//               isSeeking.current = false;
+//             }}
+//           >
+//             <div
+//               className="song-progress-fill"
+//               style={{ width: `${progressPct}%` }}
+//             />
+//           </div>
+
+//           <div className="song-main-controls">
+//             <button
+//               onClick={() => setShuffle((v) => !v)}
+//               // style={{ color: shuffle ? "#4de08a" : "#9aa4b2" }}
+//               style={{ color: shuffle ? "#4de08a" : "#f7fcf7" }}
+//             >
+//               <IoIosShuffle />
+//             </button>
+
+//             <button onClick={playPrev}>
+//               <FaStepBackward />
+//             </button>
+
+//             <button
+//               className="song-play-btn"
+//               onClick={() => {
+//                 if (currentTrack?.id === track.id) {
+//                   togglePlay();
+//                 } else {
+//                   setNewQueue(tracks, index);
+//                 }
+//               }}
+//             >
+//               {playing && currentTrack?.id === track.id ? (
+//                 // <CiPause1 />
+//                 <IoIosPause />
+//               ) : (
+//                 <FaPlay />
+//               )}
+//             </button>
+
+//             <button onClick={playNext}>
+//               <FaStepForward />
+//             </button>
+
+//             <button
+//               onClick={() => setLoopOne((v) => !v)}
+//               // style={{ color: loopOne ? "#4de08a" : "#9aa4b2" }}
+//               style={{ color: loopOne ? "#4de08a" : "#f7fcf7" }}
+//             >
+//               <PiRepeatOnce />
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {showPicker && (
+//         <PlaylistPicker
+//           // trackId={track.id}
+//           track={track}
+//           onClose={(status) => {
+//             setShowPicker(false);
+
+//             if (status === "added") {
+//               // showSnack("added to playlist");
+//               showToast("Added to Playlist");
+//             } else if (status === "exists") {
+//               // showSnack("already in playlist");
+//               showToast("Already in Playlist");
+//             }
+//           }}
+//         />
+//       )}
+//       {showMenu && (
+//         <div className="song-menu-overlay" onClick={() => setShowMenu(false)}>
+//           <div className="song-menu-sheet" onClick={(e) => e.stopPropagation()}>
+//             <button
+//               onClick={() => {
+//                 playNextInsert(track);
+//                 setShowMenu(false);
+//               }}
+//             >
+//               <HiMiniPlay /> Play Next
+//             </button>
+
+//             {track.movie_id && (
+//               <button
+//                 onClick={() => {
+//                   setShowMenu(false);
+//                   nav(`/movie/${track.movie_id}`);
+//                 }}
+//               >
+//                 <MdAlbum /> Go to Album
+//               </button>
+//             )}
+
+//             <button onClick={() => nav("/queue")}>
+//               {" "}
+//               <MdOutlineQueueMusic /> View Queue
+//             </button>
+//             <button
+//               onClick={() => {
+//                 addToQueue(track);
+//                 setShowMenu(false);
+//                 nav("/queue");
+//               }}
+//             >
+//               <MdQueue /> Add to Queue
+//             </button>
+
+//             <button
+//               onClick={() => {
+//                 if (isGuest) {
+//                   showToast("Sign in to create and manage your playlists");
+//                   return;
+//                 }
+
+//                 setPickerTrack(track);
+//                 setShowMenu(false);
+//                 setShowPicker(true);
+//               }}
+//             >
+//               {" "}
+//               <span className="sheet-icon">
+//                 <PiPlaylistFill />
+//               </span>{" "}
+//               Add to Playlist
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//       {selectedSong && (
+//         <div
+//           className="song-menu-overlay"
+//           onClick={() => setSelectedSong(null)}
+//         >
+//           <div
+//             className="song-menu-sheet slide-up-sheet"
+//             onClick={(e) => e.stopPropagation()}
+//           >
+//             <div className="sheet-song-info">
+//               <img
+//                 src={selectedSong.cover_url || "/covers/default.jpg"}
+//                 alt={selectedSong.title}
+//                 className="sheet-cover"
+//               />
+//               <div>
+//                 <div className="sheet-title">{selectedSong.title}</div>
+//                 <div className="sheet-artist">
+//                   {selectedSong.artist || "Unknown Artist"}
+//                 </div>
+//               </div>
+//             </div>
+
+//             <div className="sheet-divider" />
+
+//             <button
+//               onClick={() => {
+//                 playNextInsert(selectedSong);
+//                 setSelectedSong(null);
+//                 showToast("Added to Play Next");
+//               }}
+//             >
+//               <span className="sheet-icon">
+//                 <HiMiniPlay />
+//               </span>{" "}
+//               Play Next
+//               {/* <span className="sheet-icon"><FaPlay/></span> Play Next */}
+//             </button>
+//             <button
+//               onClick={() => {
+//                 setSelectedSong(null);
+//                 nav("/queue");
+//               }}
+//             >
+//               <span className="sheet-icon">
+//                 <MdOutlineQueueMusic />
+//               </span>{" "}
+//               View Queue
+//               {/* <span className="sheet-icon">🎵</span> View Queue */}
+//             </button>
+//             <button
+//               onClick={() => {
+//                 addToQueue(selectedSong);
+//                 setSelectedSong(null);
+//                 showToast("Added to Queue");
+//               }}
+//             >
+//               {/* <span className="sheet-icon">➕</span> Add to Queue */}
+//               <span className="sheet-icon">
+//                 <MdQueue />
+//               </span>{" "}
+//               Add to Queue
+//             </button>
+
+//             <button
+//               onClick={() => {
+//                 setPickerTrack(selectedSong);
+//                 setSelectedSong(null);
+//                 setShowPicker(true);
+//               }}
+//             >
+//               <span className="sheet-icon">
+//                 <PiPlaylistFill />
+//               </span>{" "}
+//               Add to Playlist
+//               {/* <span className="sheet-icon">📂</span> Add to Playlist */}
+//             </button>
+//             {selectedSong.movie_id && (
+//               <button
+//                 onClick={() => {
+//                   setSelectedSong(null);
+//                   nav(`/movie/${selectedSong.movie_id}`);
+//                 }}
+//               >
+//                 <MdAlbum /> Go to Album
+//               </button>
+//             )}
+//           </div>
+//         </div>
+//       )}
+//     </main>
+//   );
+// }
+
+
+
+// 
 import React, { useRef, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import useTracks from "../hooks/useTracks";
+import { trackSlug, trackPath, parseTrackId, moviePath } from "../utils/slug";
+import { trackSeo } from "../utils/seoContent";
 import { useAudio } from "../context/AudioContext";
 import "./details.css";
 import { BiShuffle } from "react-icons/bi";
@@ -35,7 +694,9 @@ function formatTime(sec = 0) {
 }
 
 export default function SongDetailPage() {
-  const { id } = useParams();
+  // URL is /song/<title-slug>-<id>; the id is the part after the last "-".
+  const { slug } = useParams();
+  const id = parseTrackId(slug);
   const nav = useNavigate();
   const { tracks = [], loading } = useTracks();
 
@@ -163,11 +824,28 @@ export default function SongDetailPage() {
     setTime(currentTime || 0);
   }, [currentTime]);
 
+  // Follow next/prev while this page is open. This must only react when the
+  // playing song CHANGES after the page opened. Previously it ran on mount and
+  // bounced every visitor (and Googlebot-like fresh sessions with a restored
+  // queue) from the requested song to whatever was playing.
+  const lastPlayingIdRef = useRef(currentTrack?.id);
   useEffect(() => {
-    if (currentTrack?.id && String(id) !== String(currentTrack.id)) {
-      nav(`/track/${currentTrack.id}`, { replace: true });
+    if (!currentTrack?.id) return;
+    if (String(lastPlayingIdRef.current) === String(currentTrack.id)) return;
+
+    lastPlayingIdRef.current = currentTrack.id;
+
+    if (String(id) !== String(currentTrack.id)) {
+      nav(trackPath(currentTrack), { replace: true });
     }
-  }, [currentTrack, id, nav]);
+  }, [currentTrack?.id]);
+
+  // Old / non-canonical URL (e.g. wrong title text) -> canonical slug.
+  useEffect(() => {
+    if (track && slug !== trackSlug(track)) {
+      nav(trackPath(track), { replace: true });
+    }
+  }, [track, slug]);
 
   /* ---------------- GUARDS ---------------- */
   if (loading) return <div style={{ padding: 20 }}>Loading…</div>;
@@ -175,49 +853,29 @@ export default function SongDetailPage() {
   if (!track) {
     return (
       <div style={{ padding: 20 }}>
+        {/* unknown song: keep it out of Google's index */}
+        <SEO
+          title="Song not found | MyRaagam"
+          description="This song could not be found on MyRaagam."
+          robots="noindex, follow"
+        />
         Track not found. <button onClick={() => nav(-1)}>Back</button>
       </div>
     );
   }
 
-  // seo
-  const songTitle = track.title || "Song";
+  // seo: same builder the build-time prerender script uses.
+  // (track.movie_id holds the movie name in your data.)
+  const seo = trackSeo(track, track.movie_id);
 
-  const songArtist = track.artist || "Unknown Artist";
-
-  const songUrl = `https://www.myraagam.com/track/${track.id}`;
-
-  const songDescription =
-    songArtist !== "Unknown Artist"
-      ? `Listen to ${songTitle} by ${songArtist} on MyRaagam. Play the song online and discover more music.`
-      : `Listen to ${songTitle} on MyRaagam. Play the song online and discover more music.`;
-
-  function formatSchemaDuration(seconds) {
-    if (!Number.isFinite(seconds) || seconds <= 0) {
-      return undefined;
-    }
-
-    const totalSeconds = Math.floor(seconds);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const remainingSeconds = totalSeconds % 60;
-
-    return `PT${hours ? `${hours}H` : ""}${minutes ? `${minutes}M` : ""}${remainingSeconds ? `${remainingSeconds}S` : ""}`;
-  }
-
-  const songJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "MusicRecording",
-    name: songTitle,
-    url: songUrl,
-    image: track.cover_url || undefined,
-    byArtist: {
-      "@type": "Person",
-      name: songArtist,
-    },
-    duration: formatSchemaDuration(track.duration_seconds),
-    genre: track.genre || undefined,
-  };
+  const relatedSongs = tracks
+    .filter(
+      (t) =>
+        track.movie_id &&
+        String(t.movie_id) === String(track.movie_id) &&
+        String(t.id) !== String(track.id),
+    )
+    .slice(0, 10);
 
   const dbDuration = Number(track.duration_seconds) || 0;
 
@@ -335,14 +993,12 @@ export default function SongDetailPage() {
       {/* seo */}
 
       <SEO
-        // title={`${songTitle} | MyRaagam`}
-        // title={`${songTitle} Telugu Song | MyRaagam`}
-        title={`${songTitle} ${songArtist !== "Unknown Artist" ? `by ${songArtist}` : ""} | MyRaagam`}
-        description={songDescription}
-        image={track.cover_url}
-        url={songUrl}
-        type="music.song"
-        jsonLd={songJsonLd}
+        title={seo.title}
+        description={seo.description}
+        image={seo.image}
+        url={seo.canonical}
+        type={seo.type}
+        jsonLd={seo.jsonLd}
       />
 
       <div className="song-detail-header">
@@ -483,6 +1139,36 @@ export default function SongDetailPage() {
         </div>
       </div>
 
+      {/* Crawlable text + internal links (the player above has none) */}
+      <section className="song-seo-info">
+        <p>
+          {track.title}
+          {track.artist ? ` by ${track.artist}` : ""} is a Telugu song
+          {track.movie_id ? (
+            <>
+              {" "}
+              from the movie{" "}
+              <Link to={moviePath(track.movie_id)}>{track.movie_id}</Link>
+            </>
+          ) : null}
+          .
+        </p>
+
+        {relatedSongs.length > 0 && (
+          <>
+            <h2>More songs from {track.movie_id}</h2>
+            <ul>
+              {relatedSongs.map((t) => (
+                <li key={t.id}>
+                  <Link to={trackPath(t)}>{t.title}</Link>
+                  {t.artist ? ` – ${t.artist}` : ""}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
+
       {showPicker && (
         <PlaylistPicker
           // trackId={track.id}
@@ -516,7 +1202,7 @@ export default function SongDetailPage() {
               <button
                 onClick={() => {
                   setShowMenu(false);
-                  nav(`/movie/${track.movie_id}`);
+                  nav(moviePath(track.movie_id));
                 }}
               >
                 <MdAlbum /> Go to Album
@@ -639,7 +1325,7 @@ export default function SongDetailPage() {
               <button
                 onClick={() => {
                   setSelectedSong(null);
-                  nav(`/movie/${selectedSong.movie_id}`);
+                  nav(moviePath(selectedSong.movie_id));
                 }}
               >
                 <MdAlbum /> Go to Album

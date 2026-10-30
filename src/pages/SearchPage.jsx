@@ -5,7 +5,6 @@
 // // import "../components/playlistpicker.css";
 // import { useAudio } from "../context/AudioContext";
 // import SEO from "../components/SEO";
-// import { cleanSongTitle } from "../utils/cleanTitle";
 
 // export default function SearchPage() {
 //   const nav = useNavigate();
@@ -22,7 +21,6 @@
 //   const [history, setHistory] = useState([]);
 //   const { setNewQueue } = useAudio();
 //   const [loading, setLoading] = useState(false);
-//   const [youtubeResults, setYoutubeResults] = useState([]);
 
 //   /* ---------------- DEBOUNCE ---------------- */
 //   useEffect(() => {
@@ -75,7 +73,6 @@
 //       setTracks([]);
 //       setMovies([]);
 //       setPlaylists([]);
-//       setYoutubeResults([]);
 //       return;
 //     }
 
@@ -89,71 +86,6 @@
 //           .from("tracks")
 //           .select("*")
 //           .or(`title.ilike.${searchTerm},artist.ilike.${searchTerm}`);
-
-//         // Fallback to YouTube if nothing found in Supabase
-//         if (!songData || songData.length === 0) {
-//           try {
-//             // const searchRes = await fetch(
-//             //   `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=${encodeURIComponent(
-//             //     debounced
-//             //   )}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUzMw`
-//             // );
-//             const searchRes = await fetch(
-//               `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${encodeURIComponent(
-//                 debounced,
-//               )}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUzMw`,
-//             );
-//             const searchData = await searchRes.json();
-//             const videoIds = (searchData.items || [])
-//               .map((item) => item.id.videoId)
-//               .join(",");
-
-//             let durationsById = {};
-//             if (videoIds) {
-//               const detailsRes = await fetch(
-//                 `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=AIzaSyA01snmp9lmAtBT7Zv4h_poy5Yhf0BUxxx`,
-//               );
-//               const detailsData = await detailsRes.json();
-//               (detailsData.items || []).forEach((item) => {
-//                 durationsById[item.id] = parseDurationToSeconds(
-//                   item.contentDetails.duration,
-//                 );
-//               });
-//             }
-
-//             // const candidates = (searchData.items || []).map((item) => ({
-//             //   videoId: item.id.videoId,
-//             //   title: cleanSongTitle(item.snippet.title),
-//             //   rawTitle: item.snippet.title,
-//             //   thumbnail:
-//             //     item.snippet.thumbnails?.high?.url ||
-//             //     item.snippet.thumbnails?.default?.url,
-//             //   channelTitle: item.snippet.channelTitle,
-//             //   durationSeconds: durationsById[item.id.videoId] || 0,
-//             // }));
-
-//             const candidates = (searchData.items || []).map((item) => ({
-//               videoId: item.id.videoId,
-//               title: cleanSongTitle(item.snippet.title),
-//               rawTitle: item.snippet.title,
-//               thumbnail:
-//                 item.snippet.thumbnails?.high?.url ||
-//                 item.snippet.thumbnails?.default?.url,
-//               channelTitle: item.snippet.channelTitle,
-//               durationSeconds: durationsById[item.id.videoId] || 0,
-//               artist: "Unknown",
-//               movie_id: null,
-//             }));
-
-//             console.log("YouTube candidates (cleaned):", candidates);
-//             setYoutubeResults(candidates);
-//           } catch (err) {
-//             console.error("YouTube fallback search failed:", err);
-//             setYoutubeResults([]);
-//           }
-//         } else {
-//           setYoutubeResults([]);
-//         }
 
 //         const { data: movieData } = await supabase
 //           .from("movies")
@@ -254,53 +186,6 @@
 //       console.error("Error playing recent song:", error);
 //     }
 //   };
-
-//   function parseDurationToSeconds(isoDuration) {
-//     const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-//     if (!match) return 0;
-//     const hours = parseInt(match[1] || "0", 10);
-//     const minutes = parseInt(match[2] || "0", 10);
-//     const seconds = parseInt(match[3] || "0", 10);
-//     return hours * 3600 + minutes * 60 + seconds;
-//   }
-
-//   async function handlePlayYoutubeCandidate(candidate) {
-//     try {
-//       // Guard: has this exact video already been saved (by anyone)?
-//       const { data: existing } = await supabase
-//         .from("tracks")
-//         .select("*")
-//         .eq("youtube_video_id", candidate.videoId)
-//         .maybeSingle();
-
-//       if (existing) {
-//         setNewQueue([existing], 0);
-//         return;
-//       }
-
-//       const { data: savedTrack, error } = await supabase
-//         .from("tracks")
-//         .insert({
-//           title: candidate.title,
-//           artist: candidate.artist || "Unknown",
-//           movie_id: candidate.movie_id || null,
-//           cover_url: candidate.thumbnail,
-//           youtube_video_id: candidate.videoId,
-//           duration_seconds: candidate.durationSeconds || null,
-//         })
-//         .select()
-//         .single();
-
-//       if (error) {
-//         console.error("Failed to save YouTube track:", error.message);
-//         return;
-//       }
-
-//       setNewQueue([savedTrack], 0);
-//     } catch (err) {
-//       console.error("Unexpected error saving YouTube track:", err);
-//     }
-//   }
 
 //   return (
 //     <main className="search-page page-safe">
@@ -409,11 +294,6 @@
 //                 <div
 //                   key={i}
 //                   className="dropdown-item"
-//                   // onMouseDown={() => {
-//                   //   setQuery(h.title);
-//                   //   setShowDropdown(false);
-//                   // }}
-
 //                   onMouseDown={() => {
 //                     if (h.type === "song") {
 //                       playRecentSong(h.id);
@@ -430,26 +310,6 @@
 //                       nav(`/playlist/${h.id}`);
 //                     }
 //                   }}
-
-//                   // onMouseDown={() => {
-//                   //   setShowDropdown(false);
-
-//                   //   if (h.type === "song") {
-//                   //     setNewQueue(
-//                   //       filteredSongs,
-//                   //       filteredSongs.findIndex((x) => x.id === h.id),
-//                   //     );
-//                   //     nav(`/track/${h.id}`);
-//                   //   }
-
-//                   //   if (h.type === "album") {
-//                   //     nav(`/movie/${h.id}`);
-//                   //   }
-
-//                   //   if (h.type === "playlist") {
-//                   //     nav(`/playlist/${h.id}`);
-//                   //   }
-//                   // }}
 //                 >
 //                   <img
 //                     // src={h.cover_url || "/covers/default.jpg"}
@@ -574,9 +434,6 @@
 //                       saveSearch({
 //                         id: playlist.id,
 //                         title: playlist.name,
-//                         // cover_url: getPlaylistCovers(playlist)[0],
-//                         // cover_url:
-//                         //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfj0yAzszjs4P-D7Bmibv09inT11Wq0am-ow72MgxEZ6v8e_WBcYVOdJ6m&s=10",
 //                         type: "playlist",
 //                       });
 
@@ -607,7 +464,7 @@
 // }
 
 
-
+// 
 import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
@@ -615,6 +472,7 @@ import "./search.css";
 // import "../components/playlistpicker.css";
 import { useAudio } from "../context/AudioContext";
 import SEO from "../components/SEO";
+import { moviePath } from "../utils/slug";
 
 export default function SearchPage() {
   const nav = useNavigate();
@@ -850,7 +708,7 @@ export default function SearchPage() {
                     setShowDropdown(false);
 
                     // if (item.type === "song") nav(`/track/${item.id}`);
-                    if (item.type === "album") nav(`/movie/${item.id}`);
+                    if (item.type === "album") nav(moviePath(item.id));
                     if (item.type === "playlist") nav(`/playlist/${item.id}`);
                   }}
                 >
@@ -913,7 +771,7 @@ export default function SearchPage() {
                     setShowDropdown(false);
 
                     if (h.type === "album") {
-                      nav(`/movie/${h.id}`);
+                      nav(moviePath(h.id));
                     }
 
                     if (h.type === "playlist") {
@@ -1015,7 +873,7 @@ export default function SearchPage() {
                         type: "album",
                       });
 
-                      nav(`/movie/${m.id}`);
+                      nav(moviePath(m.id));
                     }}
                   >
                     <img src={m.cover_url} alt={m.title} />

@@ -1,4 +1,16 @@
 User-agent: *
 Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /account
+Disallow: /edit
+Disallow: /settings
+Disallow: /feedback
+Disallow: /queue
+Disallow: /offline
+Disallow: /search
+Disallow: /liked
+Disallow: /playlist
 
 Sitemap: https://www.myraagam.com/sitemap.xml
